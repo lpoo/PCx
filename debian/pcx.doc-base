@@ -1,0 +1,13 @@
+Document: pcx-user-guide
+Title: PCx User Guide
+Author: Joseph Czyzyk, Sanjay Mehrotra, Michael Wagner, and Stephen J. Wright
+Abstract: We describe the code PCx, a primal-dual interior-point code
+ for linear programming.  Information is given about problem
+ formulation and the underlying algorithm, along with instructions for
+ installing, invoking, and using the code.  Computational results on
+ standard test problems are tabulated.  The current version number is
+ 1.1.
+Section: Science/Mathematics
+
+Format: postscript
+Files: /usr/share/doc/pcx/PCx-user.ps.gz

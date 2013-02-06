@@ -1,0 +1,156 @@
+.\"                                    -*- nroff -*-
+.TH PCX 1
+.SH NAME
+PCx \- primal-dual interior-point code for linear programming 
+.SH SYNOPSIS
+.B PCx
+\fIprobname\fP[.mps]
+.SH DESCRIPTION
+This manual page documents briefly the \fBPCx\fP command.
+\fBPCx\fP has more detailed documentation in PostScript format; see [1].
+.PP
+\fBPCx\fP is a freely available primal-dual interior-point code for linear
+programming. It implements Mehrotra's predictor-corrector algorithm,
+the algorithm that forms the basis of most existing interior-point
+codes for general linear programming. The major computational
+operation \[em] solution of a linear system with a large, sparse positive
+definite coefficient matrix \[em] is performed with the sparse Cholesky
+package of Ng and Peyton (Oak Ridge National Laboratory), with minor
+modifications to handle small pivot elements.
+.PP
+\fBPCx\fP accepts any valid linear program that can be specified in
+the MPS format \[em] see mps(5).  \fBPCx\fP does not solve integer linear
+programs. 
+.SH OPTIONS
+\fBPCx\fP has no command-line options.
+.SH PARAMETERS
+\fBPCx\fP allows many parameters and options to be set by the user.
+These quantities are read from a specifications file.  If the name of
+the MPS input file is \fIprobname.mps\fP, \fBPCx\fP looks for the
+following files, in order: 
+.nf
+	\fIprobname\fP.spc
+	\fIprobname\fP.specs
+	spc
+	specs
+	PCx.specs
+.fi
+If more than one of these files exist, \fBPCx\fP uses the first file
+in the list and ignores the others.
+.PP
+The following keywords can be used in the specifications file,
+together with their default settings.  The file should contain one
+such keyword per line, together with its corresponding numerical value
+or option, if appropriate.  The file is processed sequentially from
+beginning to end, so the effect of any line can be undone by a later
+line.  For keywords with a yes/no argument, omission of the argument
+will be taken to mean \fByes\fP.  Note that the default setting is not
+necessarily \fByes\fP.  Case is not significant in keywords.
+.sp
+.IP "\fBmin\fP [ \fByes\fP | \fBno\fP ]"
+Minimize the objective (default).
+.IP "\fBmax\fP [ \fByes\fP | \fBno\fP ]"
+Maximize the objective.
+.IP \fBinputdirectory\fP
+If \fBPCx\fP is to search for the MPS input files in another
+directory, in addition to the current working directory, name this
+other directory here.  Include a trailing "/".  \fBPCx\fP always looks
+first in the current working directory.  The output and history files
+are always written to the working directory.
+.IP "\fBsolution\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether to write a solution file \fIprobname.out\fP in the
+current working directory.  Default: yes.
+.IP "\fBhistory\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether to write a history file \fIprobname\fP.log in the
+working directory.  Default: yes.
+.IP "\fBobjectivename\fP \fIname\fP"
+Request the objective cost vector to be the specific row \fIname\fP in
+\fIprobname.mps\fP.  Default: the first row of type "N" in
+\fIprobname.mps\fP is taken to be the objective.
+.IP "\fBrhsname\fP \fIname\fP"
+Request the right-hand side to be the specific column \fIname\fP in
+\fIprobname.mps\fP.  Default: the first RHS encountered in the MPS file.
+.IP "\fBrangename\fP \fIname\fP"
+Request the range to be the specific column \fIname\fP in
+\fIprobname.mps\fP.  Default: the first RANGE encountered in the MPS file.
+.IP "\fBboundname\fP \fIname\fP"
+Request the bound to be the specific column \fIname\fP in
+\fIprobname.mps\fP.  Default: the first BOUND in the MPS file.
+.IP "\fBpresolve\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether or  not to perform presolving.  The purpose of
+presolving is to detect and handle redundant information, producing a
+smaller problem to be solved by the actual linear programming
+algorithm [2].  Default: yes.
+.IP "\fBpreprocess\fP [ \fByes\fP | \fBno\fP ]"
+Same as \fPpresolve\fP.
+.IP "\fBcachesize\fP \fIvalue\fP"
+Specify the size of the cache on the machine, in kilobytes.  Any value
+in the range 0-2048 is acceptable.  Specify 0 for Cray machines.  This
+parameter is used by the Ng-Peyton sparse Cholesky code.  Default: 16.
+.IP "\fBcenterexp\fP \fIvalue\fP"
+Specify the exponent to be used for calculation of the centering
+parameter sigma.  Any real value in the range 1.0-4.0 is allowable.
+Default: 3.0.
+.IP "\fBopttol\fP \fIvalue\fP"
+Specify an optimality tolerance.  Default: 1.e-8.
+.IP "\fBprifeastol\fP \fIvalue\fP"
+Specify a primal feasibility tolerance.  Default: 1.e-8.
+.IP "\fBdualfeastol\fP \fIvalue\fP"
+Specify a dual feasibility tolerance.  Default: 1.e-8.
+.IP "\fBunrollinglevel\fP \fInum\fP"
+Specify the level of loop unrolling.  Allowable values are 1, 2, 4,
+and 8.  This parameter is used only in the Ng-Peyton Cholesky code.
+Default: 4.
+.IP "\fBiterationlimit\fP \fInum\fP"
+Specify an upper limit on the number of iterations.  The algorithm
+terminates in \fBsuboptimal\fP status if it exceeds this many
+iterations without satisfying any of the termination conditions.  Any
+positive integer is allowable.  Default: 100.
+.IP "\fBrefinement\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether to perform preconditioned conjugate gradient
+refinement of the computed solution to the linear system if it has a
+relative residual larger than the parameter \fBprifeastol\fP.
+Default: no.
+.IP "\fBstepfactor\fP \fIvalue\fP"
+Specify a value in the range (0, 1) that is used in Mehrotra's
+adaptive steplength heuristic from [3].  Default: 0.9.
+.IP "\fBscaling\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether or not row and column scaling [4] is performed on the
+constraint matrix.  Default: yes.
+.IP "\fBHOCorrections\fP [ \fByes\fP | \fBno\fP ]"
+Specify whether Gondzio's higher-order corrections [5] are used to enhance
+the search direction.  Default: yes.
+.IP "\fBMaxCorrections\fP \fIvalue\fP"
+If \fBHOCorrections\fP=\fByes\fP, this parameter is an upper limit on
+the number of Gondzio's higher-order corrections allowed at each
+iteration.  If \fIvalue\fP=0, the maximum is determined automatically
+by \fBPCx\fP according to the relative cost of factorization and solve
+operations.  if \fBHOCorrections\fP=\fBno\fP, this parameter is ignored.
+Default: 0.
+.SH REFERENCES
+[1] J. Czyzyk et al., "PCx User Guide (Version 1.1)", Optimization
+Technology Center, Technical Report OTC 96/01, November 3, 1997.
+.br
+[2] E. D. Andersen and K. D. Andersen, "Presolving in linear
+programming", Mathematical Programming, 71 (1995), pp. 221-245.
+.br
+[3] S. Mehrotra, "On the implementation of a primal-dual interior
+point method", SIAM Journal on Optimization, 2 (1992), pp 575-601.
+.br
+[4] A. R. Curtis and J. K. Reid, "On the automatic scaling of matrices
+for Gaussian elimination", J. Inst. Maths Applics, 10 (1972), pp. 118-124.
+.br
+[5] J. Gondzio, "Multiple centrality corrections in a primal-dual
+method for linear programming", Computational Optimization and
+Applications, 6 (1996), pp. 137-156.
+.SH "SEE ALSO"
+\fI/usr/share/doc/pcx/PCx-user.ps.gz\fP, mps(5)
+.SH AUTHOR
+This manual page was written by James R. Van Zandt <jrv@debian.org>,
+for the Debian GNU/Linux system (but may be used by others).
+\"  LocalWords:  PCx probname mps Mehrotra's Ng spc boundname cachesize min RHS
+\"  LocalWords:  centerexp objectivename rhsname rangename presolve presolving
+\"  LocalWords:  preprocess inputdirectory opttol prifeastol dualfeastol num al
+\"  LocalWords:  unrollinglevel iterationlimit stepfactor steplength Gondzio's
+\"  LocalWords:  HOCorrections MaxCorrections Czyzyk OTC pp Mehrotra Inst Maths
+\"  LocalWords:  Applics Gondzio usr doc pcx ps gz mv com

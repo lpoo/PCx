@@ -1,0 +1,526 @@
+**************************************************************************
+**************************************************************************
+*
+*   Version:        0.4
+*   Last modified:  May 26, 1995
+*   Authors:        Esmond G. Ng and Barry W. Peyton
+*
+*   Mathematical Sciences Section, Oak Ridge National Laboratoy
+*
+**************************************************************************
+**************************************************************************
+
+--------
+OVERVIEW
+--------
+
+This directory contains a suite of subroutines for solving sparse
+symmetric positive definite linear systems on a single processor using
+sparse Cholesky factorization.  A driver program in main.f fully
+demonstrates how the routines are to be used.  This README file gives
+an overview of the contents of the directory; for further details first
+consult the extensive comments in main.f, then consult the comments in
+individual routines, as necessary.
+
+The solution process consists of a sequence of four distinct steps:
+
+(1) Ordering: 
+    ---------
+
+    Reorder the matrix to reduce the fill and work required by the
+    factorization.
+
+    We distribute the multiple minimum degree routines found in current
+    versions of SPARSPAK.  The multiple minimum degree algorithm was
+    introduced and studied in the paper:
+
+    "Modification of the minimum degree algorithm by multiple
+    elimination", J. W-H. Liu, ACM Trans. Math. Software, volume 11,
+    1985, pp. 141-153.
+
+    We also provide the option of using the so-called "natural
+    ordering", which is the initial ordering of the coefficient
+    matrix.
+
+(2) Symbolic factorization: 
+    -----------------------
+
+    Generate the compact data structure in which the Cholesky factor
+    will be computed.
+
+    We distribute new and efficient routines for the symbolic
+    factorization step.  The step consists of calls to two routines.
+    The first routine uses efficient algorithms to compute items that
+    enable an extremely efficient symbolic factorization performed by
+    the second routine.  The following papers describe and study
+    algorithms used in the first step of this process.
+
+    "The role of elimination trees in sparse factorization", J. W-H.
+    Liu, SIAM J. Matrix Anal. Appl., Volume 11, 1990, pp. 134-172.
+
+    "An efficient algorithm to compute row and column counts for sparse
+    Cholesky factorization", J.R. Gilbert, E. Ng, and B.W. Peyton, SIAM
+    J. Matrix Anal. Appl., Volume 15, 1994, pp. 1075-1091.
+
+    The second routine (i.e. the symbolic factorization routine) has
+    not been written up in a report or article.
+
+(3) Numerical factorization: 
+    ------------------------
+
+    Compute the sparse Cholesky factor within the data structures
+    created by the previous step.
+
+    We distribute the left-looking block sparse Cholesky factorization
+    algorithm studied in the following paper:
+
+    "Block sparse Cholesky algorithms on advanced uniprocessor
+    computers", E. Ng and B.W. Peyton, SIAM J. Sci. Comput., Volume 14,
+    1993, pp. 1034-1056.
+
+    Performance of this routine has been enhanced by exploiting the
+    memory hierarchy: it operates on blocks of columns known as
+    supernodes; it splits supernodes into sub-blocks that fit into
+    available cache; and it unrolls the outer loop of matrix-vector
+    products in order to make better use of available registers.
+
+(4) Numerical solution: 
+    -------------------
+
+    Performs the triangular solutions needed to solve the linear
+    system.
+
+    This routine, though it has been written to take advantage of
+    supernodes to some extent, has not been highly optimized.  We will
+    probably try to improve its performance at some point, but the
+    opportunities for improvement are much more limited than was the
+    case for the factorization.
+
+**************************************************************************
+**************************************************************************
+
+------------
+THE SOFTWARE
+------------
+
+Let a level 1 routine be a routine called by the driver (main.f).
+Comments in main.f identify each parameter passed to a level 1 routine
+as an input, output, or working parameter; mnemonic names will suggest
+the contents and meaning of most parameters to those familiar with
+software that implements a sparse matrix factorization.  Full
+descriptions of parameters can be found in the header comments of the
+level 1 routine in question.  Note that some of the output parameters
+of a level 1 routine must be preserved and used as input parameters for
+a subsequent call to a level 1 routine.
+
+Level 2 routines are called by Level 1 routines, Level 3 routines are
+called by Level 2 routines, and Level 4 routines are called by Level 3
+routines.  Consequently, the user need not be concerned with the name
+or function of any Level 2, 3, or 4 routine or their parameters.
+
+
+----------------------------------------------------------
+Compiling, running, and moving from one machine to another
+----------------------------------------------------------
+
+    To compile, type "make".  To run, type "main < Input" where Input
+    is the control input file, which will be described later.
+
+    A simple make file can be found in Makefile.  
+
+    The codes are written in standard Fortran 77, and should port to
+    any machine.  There are no calls to routines from external
+    libraries.  Only the timing routine in gtimer.f is machine
+    dependent and must be changed when moving from machine to machine;
+    also the user may have to add timing calls to gtimer.f for machines
+    other than those currently covered.  (Currently covered are Cray,
+    Sun,IBM RS/6000, and some other unix boxes).  Of course, porting
+    from one machine to another typically requires minor changes to the
+    Makefile.
+
+
+------------------
+Control input file
+------------------
+
+    The driver in main.f requires two input files.  One of these is a
+    control file that directs the computation.  It contains five
+    lines.  A sample input file is stored in the file Input.  Here is
+    what it looks like.
+
+'Output'   ... output file
+'GRID9.15' ... matrix file
+2          ... 1 - natural, 2 - multiple minimum degree
+64         ... <0 - changed to 0, 0 - infinite, >0 - Mbytes of cache
+8          ... loop unrolling level (1, 2, 4, 8)
+
+    Line 1: Output will be the name of the output file written by the
+    main program (in the file named main).
+
+    Line 2: GRID9.15 is the file from which the main program will read
+    in the zero-nonzero structure of the matrix.
+
+    Line 3: selects the ordering option to be used ---
+
+        1 - natural ordering: use the ordering assigned to the matrix
+                              in the matrix input file.
+
+        2 - mmd: multiple minimum degree ordering.
+
+    Line 4 informs the main program of size of the cache (in Kbytes) on
+    the target machine.  Typically, it will be 0 (no cache), 32 Kbytes,
+    or 64 Kbytes.  When it is zero, the code operates as if the whole
+    memory were cache; hence zero is logically equivalent to an
+    infinite cache.  A negative input is changed to zero.
+
+    Line 5 selects the level of loop unrolling that will be used in the
+    two computationally intensive kernels of the block factorization
+    routine (BLKFCT).  The level must be 1, 2, 4, or 8.  Typically, 4
+    or 8 is most efficient.
+
+
+-----------------
+Matrix input file
+-----------------
+
+    The second input file contains the zero-nonzero structure of the
+    matrix.  We distribute files for four different zero-nonzero
+    structures.  They are stored in a very simple format.  (See the
+    lines of main.f that read in the matrix to see precisely what
+    format is expected.) The first line contains a short description of
+    the matrix (up to 60 characters).  The second line has the number
+    of equations and the number of off-diagonal nonzeros in the
+    matrix.  After line two are first a set of pointers:  one for each
+    row of the matrix, plus one more.  Subsequent lines contain the
+    column indices of every off-diagonal nonzero entry in every row of
+    the matrix.  The storage format is full: i.e., it does not exploit
+    symmetry.  For testing and demonstration, the actual nonzero
+    entries themselves are not stored in the matrix files; they are
+    assigned by a subroutine INPNV in such a way that the matrix will
+    be positive definite.
+
+    We distribute the following four matrices:
+
+                                                                 no. of
+                                                      no. of     off-diagonal
+                                                      equations  nonzeros
+                                                      ---------  ------------
+    GRID9.07 - 7 by 7 nine-point grid                      49          312
+    GRID9.15 - 15 by 15 nine-point grid                   225         1624
+    STK14 - BCSSTK14 from Harwell-Boeing collection      1806        61648
+    NASA1 - NASA1824 from Harwell-Boeing collection      1824        37384
+
+
+-------------------------------------
+Description of sparse data structures
+-------------------------------------
+
+    The purpose of the following description is to enable the user
+    to input nonzero entries from the coefficient matrix A into the
+    data structure provided for the factor L.   The information is
+    given in the form of a pseudo-Fortran code, which is divided
+    into two parts.
+
+    The first part contains comments that describe the relevant data
+    structures in enough detail to enable the user to produce an
+    assortment of routines for the task of inputting the numerical
+    values.  Following the comments are Fortran statements which
+    illustrate how to place a generic entry A(IOLD,JOLD) into the
+    appropriate location in L's data structure.
+
+	While the pseudo-Fortran code shows how to put nonzero entries
+	into the data structure, it does not show how to do so in an
+	efficient manner.  Anyone who simply codes it up and uses it,
+	is very likely to find it unacceptably slow.  The efficiency of
+	this process can often be improved when the order in which the
+    entries are input is very flexible.  Such is the case in the
+    routine inpnv, which the main routine uses to input the nonzero
+    entries.  This routine is quite efficient, and it may be wise to
+    look at it for ideas that can be incorporated into your own input
+    routines.  Under some circumstances, inputting the numerical values
+    efficiently is difficult, and we do not currently have a broadly
+    applicable solution to this problem.
+
+**************************************************************************
+**************************************************************************
+*
+*       HERE IS A MORE DETAILED DESCRIPTION OF THE DATA STRUCTURES USED 
+*       WHEN INPUTTING A NONZERO ENTRY A(IOLD,JOLD) INTO THE 
+*       CORRESPONDING LOCATION IN THE CHOLESKY FACTOR L.
+*
+*       ------------------------------------------------------------------
+*
+*       NEQNS - INTEGER :
+*
+*           THERE ARE NEQNS COLUMNS (ROWS) IN THE MATRIX A (ALSO L).
+*
+*       INVP(1:NEQNS) - INTEGER :
+*
+*           CONTAINS THE INVERSE PERMUTATION VECTOR, WHICH MAPS OLD 
+*           LOCATIONS TO NEW LOCATIONS.  MORE SPECIFICALLY, INVP(J) IS 
+*           THE NEW LOCATION OF COLUMN J (ROW J) OF A AFTER THE 
+*           REORDERING HAS BEEN APPLIED TO THE COLUMNS AND ROWS OF THE 
+*           MATRIX.
+*
+*       NSUPER - INTEGER :
+*
+*           THERE ARE NSUPER SUPERNODES.  THE SUPERNODES ARE NUMBERED 
+*           1, 2, ... , NSUPER.  IT IS IMPORTANT TO NOTE THAT 
+*           NSUPER <= NEQNS.
+*
+*       SNODE(1:NEQNS) - INTEGER :
+*
+*           SNODE(J) IS THE SUPERNODE TO WHICH COLUMN J OF L BELONGS.
+*
+*       XSUPER(1:NSUPER+1) - INTEGER :
+*
+*           FOR 1 <= JSUP <= NSUPER, XSUPER(JSUP) IS THE FIRST COLUMN OF 
+*           SUPERNODE JSUP.  SUPERNODE JSUP CONTAINS COLUMNS XSUPER(JSUP), 
+*           XSUPER(JSUP)+1, ... , XSUPER(JSUP+1)-1.
+*
+*       NSUB - INTEGER :
+*
+*           NUMBER OF ROW SUBSCRIPTS STORED IN LINDX(*).
+*
+*       LINDX(1:NSUB) - INTEGER :
+*
+*           LINDX(*) CONTAINS, IN COLUMN MAJOR ORDER, THE ROW SUBSCRIPTS 
+*           OF THE NONZERO ENTRIES IN L IN A COMPRESSED STORAGE FORMAT.
+*           THIS FORMAT IS DESCRIBED IMMEDIATELY BELOW.
+*
+*       XLINDX(1:NSUPER) - INTEGER :
+*
+*           CONSIDER SUPERNODE JSUP, AND LET FSTCOL = XSUPER(JSUP)---THE 
+*           FIRST COLUMN IN SUPERNODE JSUP.  LET JCOL BE ANY COLUMN IN
+*           SUPERNODE JSUP (POSSIBLY JCOL = FSTCOL).  LET 
+*           FSTSUB = XLINDX(JSUP)+JCOL-FSTCOL, AND 
+*           LSTSUB = XLINDX(JSUP+1) - 1.  THE ROW SUBSCRIPTS OF THE 
+*           NONZERO ENTRIES IN COLUMN JCOL OF L LIE IN ASCENDING ORDER 
+*           IN LINDX; THEY ARE LINDX(FSTSUB), LINDX(FSTSUB+1), ... , 
+*           LINDX(LSTSUB).  NOTE THAT A ROW SUBSCRIPT FOR THE MAIN 
+*           DIAGONAL ENTRY IS INCLUDED, I.E., LINDX(FSTSUB) = JCOL.
+*
+*       NNZL - INTEGER :
+*
+*           NUMBER OF NONZERO ENTRIES IN L.
+*
+*       LNZ(1:NNZL) - DOUBLE PRECISION :
+*
+*           LNZ(*) CONTAINS, IN COLUMN MAJOR ORDER, THE NONZERO ENTRIES
+*           IN L.
+*
+*       XLNZ(1,NEQNS+1) - INTEGER :
+*
+*           FOR 1 <= J <= NEQNS, XLNZ(J) POINTS TO THE FIRST NONZERO 
+*           ENTRY IN COLUMN J OF L.  THE NONZERO ENTRIES IN COLUMN J OF L 
+*           LIE IN ASCENDING ORDER BY ROW SUBSCRIPT IN LNZ(*); THEY ARE 
+*           LNZ(XLNZ(J)), LNZ(XLNZ(J)+1), ... , LNZ(XLNZ(J+1)-1).
+*
+*       ------------------------------------------------------------------
+*           
+**************************************************************************
+**************************************************************************
+*
+*       ----------------------------------------------------
+*       ZERO OUT LNZ(*) SO NUMERICAL VALUES CAN BE ADDED IN.
+*       ----------------------------------------------------
+        DO  100  I = 1, NNZL
+            LNZ(I) = 0.0D+00
+  100   CONTINUE
+*
+        WHILE  THERE ARE STILL VALUES A(IOLD,JOLD) TO ACCUMULATE IN L  DO
+            .
+            .
+            .
+*           -------------------------------
+*           GET  NEXT VALUE A(IOLD,JOLD)
+*
+*           IOLD   : ROW OF A
+*           JOLD   : COLUMN OF A
+*           AVALUE : THE ENTRY A(IOLD,JOLD)
+*           -------------------------------
+            .
+            .
+            .
+*           -----------------------------------------------------------
+*           APPLY THE REORDERING TO THE OLD LOCATION IN A TO OBTAIN THE
+*           CORRESPONDING LOCATION IN L.
+*
+*           INTERCHANGE INDICES IF THE NEW LOCATION IS IN THE UPPER
+*           TRIANGLE.
+*           -----------------------------------------------------------
+            INEW = INVP(IOLD)
+            JNEW = INVP(JOLD)
+            IF  ( INEW .LT. JNEW )  THEN
+                ITEMP = INEW
+                INEW = JNEW
+                JNEW = ITEMP
+            ENDIF
+*           
+*           -----------------------------------------------------
+*           GET POINTERS AND LENGTHS NEEDED TO SEARCH COLUMN JNEW
+*           OF L FOR LOCATION L(INEW,JNEW).
+*           -----------------------------------------------------
+            JSUP = SNODE(JNEW)
+            FSTCOL = XSUPER(JSUP)
+            FSTSUB = XLINDX(JSUP) + JNEW - FSTCOL
+            LSTSUB = XLINDX(JSUP+1) - 1
+*
+*           -------------------------------------------------------
+*           SEARCH FOR ROW SUBSCRIPT INEW IN JNEW'S SUBSCRIPT LIST.
+*           -------------------------------------------------------
+            DO  100  NXTSUB = FSTSUB, LSTSUB
+                IROW = LINDX(NXTSUB)
+                IF  ( IROW .GT. INEW )  GO TO 200
+                IF  ( IROW .EQ. INEW )  THEN
+                    NNZLOC = XLNZ(JNEW) + NXTSUB - FSTSUB
+                    LNZ(NNZLOC) = LNZ(NNZLOC) + AVALUE
+                    GO TO 300
+                ENDIF
+  100       CONTINUE
+*
+  200       CONTINUE
+*           --------------------------------------------------
+*           THE ENTRY A(IOLD,JOLD)  MAPS TO A ZERO ENTRY OF L.
+*           HANDLE THIS ERROR HERE.
+*           --------------------------------------------------
+            .
+            .
+            .
+*
+ 300        CONTINUE
+*
+        END WHILE
+
+
+-----------
+Output file
+-----------
+
+    The output file generated by the control file Input can be found in
+    the file Output.
+
+
+--------------------
+Subroutine hierarchy
+--------------------
+
+Levels:
+0   1   2   3   4
+
+main.f - illustrates how various level 1 routines should
+         be invoked and how they interact with each other.
+
+    ordmmd - shell routine that calls ordering routine genmmd.
+        genmmd : perform multiple minimum degree ordering.
+            mmdint
+            mmdelm
+            mmdupd
+            mmdnum
+
+    sfinit - shell routine that calls routines that implement the first
+             (initialization) step of the symbolic factorization.
+        etordr
+            etree
+            betree
+            etpost
+            invinv
+        fcnthn
+        ffsup1
+        ffsup2
+
+    symfct - compute primary symbolic factorization data structure.
+
+    bfinit - shell routine that initializes for the block
+             factorization.
+        fntsiz
+        fnsplt
+
+    blkfct - perform sparse blocked Cholesky factorization.
+        ldindx
+        mmpyi
+        mmpy
+            mmpy[n], n = 1, 2, 4, or 8
+        igathr
+        assmb
+        chlsup
+            pchol
+                dscal1
+                smxpy[n], n = 1, 2, 4, or 8
+            mmpy[n], n = 1, 2, 4, or 8
+
+    blkslv - perform triangular solutions to solve the linear system.
+
+
+Other routines used in main.f -
+
+    gtimer - timing routine.
+
+    create - insert diagonal into the input structure and construct 
+             the numerical values (called after reading in the
+             zero-nonzero structure of matrix).
+
+    getrhs - construct the right hand side vector (invoked after 
+             calling create).
+
+    inpnv  - input numerical values into the compact data structures 
+             (called after sfsupn).
+
+    lstats - print statistics about the Cholesky factor.
+
+
+----------------
+Additional notes
+----------------
+
+The use of the natural ordering should be avoided for large problems,
+since this ordering generally produces much more fill during
+factorization than the multiple minimum degree ordering does.  The use
+of genmmd is strongly recommended.
+
+**************************************************************************
+**************************************************************************
+
+--------------
+ACKNOWLEDGMENT
+--------------
+
+We thank Dr. Joseph W.H. Liu, author of several routines included in
+this distribution, for permission to distribute them.  These routines
+include the multiple minimum degree routines, and routines for
+computing and manipulating the elimination tree.
+
+**************************************************************************
+**************************************************************************
+
+-------
+CONTACT
+-------
+
+If you have any questions about any of the routines, please let us
+know.  We are particularly interested in knowing what problems you are
+solving and how well they perform on your problems.  We are also
+interested in recommendations/suggestions on improving various aspects
+of the README file, the driver program, and individual routines.
+
+
+Esmond Ng
+Mathematical Sciences Section
+Oak Ridge National Laboratory
+P.O. Box 2008, Bldg. 6012
+Oak Ridge, TN 37831-6367
+
+Phone: (615) 574-3133
+FAX:   (615) 574-0680
+e-mail: esmond@msr.epm.ornl.gov
+
+
+Barry Peyton
+Mathematical Sciences Section
+Oak Ridge National Laboratory
+P.O. Box 2008, Bldg, 6012
+Oak Ridge, TN 37831-6367
+
+Phone:   (615) 574-0813
+FAX:     (615) 574-0680
+e-mail:  peyton@msr.epm.ornl.gov

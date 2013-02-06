@@ -1,0 +1,22 @@
+
+To compile the MATLAB interface you need to 
+
+1) Set the CC and FC environment variables appropriately. If you don't have
+   a Fortran compiler then you have to use the all C version of PCx.
+
+2) edit mex/Makefile as appropriate. It *should* work ok, assuming you are 
+   generally able to compile mex-files. g77 seems to need the f2c libraries
+   linked in explicitly, whereas f77 under Solaris does not.
+
+3) Type 'build mex' and you should be all set. You need to be able to compile
+   the Ng-Peyton solver supplied with PCx. The scripts should do this for you
+   automagically.
+
+4) Add PCx/mex to your MATLABPATH environment. Then, at the MATLAB prompt,
+   type 'help PCx' for syntax information. The syntax is virtually identical
+   to that of Matlab's linprog (a.k.a. Yin Zhang's LIPSOL).
+
+5) You can test the interface on the supplied datafiles afiro.mat and
+   25fv47.mat.
+
+Comments? Questions? Improvements? Send email to Michael at mwagner@cchmc.org.

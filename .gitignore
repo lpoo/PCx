@@ -1,0 +1,5 @@
+# Vim's temporary files.
+*.swp
+
+# Test problem
+mps/*

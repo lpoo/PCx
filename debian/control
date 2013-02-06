@@ -1,0 +1,22 @@
+Source: pcx
+Section: non-free/math
+Priority: optional
+Maintainer: James R. Van Zandt <jrv@debian.org>
+Build-Depends: debhelper (>=4.0), csh | c-shell, gfortran
+Standards-Version: 3.8.0
+Homepage:  http://www.mcs.anl.gov/otc/Tools/PCx/
+
+Package: pcx
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: primal-dual interior-point code for linear programming 
+ PCx is a freely available primal-dual interior-point code for linear
+ programming. It implements Mehrotra's predictor-corrector algorithm,
+ the algorithm that forms the basis of most existing interior-point
+ codes for general linear programming. The major computational
+ operation--solution of a linear system with a large, sparse positive
+ definite coefficient matrix--is performed with the sparse Cholesky
+ package of Ng and Peyton (Oak Ridge National Laboratory), with minor
+ modifications to handle small pivot elements.  PCx does not solve
+ integer programming problems.
+

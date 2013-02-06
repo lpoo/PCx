@@ -1,0 +1,247 @@
+.\"                                       -*- nroff -*-
+.\" Man page by Jim Van Zandt
+.TH MPS 5 "13 September 1998" "Debian GNU Linux"
+.SH NAME
+mps \- file format for linear programming problems
+.SH DESCRIPTION
+The MPS file format was introduced for an IBM program,
+but has also been accepted by most subsequent linear programming codes.
+
+One standard form for a linear programming problem is as follows:
+.nf
+minimize
+          c'x
+under the constraints 
+          Ax = b 
+and       x >= 0
+.fi
+where x is a vector of unknowns, c is the cost (or objective) vector,
+c' is the transpose of c, and A is a constraint matrix with m rows
+and n columns.  
+.PP
+Alternately, the constraints may be defined as
+.nf
+            Ax < b
+.fi
+and the goal may be to maximize c'x.  
+Unfortunately, nothing in the MPS file format specifies whether the
+objective is to be minimized or maximized, and different programs have
+different defaults for this.  On the other hand, it is trivial to
+restate a maximization problem as a minimization problem: just reverse
+the sign of each element of c.
+.PP
+The feasible region described by the constraints is a polytope, or
+simplex, and at least one member of the solution set lies at a vertex
+of this polytope.
+.PP
+The MPS file format is column-oriented, designed for use with punched
+cards.  All numerical values should include a decimal point.  MPS
+files are typically all upper-case, though many MPS readers accept
+mixed case anywhere except the headers, and some accept mixed case
+anywhere.  The file
+layout is suggested in the following table:
+.sp
+.nf
+Field:      1        2          3        4       5        6
+Columns:   2-3      5-12      15-22    25-36   40-47    50-61
+
+          NAME             problem_name
+          ROWS
+           type     name
+          COLUMNS
+                  col_name   row_name  value  row_name  value
+          RHS
+                  rhs_name   row_name  value  row_name  value
+          RANGES
+                 range_name  row_name  value  row_name  value
+          BOUNDS
+           type  bound_name  col_name  value
+          ENDATA
+.fi
+.sp
+Here are the details on each of the seven sections:
+.SS NAME
+This section consists of a single card, with "NAME" in columns 1-4 and
+the title of the problem in columns 15-22.
+.SS ROWS
+This section describes the rows of the constraint matrix, and the
+objective function.  It starts with a card with "ROWS" in columns
+1-4.  There is an additional card for each row in the constraint
+matrix, plus one for the objective function.  Each of these cards has
+a type in column 2 or 3, as follows:
+.IP \fBE\fP
+Equality
+.IP \fBL\fP
+Less than or equal
+.IP \fBG\fP
+Greater than or equal
+.IP \fBN\fP
+no restriction.  The first \fBN\fP-type row encountered is regarded as
+the objective, unless it is explicitly identified in the control
+commands.
+.PP
+Linear combinations of rows may also be specified. In this case the
+above row types are denoted respectively by the codes \fBDE\fP,
+\fBDL\fP, \fBDG\fP, and \fBDN\fP, in columns 2-3. Field 2 contains the
+linear combination rowname. Fields 3-6 contain the rowname(s) (fields
+3 and 5) and their multiplier(s) (fields 4 and 6) which form the
+combination. A linear combination of three or more rows requires
+additional cards, following the first card contiguously. In the
+additional cards field 1 is empty. (The right-hand sides of a linear
+combination row must be specified in the RHS section, described
+below.)
+.PP
+The order of the cards in the ROWS section is not significant.
+.SS COLUMNS
+This section defines the names of the variable, the coefficients of
+the objective, and all the nonzero matrix elements Aij. The section
+starts with a card with COLUMNS in columns 1-7, followed by data cards
+which may have one or two matrix elements per card.  The data are
+entered column by column, and all the data cards for the nonzero
+entries in each column must be grouped together contiguously.  Within
+a column, the order of the entries is irrelevant.  Rows not mentioned
+are assumed to have coefficients of zero.
+.PP
+The data card has the column label in field 2 (columns 5-12), the row
+label in field 3 (columns 15-22), and the value of the coefficient Aij
+(or cj) in field 4 (columns 25-36).  Remember that the coefficient
+should include a decimal point.  If more than one nonzero row entry
+for the same column is to be made on the card, then field 5 (columns
+40-47) has the next row label and field 6 (columns 50-61) has its
+corresponding coefficient value. It should be emphasized that the use
+of fields 5 and 6 is optional.
+.PP
+There is no need to specify columns for slack variables; this is taken
+care of automatically having defined the row types.
+.PP
+A mixed integer program requires the specification of which variables
+are required to be integer.  Markers are placed in the COLUMNS section
+to indicate the start and end of a group of integer variables.  The
+start marker has its name in field 2, "MARKER" in field 3, and
+"INTORG" in field 5.  The end marker has its name in field 2, "MARKER"
+in field 3, and "INTEND" in field 5.
+.SS RHS
+This section supplies the elements of the right-hand side. The section
+starts with a card with "RHS" in columns 1-3. Since the right-hand
+side can be regarded as another column of the matrix, the data cards
+specifying the nonzero entries are in exactly the same format as the
+COLUMNS data cards, except that field 2 (columns 5-12) has a label for the
+right-hand side. More than one right-hand side may thus be specified
+in this section; the one to be used for the current run is specified
+separately.  Rows not mentioned in the RHS section are assumed to have
+a right-hand-side of zero.
+.SS "RANGES (optional)"
+The RANGES section is for constraints of the form
+.br
+	h\fIi\fP <= A\fIi\fP1 x1 + A\fIi\fP2 x2 + ... A\fIi\fPn xn <= u\fIi\fP
+.br
+i.e. both an upper and lower bound exist for the row.  The range of
+the constraint is 
+.br
+	r\fIi\fP = u\fIi\fP - h\fIi\fP
+.br
+The value of u\fIi\fP or h\fIi\fP is specified in the RHS section data, and the
+value of r\fIi\fP is specified in the RANGES section data.  This
+information, plus the row type specified in the ROWS section, defines
+the bounds u\fIi\fP and h\fIi\fP.
+.PP
+If b\fIi\fP is the number entered in the RHS section and r\fIi\fP is the number
+specified in the RANGES section, the u\fIi\fP and h\fIi\fP are defined as follows:
+.sp
+.nf
+Row type    Sign of r\fIi\fP   Lower limit, h\fIi\fP  Upper limit, u\fIi\fP
+G (>=)      + or -       b\fIi\fP               b\fIi\fP + |r\fIi\fP|
+L (<=)      + or -       b\fIi\fP - |r\fIi\fP|        b\fIi\fP
+E (=)       +            b\fIi\fP               b\fIi\fP + |r\fIi\fP|
+E (=)       -            b\fIi\fP - |r\fIi\fP|        b\fIi\fP
+.fi
+.sp
+The section starts with a card with "RANGES" in columns 1-6.  The data
+cards specifying the values of r\fIi\fP are in the same format as the
+COLUMNS data cards, except field 2 (columns 5-12) has a label for the
+column of ranges (which can also be regarded as another column of the
+matrix).  More than one column of ranges may be specified, but all the
+data cards for each column must be grouped together contiguously.
+.SS "BOUNDS (optional)"
+The BOUNDS section specifies bounds on the variables.  This is an
+alternative to defining extra rows in the matrix.  The section starts
+with a card with "BOUNDS" in columns 1-6.  Each card has a type code
+in field 1 (columns 2-3).  The type codes, and the resulting bounds,
+are as follows:
+.IP \fBLO\fP
+Lower bound: \fIvalue\fP <= x (< infinity)
+.IP \fBUP\fP
+Upper bound: (0 <=) x <= \fIvalue\fP
+.IP \fBFX\fP
+Fixed variable: x = \fIvalue\fP
+.IP \fBFR\fP
+Free variable
+.IP \fBMI\fP
+Lower bound is minus infinity: \-infinity <= x (<= 0)
+.IP \fBPL\fP
+upper bound is plus infinity (default): (0 <=) x < infinity
+.IP \fBBV\fP
+Binary variable: x = 0 or 1
+.sp
+Field 2
+(columns 5-12) specifies, a bounds row name.  Field 3 (columns 15-22)
+specifies a column label \fIj\fP, corresponding to the variable
+x\fIj\fP.
+Field 4 (columns 25-36) specifies a bound value b\fIj\fP.  Fields 5
+and 6 are blank.
+.PP
+When bounds are not specified for a column, or the entire BOUNDS
+section is omitted, the usual bounds, 0 <= xi <= infinity, are
+assumed.  More than one bound for a given variable may be entered,
+i.e. both a lower and an upper bound.  When only one is specified the
+other is assumed to be one of the default values of 0 or infinity, as
+shown in parentheses above.
+.SS ENDATA
+This section consists of a single card with "ENDATA" in columns 1-6.
+Note the odd spelling.
+.SH EXAMPLE
+Suppose we want to minimize
+.br
+	XONE + 4 YTWO + 9 ZTHREE       (COST)
+.br
+subject to
+.nf
+	XONE + YTWO <= 5               (LIM1)
+	XONE + ZTHREE >= 10            (LIM2)
+	- YTWO + ZTHREE  = 7          (MYEQN)
+	0 <= XONE <= 4
+	-1 <= YTWO <= 1
+.fi
+.sp
+This problem is represented by the following MPS file:
+.sp
+.\" 22222222  33333333  444444444444   55555555  666666666666
+.nf
+NAME          TESTPROB
+ROWS
+ N  COST
+ L  LIM1
+ G  LIM2
+ E  MYEQN
+COLUMNS
+    XONE      COST                 1   LIM1                 1
+    XONE      LIM2                 1
+    YTWO      COST                 4   LIM1                 1
+    YTWO      MYEQN               \-1
+    ZTHREE    COST                 9   LIM2                 1
+    ZTHREE    MYEQN                1
+RHS
+    RHS1      LIM1                 5   LIM2                10
+    RHS1      MYEQN                7
+BOUNDS
+ UP BND1      XONE                 4
+ LO BND1      YTWO                \-1
+ UP BND1      YTWO                 1
+ENDATA
+.fi
+.sp
+.SH "SEE ALSO"
+http://www.mcs.anl.gov/home/otc/Guide/faq/linear-programming-faq.html
+.br
+http://www.mcs.anl.gov/otc/Server/lp/mps/mps.html
+.\".SH NOTES

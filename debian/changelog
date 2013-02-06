@@ -1,0 +1,155 @@
+pcx (1.1.18-2) unstable; urgency=low
+
+  * debian/control: build-depends on gfortran instead of g77
+
+ -- James R. Van Zandt <jrv@debian.org>  Sat, 26 Jul 2008 22:38:52 -0400
+
+pcx (1.1.18-1) unstable; urgency=low
+
+  * New upstream release, "Fixed bug in memory allocation for array
+    min_phi in PCx.c"
+
+  * SRC/main.c: #include stdlib.h and strings.h, to silence warnings about
+    implicit declarations.
+
+  * debian/control: add Homepage field.  Bump policy number to 3.8.0.
+
+  * debian/rules: handle DEB_BUILD_OPTIONS "nostrip" and "parallel".
+    Don't ignore errors for "make clean".  Use gfortran instead of f77.
+
+  * debian/pcx.doc-base: move to section Science/Mathematics per doc-base
+    manual (closes:Bug#329964)
+
+ -- James R. Van Zandt <jrv@debian.org>  Wed, 23 Jul 2008 20:39:07 -0400
+
+pcx (1.1.17-3) unstable; urgency=low
+
+  * install the library and header files (thanks to Dennis Furey
+    <fureyd@lsbu.ac.uk>, closes:Bug#377509)
+
+  * debian/control: bump version to 3.7.2 (no changes needed)
+
+ -- James R. Van Zandt <jrv@debian.org>  Tue, 11 Jul 2006 20:42:06 -0400
+
+pcx (1.1.17-2) unstable; urgency=low
+
+  * debian/control: depend on g77 (closes:Bug#300394)
+
+ -- James R. Van Zandt <jrv@debian.org>  Tue, 22 Mar 2005 20:01:44 -0500
+
+pcx (1.1.17-1) unstable; urgency=low
+
+  * New upstream release dated 2004-05-11.
+
+  * Add upstream changelog (from website) as
+    /usr/share/doc/pcx/changelog.html[.gz] plus text version
+
+  * Register user guide with doc-base.
+  
+  * PCx.1: point to /usr/share/doc rather than /usr/doc, convert some
+    plain hyphens to \- or \[em].
+  
+  * contol: versioned depends on debhelper
+
+ -- James R. Van Zandt <jrv@debian.org>  Sun, 13 Mar 2005 21:32:29 -0500
+
+pcx (1.1.10-5) unstable; urgency=low
+
+  * F2C/Makefile: eliminate "-DKR_headers " from CFLAGS to allow
+    compilation by gcc-3.4 (closes:Bug#273155, thanks to Andreas Jochens
+    <aj at andaco.de> and Kaare Hviid <ukh at id.cbs.dk>).  Use inherited
+    $CFLAGS, but include local additions in .c.o rule.
+  
+  * build: set -e.
+  
+  * debian/rules: call dh_installman instead of deprecated dh_installmanpages
+
+  * debian/diversion.ex - delete unused example file
+
+  * debian/control build-depends on c-shell|csh not just the virtual
+    package c-shell.
+
+ -- James R. Van Zandt <jrv@debian.org>  Sat, 25 Sep 2004 13:47:26 -0400
+
+pcx (1.1.10-4) unstable; urgency=low
+
+  * new maintainer email
+
+ -- James R. Van Zandt <jrv@debian.org>  Sun,  9 Dec 2001 21:36:49 -0500
+
+pcx (1.1.10-3) unstable; urgency=low
+
+  * debian/control: comma separate the build-deps
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Mon, 23 Apr 2001 22:06:27 -0400
+
+pcx (1.1.10-2) unstable; urgency=low
+
+  * Build-Depends on c-shell (closes:Bug#94524)
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Sat, 21 Apr 2001 09:28:27 -0400
+
+pcx (1.1.10-1) unstable; urgency=low
+
+  * New upstream release dated 2001-02-27
+  * F2C/Makefile: add -DNON_UNIX_STDIO to CFLAGS to work around invalid
+    assumptions about the libc implementation.
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Mon,  2 Apr 2001 21:02:51 -0400
+
+pcx (1.1.9-7) unstable; urgency=low
+
+  * debian/control: Move Build-Depend line to source section.
+  * Support debian-test.
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Sun,  1 Apr 2001 20:01:02 -0400
+
+pcx (1.1.9-6) unstable; urgency=low
+
+  * build-depends on debhelper
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Sun,  3 Sep 2000 11:46:56 -0400
+
+pcx (1.1.9-5) unstable; urgency=low
+
+  * Allow other packages to also supply the mps(5) manual page, using the
+    alternatives mechanism.
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Sat, 23 Oct 1999 10:52:06 -0400
+
+pcx (1.1.9-4) unstable; urgency=low
+
+  * Create /usr/doc/pcx symlink.
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Tue, 14 Sep 1999 21:50:27 -0400
+
+pcx (1.1.9-3) unstable; urgency=low
+
+  * Update to FHS
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Sat,  4 Sep 1999 12:36:49 -0400
+
+pcx (1.1.9-2) unstable; urgency=low
+
+  * Link against glibc2.1
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Thu,  2 Sep 1999 19:54:52 -0400
+
+pcx (1.1.9-1) unstable; urgency=low
+
+  * New upstream release: fixed a memory leak.  The upstream authors did
+    not bump the version number for this minor change (exchanging two
+    lines of code).  Judging from the older versions remaining on their
+    ftp site, this is the ninth version of PCx, so I have assigned the
+    above version number to the Debian package.
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Mon,  9 Nov 1998 20:03:38 -0500
+
+pcx (1.1-1) unstable; urgency=low
+
+  * SRC/parameters.c: insert #include <stdlib.h>, for declaration of atof().
+  * Initial Release.  Added manpages: PCx.1 mps.5
+
+ -- James R. Van Zandt <jrv@vanzandt.mv.com>  Mon, 14 Sep 1998 20:28:40 -0400
+
+

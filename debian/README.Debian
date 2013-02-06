@@ -1,0 +1,7 @@
+PCx for DEBIAN
+----------------------
+
+PCx is configured to use the sparse Cholesky solver of Ng and Peyton,
+not the (proprietary) IBM code WSSMP.
+
+James R. Van Zandt <jrv@debian.org>, Mon, 14 Sep 1998 20:28:40 -0400

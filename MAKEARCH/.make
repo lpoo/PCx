@@ -1,0 +1,2 @@
+RANLIB   = ranlib
+

@@ -1,0 +1,11 @@
+# PCx expects the name of the input file on the command line.
+# output goes to stdout.
+#
+# Run PCx on the example input files like this:
+PCx afiro.mps |less
+
+gunzip 25fv47.mps.gz
+# here, PCx takes about 2.5 sec on my 300 MHz Pentium II:
+PCx 25fv47.mps |less
+
+

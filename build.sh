@@ -2,7 +2,7 @@
 
 
 if test -z "$PCx_ARCH" ; then
-  PCx_ARCH=`./pcxarch`; export PCx_ARCH
+  PCx_ARCH=`./pcxarch.sh`; export PCx_ARCH
 fi
 
 if test "$1" = "PCx_wssmp" ; then

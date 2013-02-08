@@ -21,7 +21,18 @@ CFLAGS = -O -D$(PCx_ARCH) $(MORECFLAGS)
 endif
 
 FFLAGS = -O $(MOREFFLAGS)
-LFLAGS = -O
+# The `LFLAGS = -O` was replace by `FLAGS = -z muldefs -O` because of
+# the following error:
+#
+#     gfortran -O main.o blkLVL.o Ng-Peyton.o ./libPCx.a \
+#       nullmain.o ../Ng-Peyton/cholesky.a -o ../PCx -lm
+#     nullmain.o: In function `main':
+#     nullmain.f:(.text+0x0): multiple definition of `main'
+#     main.o:main.c:(.text+0x0): first defined here
+#     collect2: error: ld returned 1 exit status
+#
+# LFLAGS = -O
+LFLAGS = -z muldefs -O
 
 include ../MAKEARCH/$(PCx_ARCH).make
 # MISC_OBJS is defined in architecture-specific makefile 

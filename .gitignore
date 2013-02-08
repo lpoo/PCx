@@ -1,5 +1,39 @@
 # Vim's temporary files.
 *.swp
 
+# ctags
+*tags
+
+# C/C++ Object files
+*.o
+*.slo
+*.lo
+
+# C/C++ Libraries
+*.lib
+*.a
+*.so
+*.dylib
+*.lai
+*.la
+*.a
+
+# C/C++ Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# C/C++ Executables
+*.exe
+*.out
+*.app
+
 # Test problem
 mps/*
+
+# Executable
+PCx
+
+# Log files
+*.log

@@ -1,6 +1,9 @@
 # Vim's temporary files.
 *.swp
 
+# Doc
+DOC/_build
+
 # ctags
 *tags
 

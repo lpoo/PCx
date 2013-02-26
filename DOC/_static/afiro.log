@@ -1,0 +1,62 @@
+
+******** PCx version 1.1 (Nov 1997) ************
+
+Problem 'AFIRO     ' terminated with OPTIMAL status
+Iterations=7, Termination Code=0
+
+MPS formulation has 27 rows, 32 columns
+
+PARAMETER SUMMARY
+=================
+
+Maximum number of iterations: 100
+Tolerances: Opt=1.00e-10  PriFeas=1.00e-08 DualFeas=1.00e-08
+Gondzio strategy selected:  Maximum Gondzio corrections = 0
+NO iterative refinement
+Presolving was performed:
+   Before Presolving:  27 rows, 51 columns
+   After  Presolving:  27 rows, 51 columns  (0 passes)
+MINIMIZE the objective
+Solution written to output file afiro.out
+
+
+FACTORIZATION SUMMARY
+=====================
+
+code used: Ng-Peyton sparse Cholesky library
+Nonzeros in L=107;  Density of L=0.256516
+
+ITERATION SUMMARY
+=================
+
+ Iter    Primal       Dual      (PriInf  DualInf)  log(mu)   Merit
+  0   1.7302e+03  -6.5852e+02  (5.1e+00 2.1e+00)     2.98    1.0e+01
+  1   5.3963e+02  -3.3153e+03  (1.2e+00 2.4e-01)     2.39    6.4e+00
+  2  -1.3724e+02  -1.4317e+03  (5.8e-16 1.6e-02)     1.43    1.7e+00
+  3  -3.0006e+02  -5.9650e+02  (4.3e-15 3.8e-03)     0.79    3.8e-01
+  4  -4.4537e+02  -4.9022e+02  (1.9e-15 3.9e-04)    -0.04    5.8e-02
+  5  -4.5979e+02  -4.6658e+02  (3.9e-15 4.5e-06)    -0.87    8.7e-03
+  6  -4.6474e+02  -4.6476e+02  (4.5e-14 3.5e-09)    -3.40    2.6e-05
+  7  -4.6475e+02  -4.6475e+02  (1.6e-15 2.1e-16)   -11.13    4.8e-13
+
+ 7 iterations
+
+Terminated with status OPTIMAL (code 0)
+
+Primal Objective = -4.64753143e+02
+Dual   Objective = -4.64753143e+02
+
+Complementarity          =  3.76e-10
+Relative Complementarity =  8.07e-13
+
+Relative Infeasibilities:
+Primal = 1.566e-15,    Dual   = 1.050e-16.
+
+TIME SUMMARY
+============
+
+Time to read input file: 0.00 sec
+Time to presolve       : 0.00 sec
+
+Time to solve          : 0.00 sec
+

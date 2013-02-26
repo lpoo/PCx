@@ -41,4 +41,15 @@ A very simple example of the use of GDB can be found below. ::
     [Inferior 1 (process 4757) exited with code 01]
     (gdb) quit
 
+Tips
+----
+
+For print a structure you can use ::
+
+    (gdb) p *strucuture
+
+For print a array you can use ::
+
+    (gdb) p *array@len
+
 .. [1] http://www.gnu.org/software/gdb/

@@ -207,7 +207,7 @@ PCx(LP, Solution, Inputs)
    Free((char*) Factor->maskDense);
    Factor->maskDense = maskDense;
       
-   status = Order(Factor);
+   status = Order(Factor, Inputs->OrderAlg);
    if (status != 0) 
       {
 	 printf("Error return from Order() routine.\n");

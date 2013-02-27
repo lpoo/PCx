@@ -228,6 +228,9 @@ typedef struct Parameters {
   int   UnrollingLevel;   /* Unrolling level for Ng-Peyton routines     */
 
   double CenterExponent;  /* Exponent for computing centering parameter */
+
+  int OrderAlg;           /* Ordering algorithm to use. 0 = dont't use any
+                             algorithm, 1 = multiple minimum degree (default). */
 } Parameters;
 
 

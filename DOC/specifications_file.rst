@@ -115,6 +115,14 @@ descriptions below, we assume that PCx is involed with the comand ::
 
   **Default**: 10^{-8}.
 
+``OrderAlg {value}``
+  Specify the ordering algorithm to be use. The list of algorithm avaliable are:
+
+  0. The natural order are used.
+  1. The multiple minimum degree ordering.
+
+  **Default**: 1.
+
 ``preprocess {yes}/{no}``
   Synonymous with ``presolver``.
 

@@ -110,6 +110,8 @@ NewParameters()
    ptr->UnrollingLevel = 4;
    
    ptr->CenterExponent = 3.0;
+
+   ptr->OrderAlg = 1;
    
    return ptr;
 }
@@ -221,7 +223,7 @@ ParseSpecsFile(parameters, infile)
    char           *basename, *suffix; 
    int             len;
    
-   int             NumKeys = 23;
+   int             NumKeys = 24;
    static char    *KeyWord[] = {"max", "min", "solution", 
 				"objectivename", "rhsname", "rangename",
 				"boundname", "history", "presolve", 
@@ -230,7 +232,7 @@ ParseSpecsFile(parameters, infile)
 				"unrollinglevel", "iterationlimit", 
 				"centerexp", "refinement", "stepfactor", 
 				"scaling", "hocorrections", 
-				"maxcorrections"};
+				"maxcorrections", "orderalg"};
    
    /* Try finding specs file under some different names. Give priority to
     * filenames that include this particular problem name */
@@ -488,7 +490,7 @@ ParseSpecsFile(parameters, infile)
 			    parameters->IterationLimit);
 		  }
 	       break;
-	    case 17:
+	    case 17:                    /* centerexponent */
 	       if (second == NULL)
 		  {
 		     printf("  Missing numerical value for CenterExp");
@@ -579,6 +581,34 @@ ParseSpecsFile(parameters, infile)
 		     parameters->MaxCorrections = atoi(second);
 		     printf("  Maximum Gondzio corrections = %d\n", 
 			    parameters->MaxCorrections);
+		  }
+	       break;
+	    case 23:    /* Order Algorithm */
+	       if (second == NULL)
+		  {
+		     parameters->OrderAlg = 1;
+		     printf("  Order Algorithm to be");
+		     printf(" multiple minimum degree.\n");
+		  }
+	       else
+		  {
+                     switch (atoi(second)) {
+                       case 0:
+                         parameters->OrderAlg = 0;
+                         printf("  Order Algorithm to be disable\n");
+                         break;
+                       case 2:
+                         parameters->OrderAlg = 2;
+                         printf("  Order Algorithm to be");
+                         printf(" Reverse Cuthill-McKee.\n");
+                         break;
+                       case 1:
+                       default:
+                         parameters->OrderAlg = 1;
+                         printf("  Order Algorithm to be");
+                         printf(" multiple minimum degree.\n");
+                         break;
+                     }
 		  }
 	       break;
 	    } /* end switch */

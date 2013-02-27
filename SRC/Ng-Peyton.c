@@ -143,12 +143,26 @@ FreeNgPeytonType(NgPeyton)
 }
 
 /*****************************************************************/
+/* Ordering auxiliar functions                                   */
+/*****************************************************************/
+
+int ordinc(int dimension, int *InvPerm, int *Perm){
+    int i;
+    for (i = 1; i <= dimension; i++) {
+        InvPerm[i - 1] = i;
+        Perm[i - 1] = i;
+    }
+    return 0;
+}
+
+/*****************************************************************/
 /* Ordering and symbolic factorization routine                   */
 /*****************************************************************/
 
 int             
-Order(Factor)
+Order(Factor, OrderAlg)
      FactorType     *Factor;
+     int             OrderAlg;
 {
    int       WorkSize, *Work, dimension, col, entry, flag;
    int      *ColumnCount, offset, row, NumCols, nonzeros;
@@ -183,31 +197,34 @@ Order(Factor)
    offset = 0;
    for (col = 0; col < NumCols; col++) 
       {
-	 if (Factor->AAT->pEndRow[col] - 
-	     Factor->AAT->pBeginRow[col] + 1 == 0) 
-	    {
-	       /* empty column in AAT */
-	       printf("There is an empty column in the matrix A A^T.\n");
-	       printf("This will cause an error in the Ng-Peyton matrix");
-	       printf(" ordering\n");
-	       printf("routine.  You can avoid this problem by selecting"); 
-	       printf(" the\n");
-	       printf("presolve option in the specifications file.\n");
-	       return FACTORIZE_ERROR;
-	    }
-	 for (entry = Factor->AAT->pBeginRow[col] - 1;
-	      entry <= Factor->AAT->pEndRow[col] - 1; entry++) 
-	    {
-	       row = Factor->AAT->Row[entry];
-	       if (row != col + 1)
-		  TempRow[entry - offset] = Factor->AAT->Row[entry];
-	       else
-		  offset++;
-	    }
+        if (Factor->AAT->pEndRow[col] -
+            Factor->AAT->pBeginRow[col] + 1 == 0)
+           {
+              /* empty column in AAT */
+              printf("There is an empty column in the matrix A A^T.\n");
+              printf("This will cause an error in the Ng-Peyton matrix");
+              printf(" ordering\n");
+              printf("routine.  You can avoid this problem by selecting");
+              printf(" the\n");
+              printf("presolve option in the specifications file.\n");
+              return FACTORIZE_ERROR;
+           }
+        for (entry = Factor->AAT->pBeginRow[col] - 1;
+             entry <= Factor->AAT->pEndRow[col] - 1; entry++)
+           {
+              row = Factor->AAT->Row[entry];
+              if (row != col + 1)
+                 TempRow[entry - offset] = Factor->AAT->Row[entry];
+              else
+                 offset++;
+           }
       }
 
   /* Fill in pSuperNodeCols and SuperNodeRows (as temp space) since this data
-   * structure will be destroyed by ordmmd.  */
+   * structure will be destroyed by ordmmd.
+   *
+   * (pSuperNodeCols, SuperNodeRows) - The Adjacency Structure.
+   * */
 
    for (col = 0; col < NumCols + 1; col++)
       NgPeyton->pSuperNodeCols[col] = TempBeginRow[col];
@@ -217,22 +234,44 @@ Order(Factor)
    for (entry = 0; entry < nonzeros; entry++)
       NgPeyton->SuperNodeRows[entry] = TempRow[entry];
    
-   /* call multiple minimum degree routine */
-   
-   ordmmd(&dimension, NgPeyton->pSuperNodeCols,
-	  NgPeyton->SuperNodeRows,
-	  Factor->InvPerm, Factor->Perm,
-	  &WorkSize, Work, &(NgPeyton->NumCompressedCols), &flag);
-   
-   if (flag)
-      printf("ordmmd error flag = %d\n", flag);
-   
-   if (flag == -1) 
-      {
-	 printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
-	 printf("in Order().\n");
-	 return FACTORIZE_ERROR;
-      }
+   /* Select and apply order algorithm. */
+
+   switch (OrderAlg) {
+       case 0:
+           flag = ordinc(dimension, Factor->InvPerm, Factor->Perm);
+
+           if (flag)
+              printf("ordinc error flag = %d\n", flag);
+
+           if (flag == -1)
+              {
+                 printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
+                 printf("in Order().\n");
+                 return FACTORIZE_ERROR;
+              }
+           break;
+       case 1:
+           /* call multiple minimum degree routine */
+
+           ordmmd(&dimension, NgPeyton->pSuperNodeCols,
+                  NgPeyton->SuperNodeRows,
+                  Factor->InvPerm, Factor->Perm,
+                  &WorkSize, Work, &(NgPeyton->NumCompressedCols), &flag);
+
+           if (flag)
+              printf("ordmmd error flag = %d\n", flag);
+
+           if (flag == -1)
+              {
+                 printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
+                 printf("in Order().\n");
+                 return FACTORIZE_ERROR;
+              }
+           break;
+       case 2:
+           break;
+   }
+
    /* Symbolic Factorization Initialization: Compute supernode partition and
     * storage requirements */
    
@@ -241,21 +280,21 @@ Order(Factor)
    ColumnCount = NewInt(dimension, "ColumnCount");
    
    sfinit(&dimension, &nonzeros,
-	  TempBeginRow, TempRow,
-	  Factor->Perm, Factor->InvPerm, ColumnCount,
-	  &(Factor->NonzerosL), &(NgPeyton->NumCompressedCols),
-	  &(NgPeyton->NumSuperNodes), NgPeyton->mapColumnToSupernode,
-	  NgPeyton->SuperPartitioning,
-	  &WorkSize, Work, &flag);
+         TempBeginRow, TempRow,
+         Factor->Perm, Factor->InvPerm, ColumnCount,
+         &(Factor->NonzerosL), &(NgPeyton->NumCompressedCols),
+         &(NgPeyton->NumSuperNodes), NgPeyton->mapColumnToSupernode,
+         NgPeyton->SuperPartitioning,
+         &WorkSize, Work, &flag);
 
    if (flag)
       printf("sfinit error flag = %d\n", flag);
    
    if (flag == -1) 
       {
-	 printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
-	 printf("in Order().\n");
-	 return FACTORIZE_ERROR;
+        printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
+        printf("in Order().\n");
+        return FACTORIZE_ERROR;
       }
    
    printf("Cholesky factor will have density %8.5f\n", 
@@ -268,7 +307,7 @@ Order(Factor)
  
    NgPeyton->SuperNodeRows =
       (int *) Realloc(NgPeyton->SuperNodeRows,
-		      Factor->NonzerosL * sizeof(int), "SuperNodeRows");
+                     Factor->NonzerosL * sizeof(int), "SuperNodeRows");
    
    /* Perform supernodal symbolic factorization */
    
@@ -276,32 +315,33 @@ Order(Factor)
    Work = (int *) Realloc(Work, WorkSize * sizeof(int), "Work");
    
    symfct(&dimension, &nonzeros,
-	  TempBeginRow, TempRow,
-	  Factor->Perm, Factor->InvPerm,
-	  ColumnCount,
-	  &(NgPeyton->NumSuperNodes), NgPeyton->SuperPartitioning,
-	  NgPeyton->mapColumnToSupernode, &(NgPeyton->NumCompressedCols),
-	  NgPeyton->pSuperNodeCols, NgPeyton->SuperNodeRows,
-	  NgPeyton->pBeginRowL, &WorkSize, Work, &flag);
+         TempBeginRow, TempRow,
+         Factor->Perm, Factor->InvPerm,
+         ColumnCount,
+         &(NgPeyton->NumSuperNodes), NgPeyton->SuperPartitioning,
+         NgPeyton->mapColumnToSupernode, &(NgPeyton->NumCompressedCols),
+         NgPeyton->pSuperNodeCols, NgPeyton->SuperNodeRows,
+         NgPeyton->pBeginRowL, &WorkSize, Work, &flag);
    
    if (flag)
       printf("symfct error flag = %d\n", flag);
 
    if (flag == -1) 
       {
-	 printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
-	 printf("in Order().\n");
-	 return FACTORIZE_ERROR;
+        printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
+        printf("in Order().\n");
+        return FACTORIZE_ERROR;
       }
    if (flag == -2) 
       {
-	 printf("Inconsistency in the input to symfct in Order().\n");
-	 return FACTORIZE_ERROR;
+        printf("Inconsistency in the input to symfct in Order().\n");
+        return FACTORIZE_ERROR;
       }
    Free((char *) ColumnCount);
    Free((char *) Work);
    Free((char *) TempBeginRow);
    Free((char *) TempRow);
+
    return 0;
 }
 

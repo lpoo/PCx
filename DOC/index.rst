@@ -26,6 +26,7 @@ Users:
    invoking.rst
    specifications_file.rst
    samples.rst
+   benchmark.rst
 
 Developers:
 

@@ -38,6 +38,7 @@ Developers:
    linear_algebra.rst
    presolver.rst
    data-structures.rst
+   data-structures2.rst
    debugging.rst
 
 Indices and tables

@@ -154,9 +154,15 @@ if __name__ == "__main__":
     # Parse of flags.
     parser = argparse.ArgumentParser(description='Benchmark for PCx.',
             formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--max', type=int, default=[],
+            help="List of files to be used for the benchmark.\n")
     parser.add_argument('-o', type=str, default='bench.out',
             help='Output file.')
+    parser.add_argument('--only', nargs='+', type=str, default=[],
+            help="List of files to be used for the benchmark.\n")
     parser.add_argument('-p', type=str, default='mps',
+            help='Path of the files to test.')
+    parser.add_argument('-s', type=str, default='name',
             help='Path of the files to test.')
     parser.add_argument('-x', nargs='+', type=str, default=[],
             help="List of files to be exclude from the benchmark.\n")

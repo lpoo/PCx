@@ -1,20 +1,33 @@
-To install PCx on a Unix system, download the file
-PCx.tar.gz and place it in its own subdirectory (referred to
-henceforth as the "working directory"). From the working directory,
-uncompress by typing
+PCx depends of the below programs:
 
-gunzip PCx.tar.gz
+* Fotran compiler, e.g., gfortran
+* C compiler, e.g., gcc
+* Make, e.g., GNU Make
 
-and un-tar by typing
+To install PCx on a Unix system, follow the below instructions:
 
-tar xvf PCx.tar
+    $ git clone https://github.com/r-gaia-cs/PCx.git
+    $ ./configure
+    # make
 
-The subdirectories SRC/, DOC/, MAKEARCH/, Ng-Peyton/, and mps/
-will be created, together with this README file, a COPYRIGHT statement,
-and a sample parameter specifications file named "PCx.specs".
-To create the executable "PCx" in the working directory, type 
+If the building process have finish without error the file `PCx` must be
+create. Lets try it with the smallest mps file, `afiro.mps`.
 
-build
+    $ ./PCx afiro
+
+For recompile the source is recommended to remove all the object files.
+
+    $ make clean
+
+To compile the MATLAB interface, follow the below instructions:
+
+    $ make mex
+
+Add PCx/mex to your MATLABPATH environment. Then, at the MATLAB prompt,
+type 'help PCx' for syntax information. The syntax is virtually
+identical to that of Matlab's linprog (a.k.a. Yin Zhang's LIPSOL).
+
+You can test the interface on the supplied datafiles `afiro.mat`.
 
 =======================================================================
 
@@ -27,38 +40,34 @@ HP-9000 workstations;
 Pentium PC running Linux;
 IBM RS6000 workstations.
 
-Unfortunately, the build procedure is site-specific as well as 
-architecture-specific, particularly since it involves linking of 
-Fortran and C source files, so there are no guarantees that it will 
-work on your machine, even if you have one of the systems mentioned 
-above. If the "build" fails on your machine, you can download an 
-executable from the PCx web site for each of the architectures above. 
+Unfortunately, the build procedure is site-specific as well as
+architecture-specific, particularly since it involves linking of
+Fortran and C source files, so there are no guarantees that it will
+work on your machine, even if you have one of the systems mentioned
+above. If the "build" fails on your machine, you can download an
+executable from the PCx web site for each of the architectures above.
 See the PCx home page for details.
 
-Some linkers might issue a warning that there are two main-functions, 
-chances are that this warning can be safely ignored and the executable 
+Some linkers might issue a warning that there are two main-functions,
+chances are that this warning can be safely ignored and the executable
 will be fully functional.
 
 If your compiler does not compile the PCx code correctly, try removing
 the reference to nullmain.o in the file SRC/Makefile.  Some compilers
-seem need this null routine in the linking process. 
+seem need this null routine in the linking process.
 
 If you are having difficulty compiling the file timers.c, it is
 possible to turn off the timing routines.  Simply change the file
 SRC/Makefile.  Change the line
 
-CFLAGS = -O -D$(PCx_ARCH)
+    CFLAGS = -O -D$(PCx_ARCH)
 
-to 
+to
 
-CFLAGS = -O -D$(PCx_ARCH) -DNO_TIMING
+    CFLAGS = -O -D$(PCx_ARCH) -DNO_TIMING
 
 To test PCx on one of the input files in the subdirectory "mps/", type
 
-PCx afiro
-
-or
-
-PCx greenbeb
+    $ PCx afiro
 
 A User Manual is available in the subdirectory DOC.

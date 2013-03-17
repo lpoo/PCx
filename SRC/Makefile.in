@@ -1,3 +1,9 @@
+# @configure_input@
+
+PCx_ARCH = @PCx_ARCH@
+WSSMP_LIB = @WSSMP_LIB@
+NG_LIB = @NG_LIB@
+TARGETDIR = @TARGETDIR@
 
 OBJS = presolve.o PCx2.o readmps.o lpmps.o memory.o hash.o \
        parameters.o split.o io.o timers.o PCx.o solve.o \
@@ -10,17 +16,16 @@ MYSOLVER_LIB = ../mysolver/libmysolver.a
 #NG_LIB    is defined in the build script
 #WSSMP_LIB is defined in the build script
 
-FORTRAN = ${FC}
-
 ifdef MEX
-CFLAGS = -O -D$(PCx_ARCH) -DMEX $(MORECFLAGS)
-#CFLAGS = -g -D$(PCx_ARCH) -DMEX
+#CFLAGS = -O -D$(PCx_ARCH) -DMEX $(MORECFLAGS)
+CFLAGS = -g -D$(PCx_ARCH) -DMEX
 else
-CFLAGS = -O -D$(PCx_ARCH) $(MORECFLAGS)
-#CFLAGS = -g -D$(PCx_ARCH)
+#CFLAGS = -O -D$(PCx_ARCH) $(MORECFLAGS)
+CFLAGS = -g -D$(PCx_ARCH)
 endif
 
-FFLAGS = -O $(MOREFFLAGS)
+FORTRAN = @FC@
+FCFLAGS = @FCFLAGS@
 # The `LFLAGS = -O` was replace by `FLAGS = -z muldefs -O` because of
 # the following error:
 #
@@ -35,7 +40,7 @@ FFLAGS = -O $(MOREFFLAGS)
 LFLAGS = -z muldefs -O
 
 include ../MAKEARCH/$(PCx_ARCH).make
-# MISC_OBJS is defined in architecture-specific makefile 
+# MISC_OBJS is defined in architecture-specific makefile
 
 # this is still the default:
 PCx_NgPeyton: main.o $(PCX_LIB) blkLVL.o Ng-Peyton.o $(MISC_OBJS) $(NG_LIB)
@@ -67,4 +72,3 @@ $(PCX_LIB): $(OBJS)
 
 .f.o:
 	${FC} ${FFLAGS} -c -o ${TARGETDIR}/$*.o $<
-

@@ -1,0 +1,49 @@
+# @configure_input@
+
+PCx_ARCH = @PCx_ARCH@
+WSSMP_LIB = @WSSMP_LIB@
+NG_LIB = @NG_LIB@
+TARGETDIR = @TARGETDIR@
+
+CC = @CC@
+CCFLAGS = @CFLAGS@
+FC = @FC@
+FCFLAGS = @FCFLAGS@
+
+# default
+PCx:: NgPeyton
+	@echo "***************************************************";
+	@echo "Building PCx with the Ng Peyton Cholesky solver....";
+	@echo "***************************************************";
+	make -C SRC PCx_NgPeyton
+
+NgPeyton::
+	@echo "***************************************************";
+	@echo "Building the Ng Peyton Cholesky solver....";
+	@echo "***************************************************";
+	make -C Ng-Peyton
+
+PCx_wssmp::
+	@echo "***************************************************";
+	@echo "Building PCx with the IBM WSSMP Cholesky solver....";
+	@echo "***************************************************";
+	make -C SRC PCx_wssmp
+
+PCx_mysolver::
+	echo "***********************************************";
+	echo "Building PCx with the user-supplied solver     ";
+	echo "Requires file ./SRC/mysolver.c and             ";
+	echo "    library ./mysolver/libmysolver.a           ";
+	echo "***********************************************";
+	make -C SRC PCx_mysolver
+
+mex:: NgPeyton
+	echo "***********************************************";
+	echo "The Matlab Interface is only available with    ";
+	echo "    the Ng-Peyton solver.                      ";
+	echo "***********************************************";
+	make -C mex
+
+clean::
+	/bin/rm -f PCx *.log ./Ng-Peyton/*.[ao] ./SRC/*.o
+	/bin/rm -f SRC/libPCx.a mex/*.mex* mex/*.[ao] F2C/*.[ao]

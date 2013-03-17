@@ -1,3 +1,5 @@
+# @configure_input@
+
 #***********************************************************************
 #***********************************************************************
 #
@@ -10,9 +12,13 @@
 #***********************************************************************
 #***********************************************************************
 
-FORTRAN = ${FC}
-FFLAGS  = -O $(MOREFFLAGS)
-#FFLAGS  = -O -u
+PCx_ARCH = @PCx_ARCH@
+WSSMP_LIB = @WSSMP_LIB@
+NG_LIB = @NG_LIB@
+TARGETDIR = @TARGETDIR@
+
+FORTRAN = @FC@
+FFLAGS  = @FCFLAGS@
 
 LIB_FILES = \
  assmb.o btree2.o betree.o bfinit.o blkfct.o blkfc2.o blkslv.o   \

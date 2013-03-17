@@ -12,10 +12,22 @@ you will find some explanation about it.
    PCx uses Fortran-style indexing, in which row and column indices start at 1
    rather than zero.
 
+``MMTtype``
+-----------
+
+The ``MMTtype`` data structure contains a sparse structure with pointer
+information for both the matrix and its transpose.
+
+.. literalinclude:: ../SRC/main.h
+   :language: c
+   :lines: 73-80
+
+
 ``sparseMatrix``
 ----------------
 
-The ``sparseMatrix`` data structure contains a single matrix in the CSR format.
+The ``sparseMatrix`` data structure contains a single matrix in the CSR format
+(for more information see [SMSF]_).
 
 .. literalinclude:: ../SRC/main.h
    :language: c
@@ -43,6 +55,44 @@ it will be stored as ::
     Row = {1, 2, 4, 1, 2, 3, 4, 5, 1, 3, 4, 2, 5},
     Value = {1, -1, -3, -2, 5, 4, 6, 4, -4, 2, 7, 8, -5}
 
+``Factor Type``
+---------------
+
+.. literalinclude:: ../SRC/main.h
+   :language: c
+   :lines: 94-104
+
+Sample
+^^^^^^
+
+The sample bellow are based in ``maros0.mps`` (download it :download:`here
+<_static/maros0.mps>`). ::
+
+    ptr = 0x62da00,
+    FactorizationCode = 0x62d810 "Ng-Peyton sparse Cholesky library",
+    N = 3,
+    NonzerosL = 6,
+    SmallDiagonals = 0,
+    Perm = {3, 1, 2},
+    InvPerm = {2, 3, 1},
+    AAT = {
+        NumRows = 3,
+        NumCols = 3,
+        Nonzeros = 9,
+        pBeginRow = {1, 4, 7},
+        pBeginRowT = 0x0,
+        pEndRow = {3, 6, 9},
+        pEndRowT = 0x0,
+        Row = {1, 2, 3, 1, 2, 3, 1, 2, 3},
+        RowT = 0x0,
+        Value = {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        ValueT = 0x0
+    },
+    Ndense = 0,
+    maskDense = 0x62d640,
+    W = 0x62d8e0,
+    Ldense = 0x62d9c0
+
 ``MPStype``
 -----------
 
@@ -55,6 +105,9 @@ columns, and objectives of the model specified in the MPS file.
 .. literalinclude:: ../SRC/main.h
    :language: c
    :lines: 108-140
+
+``MPSchanges``
+--------------
 
 ``LPtype``
 ----------
@@ -124,40 +177,24 @@ The sample bellow are based in ``maros0.mps`` (download it :download:`here
     FreePlus = 0x0,
     FreeMinus = 0x0
 
-``Factor Type``
----------------
+``Parameters``
+--------------
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 94-104
+``IterationRecord``
+-------------------
 
-Sample
-^^^^^^
+``FactorizationRecord``
+-----------------------
 
-The sample bellow are based in ``maros0.mps`` (download it :download:`here
-<_static/maros0.mps>`). ::
+``solution``
+------------
 
-    ptr = 0x62da00,
-    FactorizationCode = 0x62d810 "Ng-Peyton sparse Cholesky library",
-    N = 3,
-    NonzerosL = 6,
-    SmallDiagonals = 0,
-    Perm = {3, 1, 2},
-    InvPerm = {2, 3, 1},
-    AAT = {
-        NumRows = 3,
-        NumCols = 3,
-        Nonzeros = 9,
-        pBeginRow = {1, 4, 7},
-        pBeginRowT = 0x0,
-        pEndRow = {3, 6, 9},
-        pEndRowT = 0x0,
-        Row = {1, 2, 3, 1, 2, 3, 1, 2, 3},
-        RowT = 0x0,
-        Value = {0, 0, 0, 0, 0, 0, 0, 0, 0},
-        ValueT = 0x0
-    },
-    Ndense = 0,
-    maskDense = 0x62d640,
-    W = 0x62d8e0,
-    Ldense = 0x62d9c0
+``Iterate``
+-----------
+
+``GenralInfo``
+--------------
+
+.. rubric:: Refereces
+
+.. [SMSF] Intel Corporation. Sparse Matrix Storage Formats. http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/GUID-9FCEB1C4-670D-4738-81D2-F378013412B0.htm

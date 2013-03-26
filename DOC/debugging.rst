@@ -1,12 +1,7 @@
 Debugging
 =========
 
-For debugging PCx you can use GDB [1]_.
-
-The easy way to enable the debug flag before compiling PCx is ::
-
-    $ export FC='gfortran -g'
-    $ export CC='gcc -g'
+For debugging PCx you can use GDB [GDB]_.
 
 A very simple example of the use of GDB can be found below. ::
 
@@ -52,4 +47,6 @@ For print a array you can use ::
 
     (gdb) p *array@len
 
-.. [1] http://www.gnu.org/software/gdb/
+.. rubric:: Refereces
+
+.. [GDB] Free Software Foundation. GDB: The GNU Project Debugger. http://www.gnu.org/software/gdb/.

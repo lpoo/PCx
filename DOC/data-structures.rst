@@ -6,7 +6,7 @@ you will find some explanation about it.
 
 .. important::
    The matrix used by PCx are stored in the usual compressed-sparse-row (CSR)
-   format.
+   format. For more information about sparse matrix storage see the references.
 
 .. warning::
    PCx uses Fortran-style indexing, in which row and column indices start at 1
@@ -27,7 +27,7 @@ information for both the matrix and its transpose.
 ----------------
 
 The ``sparseMatrix`` data structure contains a single matrix in the CSR format
-(for more information see [SMSF]_).
+(for more information see [Intel]_).
 
 .. literalinclude:: ../SRC/main.h
    :language: c
@@ -197,4 +197,6 @@ The sample bellow are based in ``maros0.mps`` (download it :download:`here
 
 .. rubric:: Refereces
 
-.. [SMSF] Intel Corporation. Sparse Matrix Storage Formats. http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/GUID-9FCEB1C4-670D-4738-81D2-F378013412B0.htm
+.. [Intel] Intel Corporation. Sparse Matrix Storage Formats. http://software.intel.com/sites/products/documentation/hpc/mkl/mklman/GUID-9FCEB1C4-670D-4738-81D2-F378013412B0.htm.
+
+.. [Netlib] Jack Dongarra. Survey of Sparse Matrix Storage Formats. http://netlib.org/utk/papers/templates/node90.html.

@@ -8,7 +8,7 @@ TARGETDIR = @TARGETDIR@
 OBJS = presolve.o PCx2.o readmps.o lpmps.o memory.o hash.o \
        parameters.o split.o io.o timers.o PCx.o solve.o \
        dcolumns.o wrappers.o basics.o scale.o lp.o \
-       jair.o cblas.o algorithm.o
+       jair.o cblas.o algorithm.o rcm.o
 
 PCX_LIB   =  libPCx.a
 MYSOLVER_LIB = ../mysolver/libmysolver.a

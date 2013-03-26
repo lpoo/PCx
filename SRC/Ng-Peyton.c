@@ -12,6 +12,7 @@
 #include "memory.h"
 #include "solver.h"
 #include "Ng-Peyton.h"
+#include "rcm.h"
 #include "string.h"
 
 /*****************************************************************/
@@ -238,17 +239,10 @@ Order(Factor, OrderAlg)
 
    switch (OrderAlg) {
        case 0:
+           /* call natural ordering */
+
            flag = ordinc(dimension, Factor->InvPerm, Factor->Perm);
 
-           if (flag)
-              printf("ordinc error flag = %d\n", flag);
-
-           if (flag == -1)
-              {
-                 printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
-                 printf("in Order().\n");
-                 return FACTORIZE_ERROR;
-              }
            break;
        case 1:
            /* call multiple minimum degree routine */
@@ -258,19 +252,25 @@ Order(Factor, OrderAlg)
                   Factor->InvPerm, Factor->Perm,
                   &WorkSize, Work, &(NgPeyton->NumCompressedCols), &flag);
 
-           if (flag)
-              printf("ordmmd error flag = %d\n", flag);
-
-           if (flag == -1)
-              {
-                 printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
-                 printf("in Order().\n");
-                 return FACTORIZE_ERROR;
-              }
            break;
        case 2:
+           /* call the Reverse Cuthill-McKee routine */
+
+           flag = rcm(&dimension, NgPeyton->pSuperNodeCols,
+                  NgPeyton->SuperNodeRows,
+                  Factor->InvPerm, Factor->Perm);
+
            break;
    }
+   if (flag)
+      printf("ordmmd error flag = %d\n", flag);
+
+   if (flag == -1)
+      {
+         printf("Size of work array, %d, is larger than WorkSize\n", WorkSize);
+         printf("in Order().\n");
+         return FACTORIZE_ERROR;
+      }
 
    /* Symbolic Factorization Initialization: Compute supernode partition and
     * storage requirements */

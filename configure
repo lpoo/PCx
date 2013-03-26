@@ -1775,6 +1775,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Uncompress files in mps folder
+echo "Uncompress files in mps folder. It will take some minutes."
 cd mps
 for f in `ls *.bz2`; do
   bunzip2 $f
@@ -1879,6 +1880,10 @@ fi
 # Configure target dir
 TARGETDIR=.
 
+
+# Library
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
 
 # Checks for programs
 echo "Testing for a C compiler"

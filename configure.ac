@@ -108,6 +108,10 @@ fi
 TARGETDIR=.
 AC_SUBST(TARGETDIR)
 
+# Library
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
+
 # Checks for programs
 echo "Testing for a C compiler"
 AC_PROG_CC

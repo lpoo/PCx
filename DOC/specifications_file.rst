@@ -120,6 +120,7 @@ descriptions below, we assume that PCx is involed with the comand ::
 
   0. The natural order are used.
   1. The multiple minimum degree ordering.
+  2. The Reverse Cuthill-McKee.
 
   **Default**: 1.
 

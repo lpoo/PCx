@@ -4,11 +4,21 @@ PCx depends of the below programs:
 * C compiler, e.g., gcc
 * Make, e.g., GNU Make
 
+The PCx's documentation depends of the below programs:
+
+* sphinx
+* doxygen
+* breathe
+
 To install PCx on a Unix system, follow the below instructions:
 
     $ git clone https://github.com/r-gaia-cs/PCx.git
     $ ./configure
-    # make
+    $ make
+
+add for the documentation:
+
+    $ make doc
 
 If the building process have finish without error the file `PCx` must be
 create. Lets try it with the smallest mps file, `afiro.mps`.

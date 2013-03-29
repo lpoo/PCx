@@ -41,6 +41,37 @@ Developers:
    data-structures2.rst
    debugging.rst
 
+C API:
+
+.. toctree::
+   :maxdepth: 2
+
+   c_api/algorithm.rst
+   c_api/basics.rst
+   c_api/cblas.rst
+   c_api/dcolumns.rst
+   c_api/hash.rst
+   c_api/io.rst
+   c_api/jair.rst
+   c_api/lpmps.rst
+   c_api/main.rst
+   c_api/memory.rst
+   c_api/Ng-Peyton.rst
+   c_api/parameters.rst
+   c_api/PCx.rst
+   c_api/pre.rst
+   c_api/presolve.rst
+   c_api/rcm.rst
+   c_api/readmps.rst
+   c_api/scale.rst
+   c_api/solver.rst
+   c_api/solve.rst
+   c_api/split.rst
+   c_api/timers.rst
+   c_api/wrappers.rst
+   c_api/writemps.rst
+   c_api/wssmp.rst
+
 Indices and tables
 ==================
 

@@ -30,19 +30,24 @@ PCx_wssmp::
 	make -C SRC PCx_wssmp
 
 PCx_mysolver::
-	echo "***********************************************";
-	echo "Building PCx with the user-supplied solver     ";
-	echo "Requires file ./SRC/mysolver.c and             ";
-	echo "    library ./mysolver/libmysolver.a           ";
-	echo "***********************************************";
+	@echo "***********************************************";
+	@echo "Building PCx with the user-supplied solver     ";
+	@echo "Requires file ./SRC/mysolver.c and             ";
+	@echo "    library ./mysolver/libmysolver.a           ";
+	@echo "***********************************************";
 	make -C SRC PCx_mysolver
 
 mex:: NgPeyton
-	echo "***********************************************";
-	echo "The Matlab Interface is only available with    ";
-	echo "    the Ng-Peyton solver.                      ";
-	echo "***********************************************";
+	@echo "***********************************************";
+	@echo "The Matlab Interface is only available with    ";
+	@echo "    the Ng-Peyton solver.                      ";
+	@echo "***********************************************";
 	make -C mex
+
+doc::
+	-mkdir DOC/_doxygen
+	cd SRC; doxygen
+	make -C DOC html
 
 clean::
 	/bin/rm -f PCx *.log ./Ng-Peyton/*.[ao] ./SRC/*.o

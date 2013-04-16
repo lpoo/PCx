@@ -63,8 +63,8 @@ class PTInfo():
                 "Max Add. Corr.,Iters,CPU Time [secs]\n")
 
     def csv(self):
-        return "{},{},{},{},{},{},{:e},{:e},{:e},{:e},{},{},{:e}\n".format(self.name,
-                self.brows, self.bcols, self.arows, self.acols,
+        return "{},{},{},{},{},{},{},{:e},{:e},{:e},{:e},{},{},{:e}\n".format(self.name,
+                self.status, self.brows, self.bcols, self.arows, self.acols,
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.max_corr, self.it, self.cpu)
 
@@ -118,59 +118,62 @@ def bench(p, o, mf, n, s, i, x):
     for f in fl:
         call_stdout = open("/dev/null", 'w')
         print("Running PCx for {0}. It can take some minutes.".format(f))
-        subprocess.call(["./PCx", f], stdout=call_stdout)
+        retcod = subprocess.call(["./PCx", f], stdout=call_stdout)
         print("End running PCx.")
         call_stdout.close()
-        with open(f.replace("mps", "log"), 'r') as log:
-            info = PTInfo(f)
-            step = 0  # step is responsible to select the regex to be used.
-            for l in log:
-                if step == 0:
-                    m = re.match('Iterations=(?P<it>[0-9]*), Termination Code=(?P<status>[0-9])', l)
-                    if m:
-                        info.add_status(m.group('status'))
-                        info.add_it(m.group('it'))
-                        step += 1
-                elif step == 1:
-                    m = re.match('.*Before Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
-                    if m:
-                        info.add_brows(m.group('rows'))
-                        info.add_bcols(m.group('cols'))
-                        step += 1
-                elif step == 2:
-                    m = re.match('.*After  Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
-                    if m:
-                        info.add_arows(m.group('rows'))
-                        info.add_acols(m.group('cols'))
-                        step += 1
-                elif step == 3:
-                    m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*);  Density of L=(?P<density>[0-9].[0-9]*).*', l)
-                    if m:
-                        info.add_fact_nonzeros(m.group('nonzeros'))
-                        info.add_fact_density(m.group('density'))
-                        step += 1
-                elif step == 4:
-                    m = re.match('Primal Objective = (?P<po>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
-                    if m:
-                        info.add_prim_obj(m.group('po'))
-                        step += 1
-                elif step == 5:
-                    m = re.match('Relative Complementarity = (?P<rc>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
-                    if m:
-                        info.add_rel_compl(m.group('rc'))
-                        step += 1
-                elif step == 6:
-                    m = re.match('Primal =(?P<rip>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
-                    if m:
-                        info.add_rel_infeas(m.group('rip'))
-                        step += 1
-                elif step == 7:
-                    m = re.match('Time to solve.*: (?P<cpu>[0-9]*.\.[0-9]*).*', l)
-                    if m:
-                        info.add_cpu(m.group('cpu'))
-                        step += 1
-            of.write(info.csv())
-        subprocess.call(["rm", f.replace(".mps", ".log")])
+        info = PTInfo(f)
+        if retcod == 0:
+            with open(f.replace("mps", "log"), 'r') as log:
+                step = 0  # step is responsible to select the regex to be used.
+                for l in log:
+                    if step == 0:
+                        m = re.match('Iterations=(?P<it>[0-9]*), Termination Code=(?P<status>[0-9])', l)
+                        if m:
+                            info.add_status(m.group('status'))
+                            info.add_it(m.group('it'))
+                            step += 1
+                    elif step == 1:
+                        m = re.match('.*Before Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
+                        if m:
+                            info.add_brows(m.group('rows'))
+                            info.add_bcols(m.group('cols'))
+                            step += 1
+                    elif step == 2:
+                        m = re.match('.*After  Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
+                        if m:
+                            info.add_arows(m.group('rows'))
+                            info.add_acols(m.group('cols'))
+                            step += 1
+                    elif step == 3:
+                        m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*);  Density of L=(?P<density>[0-9].[0-9]*).*', l)
+                        if m:
+                            info.add_fact_nonzeros(m.group('nonzeros'))
+                            info.add_fact_density(m.group('density'))
+                            step += 1
+                    elif step == 4:
+                        m = re.match('Primal Objective = (?P<po>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                        if m:
+                            info.add_prim_obj(m.group('po'))
+                            step += 1
+                    elif step == 5:
+                        m = re.match('Relative Complementarity = (?P<rc>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                        if m:
+                            info.add_rel_compl(m.group('rc'))
+                            step += 1
+                    elif step == 6:
+                        m = re.match('Primal =(?P<rip>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                        if m:
+                            info.add_rel_infeas(m.group('rip'))
+                            step += 1
+                    elif step == 7:
+                        m = re.match('Time to solve.*: (?P<cpu>[0-9]*.\.[0-9]*).*', l)
+                        if m:
+                            info.add_cpu(m.group('cpu'))
+                            step += 1
+            subprocess.call(["rm", f.replace(".mps", ".log")])
+        else:
+            info.add_status(retcod)
+        of.write(info.csv())
     of.close()
 
 def check_spc_file(f2check, p):

@@ -4,11 +4,13 @@ import re
 
 class PTInfo():
     def __init__(self, name):
-        self.name = name
+        self.name = str(name)
         self.brows = 0
         self.bcols = 0
         self.arows = 0
         self.acols = 0
+        self.fact_nonzeros = 0
+        self.fact_density = 0
         self.rel_infeas = 0
         self.rel_compl = 0
         self.prim_obj = 0
@@ -17,46 +19,53 @@ class PTInfo():
         self.cpu = 0
 
     def add_status(self, status):
-        self.status = status
+        self.status = int(status)
 
     def add_brows(self, rows):
-        self.brows = rows
+        self.brows = int(rows)
 
     def add_bcols(self, cols):
-        self.bcols = cols
+        self.bcols = int(cols)
 
     def add_arows(self, rows):
-        self.arows = rows
+        self.arows = int(rows)
 
     def add_acols(self, cols):
-        self.acols = cols
+        self.acols = int(cols)
+
+    def add_fact_nonzeros(self, nonzeros):
+        self.fact_nonzeros = int(nonzeros)
+
+    def add_fact_density(self, density):
+        self.fact_density = float(density)
 
     def add_rel_infeas(self, rel_infeas):
-        self.rel_infeas = rel_infeas
+        self.rel_infeas = float(rel_infeas)
 
     def add_rel_compl(self, rel_compl):
-        self.rel_compl = rel_compl
+        self.rel_compl = float(rel_compl)
 
     def add_prim_obj(self, prim_obj):
-        self.prim_obj = prim_obj
+        self.prim_obj = float(prim_obj)
 
     def add_max_corr(self, max_corr):
-        self.max_corr = max_corr
+        self.max_corr = int(max_corr)
 
     def add_it(self, it):
-        self.it = it
+        self.it = int(it)
 
     def add_cpu(self, cpu):
-        self.cpu = cpu
+        self.cpu = float(cpu)
 
     def csv_header(self):
-        return ("Name,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Relative Infeas,"
-                "Relative Compl,Primal Objective,Max Add. Corr.,Iters,CPU Time"
-                " [secs]\n")
+        return ("Name,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Nonzeros,Density,"
+                "Relative Infeas,Relative Compl,Primal Objective,"
+                "Max Add. Corr.,Iters,CPU Time [secs]\n")
 
     def csv(self):
-        return "{},{},{},{},{},{},{},{},{},{},{}\n".format(self.name, self.brows,
-                self.bcols, self.arows, self.acols, self.rel_infeas,
+        return "{},{},{},{},{},{},{:e},{:e},{:e},{:e},{},{},{:e}\n".format(self.name,
+                self.brows, self.bcols, self.arows, self.acols,
+                self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.max_corr, self.it, self.cpu)
 
 def bench(p, o, mf, n, s, i, x):
@@ -135,22 +144,28 @@ def bench(p, o, mf, n, s, i, x):
                         info.add_acols(m.group('cols'))
                         step += 1
                 elif step == 3:
+                    m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*);  Density of L=(?P<density>[0-9].[0-9]*).*', l)
+                    if m:
+                        info.add_fact_nonzeros(m.group('nonzeros'))
+                        info.add_fact_density(m.group('density'))
+                        step += 1
+                elif step == 4:
                     m = re.match('Primal Objective = (?P<po>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
                     if m:
                         info.add_prim_obj(m.group('po'))
                         step += 1
-                elif step == 4:
+                elif step == 5:
                     m = re.match('Relative Complementarity = (?P<rc>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
                     if m:
                         info.add_rel_compl(m.group('rc'))
                         step += 1
-                elif step == 5:
+                elif step == 6:
                     m = re.match('Primal =(?P<rip>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
                     if m:
                         info.add_rel_infeas(m.group('rip'))
                         step += 1
-                elif step == 6:
-                    m = re.match('Time to solve.*:= (?P<cpu>[0-9]*.\.[0-9]*).*', l)
+                elif step == 7:
+                    m = re.match('Time to solve.*: (?P<cpu>[0-9]*.\.[0-9]*).*', l)
                     if m:
                         info.add_cpu(m.group('cpu'))
                         step += 1
@@ -234,7 +249,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if check_spc(args.path):
-        pass
         bench(args.path, args.output, args.max, args.name, args.size,
                 args.input, args.exclude)
     else:

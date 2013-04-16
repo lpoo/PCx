@@ -38,6 +38,9 @@ void Q_deq(CMQ *Q, CMN *o);
 
 /* Auxiliar functions */
 CC *fcc(int neqns, int *xadj, int *adncy);
+int *calc_degree(int neqns, int *xadj);
+void bubble_sort(int *adjncy, int *degree, int min, int max);
+void order_by_degree(int neqns, int *xadj, int *adjncy);
 int ppnf(int neqns, int *xadj, int *adjncy);
 
 /* External functions */

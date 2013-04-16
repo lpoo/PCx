@@ -169,7 +169,7 @@ void Q_enq(CMQ *Q, CMN *o) {
 }
 
 /** 
- * \fn Q_enq
+ * \fn Q_deq
  * \brief Dequeue operation.
  * \param Q The queue.
  * \param o The node to store the node from the head.
@@ -181,8 +181,16 @@ void Q_deq(CMQ *Q, CMN *o) {
   Q->qh = (Q->qh + 1) % (Q->N + 1);
 }
 
-void H_heapify_min() {
-}
+/* Macros for rcm */
+#define QUEUE_IS_EMPTY(h, t) (h == t)
+#define QUEUE_ENQ(n, q, h, t, v) do{ \
+  q[t] = v; \
+  t = (t + 1) % n; \
+}while(0)
+#define QUEUE_DEQ(n, q, h, t, v) do{ \
+  v = q[h]; \
+  h = (h + 1) % n; \
+}while(0)
 
 /** 
  * Cuthill-McKee reordering algorithm.
@@ -195,13 +203,34 @@ void H_heapify_min() {
  * \param perm permutation
  */
 int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
-  int i;
+  int c, i, j;
+  int v; /* vertice initial */
+  int head = 0; /* head of the queue */
+  int tail = 0; /* tail of the queue */
+  int *already_visited = (int *) calloc(*neqns, sizeof(int));
   /* Get the connected components. */
   CC *comp = fcc(*neqns, xadj, adjncy);
+  order_by_degree(*neqns, xadj, adjncy);
   /* Loop over every connected component. */
-  for (i = 0; i < comp->N; i++) {
-
+  for (c = 0; c < comp->N; c++) {
+    /* Here invp are used as a queue. */
+    i = 0;
+    v = comp->node[comp->begin[c] - 1];
+    QUEUE_ENQ(*neqns, invp, head, tail, v);
+    already_visited[v - 1] = 1;
+    while (!QUEUE_IS_EMPTY(head, tail)) {
+      QUEUE_DEQ(*neqns, invp, head, tail, v);
+      perm[i] = v;
+      i++;
+      for (j = xadj[v - 1]; j < xadj[v]; j++) {
+        if (!already_visited[adjncy[j - 1] - 1]) {
+          QUEUE_ENQ(*neqns, invp, head, tail, adjncy[j - 1]);
+          already_visited[adjncy[j - 1] - 1] = 1;
+        }
+      }
+    }
   }
+  /* Set up invp from perm. */
   return -1;
 }
 
@@ -258,20 +287,68 @@ CC *fcc(int neqns, int *xadj, int *adjncy) {
   return create_CC(neqns, comp_number, comp_info);
 }
 
-
 /** 
  * \fn calc_degree
  * \brief Calculate the degree.
- * \param
+ * \param neqns
+ * \param xadj
+ * \return
  */
 int *calc_degree(int neqns, int *xadj) {
   int i;
   int *degree = (int *) malloc(neqns * sizeof(int));
 
-  for (i = 0; i < neqns; i++) {
-    degree[i] = xadj[i + 1] - xadj[i];
+  /* Degenerate case */
+  if (xadj == NULL) {
+    for (i = 0; i < neqns; i++)
+      degree[i] = 0;
   }
- return degree;
+  else {
+    for (i = 0; i < neqns; i++) {
+      degree[i] = xadj[i + 1] - xadj[i];
+    }
+  }
+  return degree;
+}
+
+
+/** 
+ * \fn bubble_sort
+ * \brief Sort part of a vector using bubble sort.
+ * \param adjncy
+ * \param degree
+ * \param min
+ * \param max
+ */
+void bubble_sort(int *adjncy, int *degree, int min, int max) {
+  int i, j, aux;
+  if (adjncy != NULL)
+    for (i = min; i < max; i++) {
+      for (j = i; j < max - 1; j++) {
+        if (degree[adjncy[j] - 1] > degree[adjncy[j + 1] - 1]) {
+          aux = adjncy[j];
+          adjncy[i] = adjncy[j + 1];
+          adjncy[j + 1] = aux;
+        }
+      }
+    }
+}
+
+
+/** 
+ * \fn order_by_degree
+ * \brief Order vector base on degree
+ * \param neqns
+ * \param xadj
+ * \param adjncy
+ */
+void order_by_degree(int neqns, int *xadj, int *adjncy) {
+  int i, j;
+  int *degree = calc_degree(neqns, xadj);
+  for (i = 0; i < neqns; i++) {
+    /* This is slow. */
+    bubble_sort(adjncy, degree, xadj[i], xadj[i + 1]);
+  }
 }
 
 /** 

@@ -53,7 +53,7 @@ void	     FreeParameters(Parameters *Inputs);
 
 int          CheckParameters(Parameters *ptr);
 
-int          ParseSpecsFile(Parameters *parameters, char *infile);
+int          ParseSpecsFile(Parameters *parameters, char *infile char *sinfile);
 */
 /***************************************************************************/
 
@@ -212,9 +212,10 @@ CheckParameters(ptr)
 /***************************************************************************/
 
 int 
-ParseSpecsFile(parameters, infile)
+ParseSpecsFile(parameters, infile, sinfile)
      Parameters     *parameters;
      char           *infile;
+     char           *sinfile;
 {
    int             match, key;
    char            line[200], rootfilename[200], filename[200];
@@ -264,6 +265,11 @@ ParseSpecsFile(parameters, infile)
       {
 	 strcpy(filename, rootfilename);
 	 strcat(filename, ".specs");
+	 fp = fopen(filename, "r");
+      }
+   if (fp == NULL && sinfile[0] != '\0')
+      {
+         strcpy(filename, sinfile);
 	 fp = fopen(filename, "r");
       }
    if (fp == NULL) 

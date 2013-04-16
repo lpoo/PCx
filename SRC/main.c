@@ -16,7 +16,14 @@
 #include "pre.h"
 
 char    infile[200];
+char    sinfile[200];
 char    P_name[100];
+
+void usage(char *argv[]) {
+  printf("Usage:\n");
+  printf("\t%s mpsfile\n", argv[0]);
+  printf("\t%s -s specification_file mpsfile\n", argv[0]);
+}
 
 main(argc, argv)
      int             argc;
@@ -39,6 +46,7 @@ main(argc, argv)
    double          UserTime, OldSysTime, OldUserTime;
    
    extern        char            infile[200];
+   extern        char            sinfile[200];
    
   /********************************************************************
    *                                                                  *
@@ -73,20 +81,34 @@ main(argc, argv)
    
    if (argc < 2) 
       {
-	 printf("Usage:\n\t%s mpsfile\n", argv[0]);
+         usage(argv);
 	 exit(INVOCATION_ERROR);
       }
    /* Create the parameter data structure, insert the parameter values into
     * it, and check their validity.  */
-   
-   strcpy(infile, argv[1]);
+
+   if (argc == 2) {
+     strcpy(infile, argv[1]);
+     sinfile[0] = '\0';
+   }
+   else {
+     if (argc == 4)
+       if (strcmp("-s", argv[1]) == 0) {
+         strcpy(sinfile, argv[2]);
+         strcpy(infile, argv[3]);
+       }
+     else {
+       usage(argv);
+       exit(INVOCATION_ERROR);
+     }
+   }
    
 
    /* load the default parameters */
    Inputs = NewParameters();
    
    /* read modified parameters (if any) from specs file */
-   ParseSpecsFile(Inputs, infile);
+   ParseSpecsFile(Inputs, infile, sinfile);
    
    /* check for errors */
    if (CheckParameters(Inputs)) 

@@ -1,0 +1,3 @@
+ordmmd.gdb:7: Error in sourced command file:
+No symbol "dimension" in current context.
+Undefined command: "man".  Try "help".

@@ -3,16 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PCx's documentation!
-===============================
+Welcome to PCx's unofficial documentation!
+==========================================
 
-PCx contains material protectable under copyright laws of the United Stats.
-Permission is hereby grated to use, reproduce prepare derivative works, and
-redistribute to others at no charge, provided that any changes are clearly
-documented and that the original PCx copyright notice, Government license and
-disclaimer are retained; however, any entity desiring permission to incorporate
-this software, or a work based on this software, into a product for sale must
-contact Paul Betten (betten@anl.gov).
+PCx is an interior-point predictor-corrector linear programming package. The
+code has been developed at the Optimization Technology Center, which is a
+collaboration between Argonne National Laboratory and Northwestern University.
+
+The official documentation of PCx are a Technical Report write by the authors
+of PCx (:download:`dvi version <ref/PCx-user.dvi>` and :download:`ps version
+<ref/PCx-user.ps>`).  This is a extension of the official documentation.
 
 The source code and documentation for PCx can be obtained through the World Wide
 Web in https://github.com/r-gaia-cs/PCx.
@@ -22,6 +22,7 @@ Users:
 .. toctree::
    :maxdepth: 2
 
+   license.rst
    install.rst
    invoking.rst
    specifications_file.rst
@@ -40,6 +41,7 @@ Developers:
    data-structures.rst
    data-structures2.rst
    debugging.rst
+   reference.rst
 
 C API:
 

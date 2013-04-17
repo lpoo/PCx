@@ -1,0 +1,13 @@
++p dimension
+$13 = 27
++p nonzeros
+$14 = 126
++p *Factor.Perm@dimension
+$15 = {27, 26, 14, 4, 13, 3, 12, 24, 22, 2, 1, 11, 20, 19, 18, 17, 10, 9, 8, 7, 15, 25, 23, 6, 21, 5, 16}
++p *Factor.InvPerm@dimension
+$16 = {11, 10, 6, 4, 26, 24, 20, 19, 18, 17, 12, 7, 5, 3, 21, 27, 16, 15, 14, 13, 25, 9, 23, 8, 22, 2, 1}
++p *ColumnCount
+$17 = 0
++p NgPeyton.NumCompressedCols
+$18 = 79
++set loggin off

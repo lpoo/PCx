@@ -1,0 +1,13 @@
+++p dimension
+$1 = 3
+++p nonzeros
+$2 = 6
++p *Factor.Perm@dimension
+$3 = {3, 1, 2}
++p *Factor.InvPerm@dimension
+$4 = {2, 3, 1}
++p *ColumnCount
+$5 = 0
++p NgPeyton.NumCompressedCols
+$6 = 2
++set loggin off

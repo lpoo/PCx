@@ -207,10 +207,15 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
   int v; /* vertice initial */
   int head = 0; /* head of the queue */
   int tail = 0; /* tail of the queue */
+  int *work = (int *) malloc((xadj[*neqns] - 1) * sizeof(int));
   int *already_visited = (int *) calloc(*neqns, sizeof(int));
+
+  memcpy(work, adjncy, (xadj[*neqns] - 1) * sizeof(int));
+
   /* Get the connected components. */
-  CC *comp = fcc(*neqns, xadj, adjncy);
-  order_by_degree(*neqns, xadj, adjncy);
+  CC *comp = fcc(*neqns, xadj, work);
+  order_by_degree(*neqns, xadj, work);
+  
   /* Loop over every connected component. */
   for (c = 0; c < comp->N; c++) {
     /* Here invp are used as a queue. */
@@ -223,15 +228,18 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
       perm[i] = v;
       i++;
       for (j = xadj[v - 1]; j < xadj[v]; j++) {
-        if (!already_visited[adjncy[j - 1] - 1]) {
+        if (!already_visited[work[j - 1] - 1]) {
           QUEUE_ENQ(*neqns, invp, head, tail, adjncy[j - 1]);
-          already_visited[adjncy[j - 1] - 1] = 1;
+          already_visited[work[j - 1] - 1] = 1;
         }
       }
     }
   }
   /* Set up invp from perm. */
-  return -1;
+  for (i = 0; i < *neqns; i++) {
+    invp[perm[i]] = i;
+  }
+  return 0;
 }
 
 /** 
@@ -324,10 +332,10 @@ void bubble_sort(int *adjncy, int *degree, int min, int max) {
   int i, j, aux;
   if (adjncy != NULL)
     for (i = min; i < max; i++) {
-      for (j = i; j < max - 1; j++) {
+      for (j = min; j < max - 1; j++) {
         if (degree[adjncy[j] - 1] > degree[adjncy[j + 1] - 1]) {
           aux = adjncy[j];
-          adjncy[i] = adjncy[j + 1];
+          adjncy[j] = adjncy[j + 1];
           adjncy[j + 1] = aux;
         }
       }
@@ -347,7 +355,7 @@ void order_by_degree(int neqns, int *xadj, int *adjncy) {
   int *degree = calc_degree(neqns, xadj);
   for (i = 0; i < neqns; i++) {
     /* This is slow. */
-    bubble_sort(adjncy, degree, xadj[i], xadj[i + 1]);
+    bubble_sort(adjncy, degree, xadj[i] - 1, xadj[i + 1] - 1);
   }
 }
 

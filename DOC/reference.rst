@@ -7,6 +7,10 @@ the authors of PCx (:download:`dvi version <ref/PCx-user.dvi>` and
 
 Here you will can get some of others references related with PCx.
 
+* ":download:`Modification of the minimum degree algorithm by multiple
+  elimination <ref/Liu-85.pdf>`", J. W-H. Liu, ACM Trans. Math. Software,
+  volume 11, 1985, pp. 141-153.
+
 * ":download:`The role of elimination trees in sparse factorization
   <ref/Liu-90.pdf>`", J. W-H.  Liu, SIAM J. Matrix Anal. Appl., Volume 11, 1990,
   pp. 134-172.

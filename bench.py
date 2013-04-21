@@ -68,7 +68,7 @@ class PTInfo():
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.max_corr, self.it, self.cpu)
 
-def bench(p, o, mf, n, s, i, x):
+def bench(p, o, mf, n, s, i, x, t):
     """
     Run the benchmark.
 
@@ -86,6 +86,8 @@ def bench(p, o, mf, n, s, i, x):
     :type i: list of str
     :param x: List of files to be exclude from the benchmark.
     :type i: list of str
+    :param t: time (in seconds) to keeping search for the solution of a file.
+    :type t: int
     """
     import subprocess
 
@@ -116,11 +118,17 @@ def bench(p, o, mf, n, s, i, x):
 
     # Run PCx for every file in ``fl``.
     for f in fl:
-        call_stdout = open("/dev/null", 'w')
         print("Running PCx for {0}. It can take some minutes.".format(f))
-        retcod = subprocess.call(["./PCx", f], stdout=call_stdout)
+        with open('bench.log.tmp', 'w') as log:
+            PCx_instance = subprocess.Popen(["./PCx", f], stdout=log)
+            try:
+                retcod = PCx_instance.wait(t)
+            except subprocess.TimeoutExpired:
+                print("PCx is taking too long for find a solution to {0}."
+                      " Stoping the search and killing PCx.".format(f))
+                PCx_instance.kill()
+                retcod = -1
         print("End running PCx.")
-        call_stdout.close()
         info = PTInfo(f)
         if retcod == 0:
             with open(f.replace("mps", "log"), 'r') as log:
@@ -226,18 +234,22 @@ if __name__ == "__main__":
     import argparse
     from argparse import RawTextHelpFormatter
 
-    if sys.version_info[0] < 3:
-        raise Exception('It require Python 3.0 or later.')
+    if sys.version_info[0] < 3 and sys.version_info[1] < 3:
+        raise Exception('It require Python 3.3 or later.')
 
     # Parse of flags.
     parser = argparse.ArgumentParser(description='Benchmark for PCx.',
             formatter_class=RawTextHelpFormatter)
     parser.add_argument('-p', '--path', type=str, default='./mps',
-            help='Path of the files to be used.')
+            help='Path of the files to be used. [default: `./mps`]')
     parser.add_argument('-o', '--output', type=str, default='bench.out',
-            help='Output file name.')
+            help='Output file name. [default: `bench.out`]')
     parser.add_argument('--max', type=int, default=None,
-            help="Maximum number of files to be used.")
+            help="Maximum number of files to be used. [default: None."
+            " All files will be used]")
+    parser.add_argument('-t', '--time', type=int, default=7200,
+            help="The maximum time (in seconds) keeping search for the"
+            " solution of a file. [default: 7200s]")
     bench_sort = parser.add_mutually_exclusive_group()
     bench_sort.add_argument('-n', '--name', action='store_true',
             help='Sort list of files to be used by name.')
@@ -253,6 +265,6 @@ if __name__ == "__main__":
 
     if check_spc(args.path):
         bench(args.path, args.output, args.max, args.name, args.size,
-                args.input, args.exclude)
+                args.input, args.exclude, args.time)
     else:
         print("The specification file must contain 'history yes'.\n")

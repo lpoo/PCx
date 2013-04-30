@@ -44,4 +44,4 @@ void order_by_degree(int neqns, int *xadj, int *adjncy);
 int ppnf(int neqns, int *xadj, int *adjncy);
 
 /* External functions */
-int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm);
+int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub);

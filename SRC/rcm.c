@@ -202,7 +202,7 @@ void Q_deq(CMQ *Q, CMN *o) {
  * \param invp inverse permutation
  * \param perm permutation
  */
-int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
+int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub) {
   int c, i, j;
   int v; /* vertice initial */
   int head = 0; /* head of the queue */
@@ -217,9 +217,9 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
   order_by_degree(*neqns, xadj, work);
   
   /* Loop over every connected component. */
+  i = 0;
   for (c = 0; c < comp->N; c++) {
     /* Here invp are used as a queue. */
-    i = 0;
     v = comp->node[comp->begin[c] - 1];
     QUEUE_ENQ(*neqns, invp, head, tail, v);
     already_visited[v - 1] = 1;
@@ -229,7 +229,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
       i++;
       for (j = xadj[v - 1]; j < xadj[v]; j++) {
         if (!already_visited[work[j - 1] - 1]) {
-          QUEUE_ENQ(*neqns, invp, head, tail, adjncy[j - 1]);
+          QUEUE_ENQ(*neqns, invp, head, tail, work[j - 1]);
           already_visited[work[j - 1] - 1] = 1;
         }
       }
@@ -237,8 +237,9 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm) {
   }
   /* Set up invp from perm. */
   for (i = 0; i < *neqns; i++) {
-    invp[perm[i]] = i;
+    invp[perm[i] - 1] = i + 1;
   }
+  *nofsub = *neqns * *neqns;
   return 0;
 }
 

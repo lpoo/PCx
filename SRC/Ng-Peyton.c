@@ -258,7 +258,7 @@ Order(Factor, OrderAlg)
 
            flag = rcm(&dimension, NgPeyton->pSuperNodeCols,
                   NgPeyton->SuperNodeRows,
-                  Factor->InvPerm, Factor->Perm);
+                  Factor->InvPerm, Factor->Perm, &(NgPeyton->NumCompressedCols));
 
            break;
    }

@@ -16,6 +16,7 @@
 #include "pre.h"
 
 char    infile[200];
+char    outfile[200];
 char    sinfile[200];
 char    P_name[100];
 
@@ -30,7 +31,7 @@ main(argc, argv)
      char           *argv[];
 {
    
-   FILE           *fp, *outfile, *OpenInputFile();
+   FILE           *fp, *OpenInputFile();
    int             Preprocess(), Postprocess(), passes, PCx();
    int             CheckParameters();
    LPtype         *LP, *ReducedLP, *Convert_MPS_LP();
@@ -46,6 +47,7 @@ main(argc, argv)
    double          UserTime, OldSysTime, OldUserTime;
    
    extern        char            infile[200];
+   extern        char            outfile[200];
    extern        char            sinfile[200];
    
   /********************************************************************
@@ -89,6 +91,7 @@ main(argc, argv)
 
    if (argc == 2) {
      strcpy(infile, argv[1]);
+     strcpy(outfile, argv[1]);
      sinfile[0] = '\0';
    }
    else {
@@ -96,6 +99,7 @@ main(argc, argv)
        if (strcmp("-s", argv[1]) == 0) {
          strcpy(sinfile, argv[2]);
          strcpy(infile, argv[3]);
+         strcpy(outfile, argv[3]);
        }
      else {
        usage(argv);
@@ -223,7 +227,7 @@ main(argc, argv)
    DeleteLP(LP);
    /* Output the results */
    
-   PrintSolution(MPS, Solution, Inputs, argv[1]);
+   PrintSolution(MPS, Solution, Inputs, &outfile);
 
    FreeSolution(Solution);
    DeleteMPS(MPS);

@@ -58,7 +58,7 @@ class PTInfo():
         self.cpu = float(cpu)
 
     def csv_header(self):
-        return ("Name,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Nonzeros,Density,"
+        return ("Name,Status,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Nonzeros,Density,"
                 "Relative Infeas,Relative Compl,Primal Objective,"
                 "Max Add. Corr.,Iters,CPU Time [secs]\n")
 
@@ -68,10 +68,12 @@ class PTInfo():
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.max_corr, self.it, self.cpu)
 
-def bench(p, o, mf, n, s, i, x, t):
+def bench(S, p, o, mf, n, s, i, x, t):
     """
     Run the benchmark.
 
+    :param S: Specification file to be used.
+    :type S: str
     :param p: Path of the files to be used.
     :type p: str
     :param o: Output file name.
@@ -120,7 +122,10 @@ def bench(p, o, mf, n, s, i, x, t):
     for f in fl:
         print("Running PCx for {0}. It can take some minutes.".format(f))
         with open('bench.log.tmp', 'w') as log:
-            PCx_instance = subprocess.Popen(["./PCx", f], stdout=log)
+            if S:
+                PCx_instance = subprocess.Popen(["./PCx", "-s", S, f], stdout=log)
+            else:
+                PCx_instance = subprocess.Popen(["./PCx", f], stdout=log)
             try:
                 retcod = PCx_instance.wait(t)
             except subprocess.TimeoutExpired:
@@ -131,7 +136,7 @@ def bench(p, o, mf, n, s, i, x, t):
         print("End running PCx.")
         info = PTInfo(f)
         if retcod == 0:
-            with open(f.replace("mps", "log"), 'r') as log:
+            with open(f.replace(".mps", ".log"), 'r') as log:
                 step = 0  # step is responsible to select the regex to be used.
                 for l in log:
                     if step == 0:
@@ -250,6 +255,8 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--time', type=int, default=7200,
             help="The maximum time (in seconds) keeping search for the"
             " solution of a file. [default: 7200s]")
+    parser.add_argument('-S', '--specs', type=str, default=None,
+            help='Specification file to be used. [default: None]')
     bench_sort = parser.add_mutually_exclusive_group()
     bench_sort.add_argument('-n', '--name', action='store_true',
             help='Sort list of files to be used by name.')
@@ -264,7 +271,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if check_spc(args.path):
-        bench(args.path, args.output, args.max, args.name, args.size,
+        bench(args.specs, args.path, args.output, args.max, args.name, args.size,
                 args.input, args.exclude, args.time)
     else:
         print("The specification file must contain 'history yes'.\n")

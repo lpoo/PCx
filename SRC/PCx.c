@@ -381,7 +381,7 @@ PCx(LP, Solution, Inputs)
 	 if((PriInf >= PriFeasTol || DualInf >= DualFeasTol) &&
 	    (rmu_ratio / rmu_ratio0) >= 1.0e6) 
 	    {
-	       Solution->Status = UNKNOWN_SOL;
+	       Solution->Status = UNKNOWN_SOL_INF_MU;
 	       
 	       if (Inputs->ReportingLevel > 0)
 		 {
@@ -400,7 +400,7 @@ PCx(LP, Solution, Inputs)
 	 if((Iteration >= 30) && 
 	    (min_phi[Iteration] >= 0.5*min_phi[Iteration-30])) 
 	    {
-	       Solution->Status = UNKNOWN_SOL;
+	       Solution->Status = UNKNOWN_SOL_PHI_SLOW;
 	       if (Inputs->ReportingLevel > 0)
 		 {
 		   printf("\n--termination with UNKNOWN status ");

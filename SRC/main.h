@@ -41,9 +41,13 @@
 #define MINFTY       6
 
 #define OPTIMAL_SOL      0
-#define SUBOPTIMAL_SOL   1
-#define INFEASIBLE_SOL   2
-#define UNKNOWN_SOL      3
+/* The value of solution status below are greater than 10 to avoid
+   confuse with the main program return code. */
+#define SUBOPTIMAL_SOL         11
+#define INFEASIBLE_SOL         12
+#define UNKNOWN_SOL            13
+#define UNKNOWN_SOL_INF_MU     14
+#define UNKNOWN_SOL_PHI_SLOW   15
 
 #define ON               1
 #define OFF              0

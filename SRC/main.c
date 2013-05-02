@@ -229,11 +229,12 @@ main(argc, argv)
    
    PrintSolution(MPS, Solution, Inputs, &outfile);
 
+   status = Solution->Status; /* For return code. */
    FreeSolution(Solution);
    DeleteMPS(MPS);
    FreeParameters(Inputs);
    
    /* TrDump(stdout); */
-   exit(0);
+   exit(status);
 }
 

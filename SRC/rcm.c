@@ -228,7 +228,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
     /* Get the first node of the `c` component. */
     v = comp->node[comp->begin[c] - 1];
     /* Use `v` to find a pseudo-peripheral node. */
-    // v = ppnf(comp->begin[c + 1] - comp->begin[c], xadj, work, degree, v);
+    v = ppnf(comp->begin[c + 1] - comp->begin[c], xadj, work, degree, v);
     /* Here invp are used as a queue. */
     QUEUE_ENQ(*neqns, invp, head, tail, v);
     already_visited[v - 1] = 1;
@@ -414,8 +414,8 @@ int ppnf(int neqns, int *xadj, int *adjncy, int *degree, int r){
     }
   }
 
-  free(L);
-  return 0;
+//  free(L);
+  return x;
 }
 
 /** 
@@ -433,10 +433,9 @@ int rls(int neqns, int *xadj, int *adjncy, int r, int *L, int *nL){
   int p; /* Counter. */
   int blp, bll; /* Position in level structure. */
 
-  p = 0;
-  L[p] = 1;
   blp = 0;
   bll = 1;
+  L[0] = r;
   *nL = 0;
   /* Loop to control the elements already in the level structure. */
   for (i = 1; i < neqns; ) {
@@ -444,7 +443,7 @@ int rls(int neqns, int *xadj, int *adjncy, int r, int *L, int *nL){
     /* Look passing through the elements in the previous level. */
     for (j = blp; j < bll; j++) {
       /* Loop passing thorugh the adjacent element of the previous level. */
-      for (k = xadj[j]; k < xadj[j + 1]; k ++) {
+      for (k = xadj[L[j] - 1]; k < xadj[L[j]]; k++) {
         /* Check if node already in the level structure. */
         for (itmp = 0; itmp < i; itmp++) {
           if (L[itmp] == adjncy[k - 1])

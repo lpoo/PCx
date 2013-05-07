@@ -14,6 +14,7 @@ class PTInfo():
         self.rel_infeas = 0
         self.rel_compl = 0
         self.prim_obj = 0
+        self.dual_obj = 0
         self.max_corr = 0
         self.it = 0
         self.cpu = 0
@@ -48,6 +49,9 @@ class PTInfo():
     def add_prim_obj(self, prim_obj):
         self.prim_obj = float(prim_obj)
 
+    def add_dual_obj(self, dual_obj):
+        self.dual_obj = float(dual_obj)
+
     def add_max_corr(self, max_corr):
         self.max_corr = int(max_corr)
 
@@ -59,14 +63,14 @@ class PTInfo():
 
     def csv_header(self):
         return ("Name,Status,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Nonzeros,Density,"
-                "Relative Infeas,Relative Compl,Primal Objective,"
+                "Relative Infeas,Relative Compl,Primal Objective,Dual Objetive,"
                 "Max Add. Corr.,Iters,CPU Time [secs]\n")
 
     def csv(self):
-        return "{},{},{},{},{},{},{},{:e},{:e},{:e},{:e},{},{},{:e}\n".format(self.name,
+        return "{},{},{},{},{},{},{},{:e},{:e},{:e},{:e},{:e},{},{},{:e}\n".format(self.name,
                 self.status, self.brows, self.bcols, self.arows, self.acols,
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
-                self.rel_compl, self.prim_obj, self.max_corr, self.it, self.cpu)
+                self.rel_compl, self.prim_obj, self.dual_obj, self.max_corr, self.it, self.cpu)
 
 def bench(S, p, o, mf, n, s, i, x, t):
     """
@@ -135,51 +139,61 @@ def bench(S, p, o, mf, n, s, i, x, t):
                 retcod = -1
         print("End running PCx.")
         info = PTInfo(f)
-        if retcod == 0:
+        if retcod in [0, 11, 12, 13, 14, 15]:
             with open(f.replace(".mps", ".log"), 'r') as log:
                 step = 0  # step is responsible to select the regex to be used.
                 for l in log:
                     if step == 0:
-                        m = re.match('Iterations=(?P<it>[0-9]*), Termination Code=(?P<status>[0-9])', l)
+                        m = re.match('Iterations=(?P<it>[0-9]*), Termination Code=(?P<status>[0-9]*)', l)
                         if m:
                             info.add_status(m.group('status'))
                             info.add_it(m.group('it'))
                             step += 1
-                    elif step == 1:
-                        m = re.match('.*Before Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
+                    if step == 1:
+                        m = re.match('.*Maximum Gondzio corrections = *(?P<cor>[0-9]*)', l)
+                        if m:
+                            info.add_max_corr(m.group('cor'))
+                            step += 1
+                    elif step == 2:
+                        m = re.match('.*Before Presolving: *(?P<rows>[0-9]*) rows, *(?P<cols>[0-9]*) columns', l)
                         if m:
                             info.add_brows(m.group('rows'))
                             info.add_bcols(m.group('cols'))
                             step += 1
-                    elif step == 2:
-                        m = re.match('.*After  Presolving:.* (?P<rows>[0-9]*) rows,.* (?P<cols>[0-9]*) columns', l)
+                    elif step == 3:
+                        m = re.match('.*After  Presolving: *(?P<rows>[0-9]*) rows, *(?P<cols>[0-9]*) columns', l)
                         if m:
                             info.add_arows(m.group('rows'))
                             info.add_acols(m.group('cols'))
                             step += 1
-                    elif step == 3:
+                    elif step == 4:
                         m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*);  Density of L=(?P<density>[0-9].[0-9]*).*', l)
                         if m:
                             info.add_fact_nonzeros(m.group('nonzeros'))
                             info.add_fact_density(m.group('density'))
                             step += 1
-                    elif step == 4:
-                        m = re.match('Primal Objective = (?P<po>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                    elif step == 5:
+                        m = re.match('Primal Objective = *(?P<po>-?[0-9]*.[0-9]*e[+-][0-9]*).*', l)
                         if m:
                             info.add_prim_obj(m.group('po'))
                             step += 1
-                    elif step == 5:
-                        m = re.match('Relative Complementarity = (?P<rc>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                    elif step == 6:
+                        m = re.match('Dual   Objective = *(?P<po>-?[0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                        if m:
+                            info.add_dual_obj(m.group('po'))
+                            step += 1
+                    elif step == 7:
+                        m = re.match('Relative Complementarity = *(?P<rc>-?[0-9]*.[0-9]*e[+-][0-9]*).*', l)
                         if m:
                             info.add_rel_compl(m.group('rc'))
                             step += 1
-                    elif step == 6:
-                        m = re.match('Primal =(?P<rip>[ -][0-9]*.[0-9]*e[+-][0-9]*).*', l)
+                    elif step == 8:
+                        m = re.match('Primal = *(?P<rip>-?[0-9]*.[0-9]*e[+-][0-9]*).*', l)
                         if m:
                             info.add_rel_infeas(m.group('rip'))
                             step += 1
-                    elif step == 7:
-                        m = re.match('Time to solve.*: (?P<cpu>[0-9]*.\.[0-9]*).*', l)
+                    elif step == 9:
+                        m = re.match('Time to solve.*: *(?P<cpu>[0-9]*.\.[0-9]*).*', l)
                         if m:
                             info.add_cpu(m.group('cpu'))
                             step += 1

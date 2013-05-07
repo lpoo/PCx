@@ -18,7 +18,7 @@
  * \param neqns The size of the CC struct members.
  * \param comp The CC struct.
  */
-CC* create_CC(int neqns, int ncomp, int *comp) {
+CC* create_CC(int neqns, int ncomp, int *comp){
   int i, j;
   int end;
 
@@ -62,7 +62,7 @@ CC* create_CC(int neqns, int ncomp, int *comp) {
  * \brief Free memory of a CC struct.
  * \param comp The CC struct.
  */
-void free_CC(CC *comps) {
+void free_CC(CC *comps){
   free(comps->begin);
   comps->begin = NULL;
   free(comps->node);
@@ -79,7 +79,7 @@ void free_CC(CC *comps) {
  * \brief Create CC_trans
  * \param neqns The size of the stack of CC_trans.
  */
-CC_trans *create_CC_trans(int neqns) {
+CC_trans *create_CC_trans(int neqns){
   CC_trans *new = (CC_trans *) malloc(sizeof(CC_trans));
   new->end = -1;
   new->s = (int *) malloc(neqns * sizeof(int));
@@ -96,7 +96,7 @@ CC_trans *create_CC_trans(int neqns) {
  * \brief Free memory of a CC_trans struct.
  * \param trans The CC_trans struct.
  */
-void free_CC_trans(CC_trans *trans) {
+void free_CC_trans(CC_trans *trans){
   free(trans->s);
   trans->s = NULL;
   free(trans);
@@ -110,7 +110,7 @@ void free_CC_trans(CC_trans *trans) {
  * \param trans The CC_trans struct.
  * \return 1 if the stack is empty.
  */
-int is_CC_trans_empty(CC_trans *trans) {
+int is_CC_trans_empty(CC_trans *trans){
   if (trans->end == -1)
     return 1;
   else
@@ -124,7 +124,7 @@ int is_CC_trans_empty(CC_trans *trans) {
  * \param trans The CC_trans struct.
  * \param n The element to be add.
  */
-void add_CC_trans(CC_trans *trans, int n) {
+void add_CC_trans(CC_trans *trans, int n){
   trans->end++;
   trans->s[trans->end] = n;
 }
@@ -136,7 +136,7 @@ void add_CC_trans(CC_trans *trans, int n) {
  * \param trans The CC_trans struct.
  * \return The element poped from the stack.
  */
-int pop_CC_trans(CC_trans *trans) {
+int pop_CC_trans(CC_trans *trans){
   if (!is_CC_trans_empty(trans)) {
     int p = trans->s[trans->end];
     trans->end--;
@@ -151,7 +151,7 @@ int pop_CC_trans(CC_trans *trans) {
  * \brief Check if queue is empty.
  * \param Q The queue.
  */
-int Q_is_empty(CMQ *Q) {
+int Q_is_empty(CMQ *Q){
   return (Q->qh == Q->qt);
 }
 
@@ -161,7 +161,7 @@ int Q_is_empty(CMQ *Q) {
  * \param Q The queue.
  * \param o The node to be add at the tail.
  */
-void Q_enq(CMQ *Q, CMN *o) {
+void Q_enq(CMQ *Q, CMN *o){
   Q->Q[Q->qt].r_idx = o->r_idx;
   Q->Q[Q->qt].deg = o->deg;
   Q->Q[Q->qt].dist = o->dist;
@@ -174,7 +174,7 @@ void Q_enq(CMQ *Q, CMN *o) {
  * \param Q The queue.
  * \param o The node to store the node from the head.
  */
-void Q_deq(CMQ *Q, CMN *o) {
+void Q_deq(CMQ *Q, CMN *o){
   o->r_idx = Q->Q[Q->qh].r_idx;
   o->deg = Q->Q[Q->qh].deg;
   o->dist = Q->Q[Q->qh].dist;
@@ -202,25 +202,34 @@ void Q_deq(CMQ *Q, CMN *o) {
  * \param invp inverse permutation
  * \param perm permutation
  */
-int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub) {
-  int c, i, j;
-  int v; /* vertice initial */
-  int head = 0; /* head of the queue */
-  int tail = 0; /* tail of the queue */
+int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
+  int c, i, j;  /* Auxiliar variables. */
+  int v;  /* vertice initial. */
+  int head = 0;  /* head of the queue. */
+  int tail = 0;  /* tail of the queue. */
+  int *degree;
   int *work = (int *) malloc((xadj[*neqns] - 1) * sizeof(int));
   int *already_visited = (int *) calloc(*neqns, sizeof(int));
 
+  /* Copy adjncy. */
   memcpy(work, adjncy, (xadj[*neqns] - 1) * sizeof(int));
 
   /* Get the connected components. */
   CC *comp = fcc(*neqns, xadj, work);
-  order_by_degree(*neqns, xadj, work);
+
+  /* The degree of nodes is importante because it is need in RCM and PPNF. */
+  degree = calc_degree(*neqns, xadj);
+  /* Order the degree will improve the performance. */
+  order_by_degree(*neqns, xadj, work, degree);
   
   /* Loop over every connected component. */
   i = 0;
   for (c = 0; c < comp->N; c++) {
-    /* Here invp are used as a queue. */
+    /* Get the first node of the `c` component. */
     v = comp->node[comp->begin[c] - 1];
+    /* Use `v` to find a pseudo-peripheral node. */
+    // v = ppnf(comp->begin[c + 1] - comp->begin[c], xadj, work, degree, v);
+    /* Here invp are used as a queue. */
     QUEUE_ENQ(*neqns, invp, head, tail, v);
     already_visited[v - 1] = 1;
     while (!QUEUE_IS_EMPTY(head, tail)) {
@@ -240,6 +249,13 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub) {
     invp[perm[i] - 1] = i + 1;
   }
   *nofsub = *neqns * *neqns;
+
+/*   free(work);
+ *   work = NULL;
+ *   free(already_visited);
+ *   already_visited = NULL;
+ */
+
   return 0;
 }
 
@@ -251,7 +267,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub) {
  * \param adjncy adj
  * \return CC struct;
  */
-CC *fcc(int neqns, int *xadj, int *adjncy) {
+CC *fcc(int neqns, int *xadj, int *adjncy){
   int i, j, v;
   int comp_number = 0; /* Number of componets. */
   int *comp_info = (int *) calloc(neqns, sizeof(int)); /* Information about the component. */
@@ -303,7 +319,7 @@ CC *fcc(int neqns, int *xadj, int *adjncy) {
  * \param xadj
  * \return
  */
-int *calc_degree(int neqns, int *xadj) {
+int *calc_degree(int neqns, int *xadj){
   int i;
   int *degree = (int *) malloc(neqns * sizeof(int));
 
@@ -320,7 +336,6 @@ int *calc_degree(int neqns, int *xadj) {
   return degree;
 }
 
-
 /** 
  * \fn bubble_sort
  * \brief Sort part of a vector using bubble sort.
@@ -329,7 +344,7 @@ int *calc_degree(int neqns, int *xadj) {
  * \param min
  * \param max
  */
-void bubble_sort(int *adjncy, int *degree, int min, int max) {
+void bubble_sort(int *adjncy, int *degree, int min, int max){
   int i, j, aux;
   if (adjncy != NULL)
     for (i = min; i < max; i++) {
@@ -343,7 +358,6 @@ void bubble_sort(int *adjncy, int *degree, int min, int max) {
     }
 }
 
-
 /** 
  * \fn order_by_degree
  * \brief Order vector base on degree
@@ -351,9 +365,8 @@ void bubble_sort(int *adjncy, int *degree, int min, int max) {
  * \param xadj
  * \param adjncy
  */
-void order_by_degree(int neqns, int *xadj, int *adjncy) {
+void order_by_degree(int neqns, int *xadj, int *adjncy, int *degree){
   int i, j;
-  int *degree = calc_degree(neqns, xadj);
   for (i = 0; i < neqns; i++) {
     /* This is slow. */
     bubble_sort(adjncy, degree, xadj[i] - 1, xadj[i + 1] - 1);
@@ -366,31 +379,107 @@ void order_by_degree(int neqns, int *xadj, int *adjncy) {
  * \param neqns Number of rows.
  * \param xadj list of adj
  * \param adjncy adj
+ * \param r The root note.
  * \return A pseudo-peripheral node.
  */
-int ppnf(int neqns, int *xadj, int *adjncy){
+int ppnf(int neqns, int *xadj, int *adjncy, int *degree, int r){
+  int it;  /* The iteration counter. */
+  int bll;  /* Begin of the higher level. */
+  int *L;  /* The level strucuture. */
+  int nL, pnL;  /* The number of levels. */
+  int x;
+  int stop = 0;
+
+  L = (int *) malloc(neqns * sizeof(int));
+  if (L == NULL) {
+    printf("\nCan't allocate memory for L\n");
+    exit(MEMORY_ERROR);
+  }
+
+  it = 0;
+
+  /* Build the level strucuture. */
+  bll = rls(neqns, xadj, adjncy, r, L, &nL);
+  while (!stop && it < MAX_PPNF_LOOP) {
+    it++;
+    /* Choose a node `x` of minimum degree in the higher level. */
+    x = min_degree(neqns, bll, degree, L);
+    pnL = nL;
+    bll = rls(neqns, xadj, adjncy, x, L, &nL);
+    if (nL > pnL) {
+      r = x;
+    }
+    else {
+      stop = 1;
+    }
+  }
+
+  free(L);
+  return 0;
 }
 
-/*
-rls(){
+/** 
+ * \fn rls
+ * \brief Build the level structure of `r`.
+ * \param neqns Number of rows.
+ * \param xadj list of adj
+ * \param adjncy adj
+ * \param r The root of the level strucuture.
+ * \param L The level structure.
+ * \param nL The number of level.
+ */
+int rls(int neqns, int *xadj, int *adjncy, int r, int *L, int *nL){
+  int i, j, k, itmp; /* Auxiliar variable */
+  int p; /* Counter. */
+  int blp, bll; /* Position in level structure. */
+
+  p = 0;
+  L[p] = 1;
+  blp = 0;
+  bll = 1;
+  *nL = 0;
+  /* Loop to control the elements already in the level structure. */
+  for (i = 1; i < neqns; ) {
+    (*nL)++;
+    /* Look passing through the elements in the previous level. */
+    for (j = blp; j < bll; j++) {
+      /* Loop passing thorugh the adjacent element of the previous level. */
+      for (k = xadj[j]; k < xadj[j + 1]; k ++) {
+        /* Check if node already in the level structure. */
+        for (itmp = 0; itmp < i; itmp++) {
+          if (L[itmp] == adjncy[k - 1])
+            break;
+        }
+        /* Add node to level structure if it not present. */
+        if (itmp == i) {
+          L[i] = adjncy[k - 1];
+          i++;
+        }
+      }
+    }
+    /* Update position in level. */
+    blp = bll;
+    bll = i;
+  }
+  return blp;
 }
-
-adj_list(){
-}
-
-adj(){
-}
-
-*/
-
 
 /** 
  * \fn min_degree
- * \brief Select a node of minimum degree from the list `l`.
- * \param A non-empty list of nodes.
- * \param A node of minimum degree from the list `l`.
+ * \brief Select a node of minimum degree from the higher level of `L`.
+ * \param neqns Number of rows.
+ * \param bll The begin of the higher level.
+ * \param degree The degree of the nodes.
+ * \param L The level structure.
  */
-int min_degree(){
-  return 1;
-}
+int min_degree(int neqns, int bll, int *degree, int *L){
+  int i;  /* Auxiliar variable. */
+  int x;  /* The node of minimum degree from the higher level of `L`. */
 
+  x = L[bll];  /* The initial node. */
+  for (i = bll + 1; i < neqns; i++) {
+    if (degree[L[i]] < degree[x])
+      x = L[i];
+  }
+  return x;
+}

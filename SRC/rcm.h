@@ -1,3 +1,6 @@
+/* Constants */
+#define MAX_PPNF_LOOP 100
+
 /* Structs */
 typedef struct {
   int end;
@@ -40,8 +43,9 @@ void Q_deq(CMQ *Q, CMN *o);
 CC *fcc(int neqns, int *xadj, int *adncy);
 int *calc_degree(int neqns, int *xadj);
 void bubble_sort(int *adjncy, int *degree, int min, int max);
-void order_by_degree(int neqns, int *xadj, int *adjncy);
-int ppnf(int neqns, int *xadj, int *adjncy);
+void order_by_degree(int neqns, int *xadj, int *adjncy, int *degree);
+int ppnf(int neqns, int *xadj, int *adjncy, int *degree, int r);
+int rls(int neqns, int *xadj, int *adjncy, int r, int *L, int *nL);
 
 /* External functions */
 int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub);

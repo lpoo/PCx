@@ -50,5 +50,10 @@ doc::
 	make -C DOC html
 
 clean::
-	/bin/rm -f PCx *.log ./Ng-Peyton/*.[ao] ./SRC/*.o
-	/bin/rm -f SRC/libPCx.a mex/*.mex* mex/*.[ao] F2C/*.[ao]
+	rm -f PCx
+	rm -f *.log
+	rm -f Ng-Peyton/*.[ao]
+	rm -f SRC/*.[ao]
+	rm -f mex/*.mex*
+	rm -f mex/*.[ao]
+	rm -f F2C/*.[ao]

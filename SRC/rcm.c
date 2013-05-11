@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "main.h"
 #include "memory.h"
 #include "solver.h"
@@ -207,6 +208,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
   int v;  /* vertice initial. */
   int head = 0;  /* head of the queue. */
   int tail = 0;  /* tail of the queue. */
+  int neqns_half;
   int *degree;
   int *work = (int *) malloc((xadj[*neqns] - 1) * sizeof(int));
   int *already_visited = (int *) calloc(*neqns, sizeof(int));
@@ -243,6 +245,13 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
         }
       }
     }
+  }
+  /* Inverse the permutation order. */
+  neqns_half = floor((*neqns) / 2);
+  for (i = 0; i < neqns_half; i++) {
+    c = perm[i];
+    perm[i] = perm[(*neqns) - (i + 1)];
+    perm[(*neqns) - (i + 1)] = c;
   }
   /* Set up invp from perm. */
   for (i = 0; i < *neqns; i++) {

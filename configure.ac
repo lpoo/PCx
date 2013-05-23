@@ -1,6 +1,14 @@
 # information on the package
 AC_INIT([PCx], [1.1],,[http://pages.cs.wisc.edu/~swright/PCx/])
 
+# Uncompress files in mps folder
+echo "Uncompress files in mps folder. It will take some minutes."
+cd mps
+for f in `ls *.bz2`; do
+  bunzip2 $f
+done
+cd ..
+
 # Get the machine's PCx environmental variable, PCx_ARCH.
 #
 # It was copied from the PETSc package

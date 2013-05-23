@@ -1774,6 +1774,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+# Uncompress files in mps folder
+cd mps
+for f in `ls *.bz2`; do
+  bunzip2 $f
+done
+cd ..
+
 # Get the machine's PCx environmental variable, PCx_ARCH.
 #
 # It was copied from the PETSc package

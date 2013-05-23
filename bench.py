@@ -72,7 +72,7 @@ class PTInfo():
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.dual_obj, self.max_corr, self.it, self.cpu)
 
-def bench(S, p, o, mf, n, s, i, x, t):
+def bench(S, p, o, mf, s, g, t):
     """
     Run the benchmark.
 
@@ -84,18 +84,15 @@ def bench(S, p, o, mf, n, s, i, x, t):
     :type o: str
     :param mf: Maximum number of files to be used.
     :type mf: int
-    :param n: Sort list of files to be used by name.
-    :type n: bool
-    :param s: Sort list of files to be used by size.
-    :type n: bool
-    :param i: List of files to be used for the benchmark.
-    :type i: list of str
-    :param x: List of files to be exclude from the benchmark.
-    :type i: list of str
+    :param s: Sort method of files to be used.
+    :type s: int
+    :param g: Group of files to be tested.
+    :type g: list
     :param t: time (in seconds) to keeping search for the solution of a file.
     :type t: int
     """
     import subprocess
+    import fnmatch
 
     # Check if path exist.
     if not os.path.exists(p):
@@ -105,22 +102,35 @@ def bench(S, p, o, mf, n, s, i, x, t):
     of.write(PTInfo('').csv_header())
 
     # Process list of files to be used in the benchmark.
-    if i:
-        fl = i
+    if g[0] == 1:
+        fl = g[1]
     else:
         fl = os.listdir(p)
-        if n:
-            fl.sort()
-        elif s:
-            fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)))
-        if mf:
-            fl = fl[0:mf]
-        if x:
-            for r in x:
-                try:
-                    fl.remove(r)
-                except ValueError:
-                    pass
+    if g[0] == 2:
+        for r in g[1]:
+            try:
+                fl.remove(r)
+            except ValueError:
+                pass
+    elif g[0] == 3:
+        fl = fnmatch.filter(fl, 'netlib-*')
+    elif g[0] == 4:
+        fl = fnmatch.filter(fl, 'kennington-*')
+    elif g[0] == 5:
+        fl = fnmatch.filter(fl, 'meszaros-*')
+
+    # Sort the list of files to be used in the benchmark.
+    if s == 1:
+        fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)))
+    elif s == 2:
+        fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)),
+                reverse=True)
+    elif s == 3:
+        fl.sort()
+
+    # Limit the size of the list of files to be used in the benchmark.
+    if mf:
+        fl = fl[0:mf]
 
     # Run PCx for every file in ``fl``.
     for f in fl:
@@ -274,18 +284,60 @@ if __name__ == "__main__":
     bench_sort = parser.add_mutually_exclusive_group()
     bench_sort.add_argument('-n', '--name', action='store_true',
             help='Sort list of files to be used by name.')
-    bench_sort.add_argument('-s', '--size', action='store_true',
-            help='Sort list of files to be used by size.')
+    bench_sort.add_argument('-d', '--decrescent-size', action='store_true',
+            help='Sort list of files to be used by size (in decrescent order).')
+    bench_sort.add_argument('-c', '--crescent-size', action='store_true',
+            help='Sort list of files to be used by size (in crescent order).')
     bench_file = parser.add_mutually_exclusive_group()
     bench_file.add_argument('-i', '--input', nargs='+', type=str, default=[],
             help="List of files to be used for the benchmark.")
     bench_file.add_argument('-x', '--exclude', nargs='+', type=str, default=[],
             help="List of files to be exclude from the benchmark.")
+    bench_file.add_argument('--netlib', action='store_true',
+            help="Use only prooblem tests from NETLIB.")
+    bench_file.add_argument('--kenlib', action='store_true',
+            help="Use only prooblem tests from KENNINGTON.")
+    bench_file.add_argument('--meslib', action='store_true',
+            help="Use only prooblem tests from MESZAROS.")
 
     args = parser.parse_args()
 
+    # Reduce group bench_sort
+    # 0 for no sort
+    # 1 for descrescent size order
+    # 2 for crescent size order
+    # 3 for alphabetic order
+    if args.decrescent_size:
+        s = 1
+    elif args.crescent_size:
+        s = 2
+    elif args.name:
+        s = 3
+    else:
+        s = 0
+
+    # Reduce group bench_file
+    # 0 for none
+    # 1 for include
+    # 2 for exclude
+    # 3 for netlib
+    # 4 for kenlib
+    # 5 for meslib
+    if args.input:
+        f = [1, args.input]
+    elif args.exclude:
+        f = [2, args.exclude]
+    elif args.netlib:
+        f = [3]
+    elif args.kenlib:
+        f = [4]
+    elif args.meslib:
+        f = 5
+    else:
+        f = 0
+
     if check_spc(args.path):
-        bench(args.specs, args.path, args.output, args.max, args.name, args.size,
-                args.input, args.exclude, args.time)
+        bench(args.specs, args.path, args.output, args.max, s,
+                f, args.time)
     else:
         print("The specification file must contain 'history yes'.\n")

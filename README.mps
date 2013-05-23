@@ -7,4 +7,12 @@ NETLIB-LP
 The name of the problems files from NETLIB-LP start with ``netlib-``. You can
 find it in http://www.netlib.org/lp/data/.
 
-For more information see ``README.netlib-lp``.
+For more information see ``README.netlib``.
+
+KENNINGTON
+----------
+
+The name of the Kennington test problems start with ``kennington-``. You can
+find it in http://www.netlib.org/lp/data/kennington/.
+
+For more information see ``README.kennington``.

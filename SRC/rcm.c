@@ -202,6 +202,8 @@ void Q_deq(CMQ *Q, CMN *o){
  * ``adjncy[i]`` inform a row.
  * \param invp inverse permutation
  * \param perm permutation
+ * \param nofsub an upper bound on the number of nonzero subscripts for the
+ * compressed storage scheme.
  */
 int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
   int c, i, j;  /* Auxiliar variables. */
@@ -345,26 +347,93 @@ int *calc_degree(int neqns, int *xadj){
   return degree;
 }
 
+/* Macros for heapsort */
+#define PARENT(i) i/2
+#define LCHILDREN(i) 2 * i + 1
+#define RCHILDREN(i) 2 * i + 2
+
 /** 
- * \fn bubble_sort
- * \brief Sort part of a vector using bubble sort.
+ * \fn buid_heap
+ * \brief build a max heap (either the keys of parent nodes are always greater
+ * than or equal to those of the children and the highest key is in the root
+ * node)
  * \param adjncy
  * \param degree
  * \param min
  * \param max
  */
-void bubble_sort(int *adjncy, int *degree, int min, int max){
+int* build_heap(int *adjncy, int *degree, int min, int max){
+  int *heap;
+  int heap_last;
   int i, j, aux;
+
+  heap = (int *) calloc(max - min, sizeof(int));
+  if (heap  == NULL) {
+    printf("\nCan't allocate memory for heap\n");
+    exit(MEMORY_ERROR);
+  }
+
+  heap_last = -1; // No elements in the heap.
   if (adjncy != NULL)
+    // Loop over the elements to be put into the heap.
     for (i = min; i < max; i++) {
-      for (j = min; j < max - 1; j++) {
-        if (degree[adjncy[j] - 1] > degree[adjncy[j + 1] - 1]) {
-          aux = adjncy[j];
-          adjncy[j] = adjncy[j + 1];
-          adjncy[j + 1] = aux;
+      heap_last++;
+      j = heap_last;
+      heap[heap_last] = adjncy[i];
+      /* Correct heap after add new element. */
+      while (j != 0) {
+        if (degree[heap[j] - 1] > degree[heap[PARENT(j)] - 1]) {
+          /* Swap */
+          aux = heap[j];
+          heap[j] = heap[PARENT(j)];
+          heap[PARENT(j)] = aux;
+          j = PARENT(j);
+        }
+        else {
+          break;
         }
       }
     }
+
+  return heap;
+}
+
+/** 
+ * \fn heap_sort
+ * \brief Sort part of a vector using heap sort.
+ * \param adjncy
+ * \param degree
+ * \param min
+ * \param max
+ */
+void heap_sort(int *adjncy, int *degree, int min, int max){
+  int *heap;
+  int i, j, aux;
+  int heap_last;
+
+  if (adjncy != NULL) {
+    heap = build_heap(adjncy, degree, min, max);
+
+    for (heap_last = max - min - 1; heap_last >= 0; heap_last--) {
+      adjncy[min + heap_last] = heap[0];
+
+      /* Correct heap after remove root element. */
+      i = 0;
+      while (RCHILDREN(i) <= heap_last) {
+        if (degree[heap[LCHILDREN(i)] - 1] > degree[heap[RCHILDREN(i)] - 1]) {
+          heap[i] = heap[LCHILDREN(i)];
+          i = LCHILDREN(i);
+        }
+        else {
+          heap[i] = heap[RCHILDREN(i)];
+          i = RCHILDREN(i);
+        }
+      }
+      heap[i] = heap[heap_last];
+    }
+  }
+
+  free(heap);
 }
 
 /** 
@@ -375,10 +444,10 @@ void bubble_sort(int *adjncy, int *degree, int min, int max){
  * \param adjncy
  */
 void order_by_degree(int neqns, int *xadj, int *adjncy, int *degree){
-  int i, j;
+  int i;
   for (i = 0; i < neqns; i++) {
     /* This is slow. */
-    bubble_sort(adjncy, degree, xadj[i] - 1, xadj[i + 1] - 1);
+    heap_sort(adjncy, degree, xadj[i] - 1, xadj[i + 1] - 1);
   }
 }
 

@@ -121,10 +121,10 @@ def bench(S, p, o, mf, s, g, t):
 
     # Sort the list of files to be used in the benchmark.
     if s == 1:
-        fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)))
-    elif s == 2:
         fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)),
                 reverse=True)
+    elif s == 2:
+        fl.sort(key=lambda fname: os.path.getsize('{0}/{1}'.format(p,fname)))
     elif s == 3:
         fl.sort()
 

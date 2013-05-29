@@ -332,9 +332,9 @@ if __name__ == "__main__":
     elif args.kenlib:
         f = [4]
     elif args.meslib:
-        f = 5
+        f = [5]
     else:
-        f = 0
+        f = [0]
 
     if check_spc(args.path):
         bench(args.specs, args.path, args.output, args.max, s,

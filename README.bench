@@ -1,0 +1,7 @@
+A script to run a benchmark with PCx for the given problems can be found in
+`bench.py`. For informations of how to use it:
+
+    $ bench.py --help
+
+Some files, see `bench*.out` have the output of `bench.py` when run it in a
+machine with the hardware describe in `bench.hw`.

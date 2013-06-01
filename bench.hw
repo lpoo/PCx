@@ -1,0 +1,109 @@
+    description: Desktop Computer
+    product: System Product Name (To Be Filled By O.E.M.)
+    vendor: System manufacturer
+    version: System Version
+    serial: System Serial Number
+    width: 64 bits
+    capabilities: smbios-2.5 dmi-2.5 vsyscall32
+    configuration: boot=normal chassis=desktop family=To Be Filled By O.E.M. sku=To Be Filled By O.E.M. uuid=2074D57D-8DFE-D511-BBE8-10BF4875225A
+  *-core
+       description: Motherboard
+       product: M5A88-M
+       vendor: ASUSTeK Computer INC.
+       physical id: 0
+       version: Rev X.0x
+       serial: MF70C5G04800131
+       slot: To Be Filled By O.E.M.
+     *-firmware
+          description: BIOS
+          vendor: American Megatrends Inc.
+          physical id: 0
+          version: 1101
+          date: 03/16/2012
+          size: 64KiB
+          capacity: 1984KiB
+          capabilities: isa pci pnp apm upgrade shadowing escd cdboot bootselect socketedrom edd int13floppy1200 int13floppy720 int13floppy2880 int5printscreen int9keyboard int14serial int17printer int10video acpi usb ls120boot zipboot biosbootspecification
+     *-cpu
+          description: CPU
+          product: AMD FX(tm)-8120 Eight-Core Processor
+          vendor: Hynix Semiconductor (Hyundai Electronics)
+          physical id: 4
+          bus info: cpu@0
+          version: AMD FX(tm)-8120 Eight-Core Processor
+          serial: To Be Filled By O.E.M.
+          slot: AM3R2
+          size: 1400MHz
+          capacity: 3100MHz
+          width: 64 bits
+          clock: 200MHz
+          capabilities: x86-64 fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp constant_tsc rep_good nopl nonstop_tsc extd_apicid aperfmperf pni pclmulqdq monitor ssse3 cx16 sse4_1 sse4_2 popcnt aes xsave avx lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs xop skinit wdt lwp fma4 nodeid_msr topoext perfctr_core arat cpb npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold cpufreq
+          configuration: cores=8 enabledcores=8 threads=8
+        *-cache:0
+             description: L1 cache
+             physical id: 5
+             slot: L1-Cache
+             size: 384KiB
+             capacity: 384KiB
+             clock: 1GHz (1.0ns)
+             capabilities: pipeline-burst internal write-back unified
+        *-cache:1
+             description: L2 cache
+             physical id: 6
+             slot: L2-Cache
+             size: 8MiB
+             capacity: 8MiB
+             clock: 1GHz (1.0ns)
+             capabilities: pipeline-burst internal write-back unified
+        *-cache:2
+             description: L3 cache
+             physical id: 7
+             slot: L3-Cache
+             size: 8MiB
+             capacity: 8MiB
+             clock: 1GHz (1.0ns)
+             capabilities: pipeline-burst internal write-back unified
+     *-memory
+          description: System Memory
+          physical id: 34
+          slot: System board or motherboard
+          size: 16GiB
+        *-bank:0
+             description: DIMM Synchronous 1600 MHz (0.6 ns)
+             product: PartNum0
+             vendor: Manufacturer0
+             physical id: 0
+             serial: SerNum0
+             slot: DIMM0
+             size: 4GiB
+             width: 64 bits
+             clock: 1600MHz (0.6ns)
+        *-bank:1
+             description: DIMM Synchronous 1600 MHz (0.6 ns)
+             product: PartNum1
+             vendor: Manufacturer1
+             physical id: 1
+             serial: SerNum1
+             slot: DIMM1
+             size: 4GiB
+             width: 64 bits
+             clock: 1600MHz (0.6ns)
+        *-bank:2
+             description: DIMM Synchronous 1600 MHz (0.6 ns)
+             product: PartNum2
+             vendor: Manufacturer2
+             physical id: 2
+             serial: SerNum2
+             slot: DIMM2
+             size: 4GiB
+             width: 64 bits
+             clock: 1600MHz (0.6ns)
+        *-bank:3
+             description: DIMM Synchronous 1600 MHz (0.6 ns)
+             product: PartNum3
+             vendor: Manufacturer3
+             physical id: 3
+             serial: SerNum3
+             slot: DIMM3
+             size: 4GiB
+             width: 64 bits
+             clock: 1600MHz (0.6ns)

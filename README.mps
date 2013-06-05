@@ -9,9 +9,11 @@ find it in http://www.netlib.org/lp/data/.
 
 For more information see ``README.netlib``.
 
-We have troubles to uncompress the problems below:
+QAP
+---
 
-* stocfor3
+The name of the QAP test problems start with ``netlibqap-``. You can find it in
+http://www.netlib.org/lp/generators/qap/.
 
 KENNINGTON
 ----------
@@ -27,14 +29,10 @@ MESZAROS
 The name of the Mészáros' MISC test problems start with ``meszaros-``. You can
 find it in http://www.sztaki.hu/~meszaros/public_ftp/lptestset/misc/.
 
-We have troubles to uncompress the problems below:
+PDS
+---
 
-* kleemin3
-* kleemin4
-* kleemin5
-* kleemin6
-* kleemin7
-* kleemin8
-* lp22
-* pcb1000
-* pcb3000
+The name of the PDS problems start with ``pds-``. You can find it in
+http://plato.asu.edu/ftp/lptestset/pds/.
+
+For more information see ``README.pds``.

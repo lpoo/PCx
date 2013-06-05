@@ -115,9 +115,13 @@ def bench(S, p, o, mf, s, g, t):
     elif g[0] == 3:
         fl = fnmatch.filter(fl, 'netlib-*')
     elif g[0] == 4:
-        fl = fnmatch.filter(fl, 'kennington-*')
+        fl = fnmatch.filter(fl, 'netlibqap-*')
     elif g[0] == 5:
+        fl = fnmatch.filter(fl, 'kennington-*')
+    elif g[0] == 6:
         fl = fnmatch.filter(fl, 'meszaros-*')
+    elif g[0] == 7:
+        fl = fnmatch.filter(fl, 'pds-*')
 
     # Sort the list of files to be used in the benchmark.
     if s == 1:
@@ -294,11 +298,15 @@ if __name__ == "__main__":
     bench_file.add_argument('-x', '--exclude', nargs='+', type=str, default=[],
             help="List of files to be exclude from the benchmark.")
     bench_file.add_argument('--netlib', action='store_true',
-            help="Use only prooblem tests from NETLIB.")
+            help="Use only problem tests from NETLIB.")
+    bench_file.add_argument('--netlibqap', action='store_true',
+            help="Use only problem tests from NETLIB QAP.")
     bench_file.add_argument('--kenlib', action='store_true',
-            help="Use only prooblem tests from KENNINGTON.")
+            help="Use only problem tests from KENNINGTON.")
     bench_file.add_argument('--meslib', action='store_true',
-            help="Use only prooblem tests from MESZAROS.")
+            help="Use only problem tests from MESZAROS.")
+    bench_file.add_argument('--pdslib', action='store_true',
+            help="Use only problem tests from PSD.")
 
     args = parser.parse_args()
 
@@ -321,18 +329,24 @@ if __name__ == "__main__":
     # 1 for include
     # 2 for exclude
     # 3 for netlib
-    # 4 for kenlib
-    # 5 for meslib
+    # 4 for netlibqap
+    # 5 for kenlib
+    # 6 for meslib
+    # 7 for pdslib
     if args.input:
         f = [1, args.input]
     elif args.exclude:
         f = [2, args.exclude]
     elif args.netlib:
         f = [3]
-    elif args.kenlib:
+    elif args.netlibqap:
         f = [4]
-    elif args.meslib:
+    elif args.kenlib:
         f = [5]
+    elif args.meslib:
+        f = [6]
+    elif args.pds:
+        f = [7]
     else:
         f = [0]
 

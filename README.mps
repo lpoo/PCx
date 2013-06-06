@@ -36,3 +36,19 @@ The name of the PDS problems start with ``pds-``. You can find it in
 http://plato.asu.edu/ftp/lptestset/pds/.
 
 For more information see ``README.pds``.
+
+RAIL
+----
+
+The name of the RAIL problems start with ``rail-``. You can find it in
+http://plato.asu.edu/ftp/lptestset/rail/.
+
+For more information see ``README.rail``.
+
+FCTP
+----
+
+The name of the FCTP problems start with ``fctp-``. You can find it in
+http://plato.asu.edu/ftp/lptestset/fctp/.
+
+For more information see ``README.fctp``.

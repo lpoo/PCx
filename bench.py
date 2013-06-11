@@ -122,6 +122,10 @@ def bench(S, p, o, mf, s, g, t):
         fl = fnmatch.filter(fl, 'meszaros-*')
     elif g[0] == 7:
         fl = fnmatch.filter(fl, 'pds-*')
+    elif g[0] == 8:
+        fl = fnmatch.filter(fl, 'rail-*')
+    elif g[0] == 9:
+        fl = fnmatch.filter(fl, 'fctp-*')
 
     # Sort the list of files to be used in the benchmark.
     if s == 1:
@@ -307,6 +311,10 @@ if __name__ == "__main__":
             help="Use only problem tests from MESZAROS.")
     bench_file.add_argument('--pdslib', action='store_true',
             help="Use only problem tests from PSD.")
+    bench_file.add_argument('--raillib', action='store_true',
+            help="Use only problem tests from RAIL.")
+    bench_file.add_argument('--fctplib', action='store_true',
+            help="Use only problem tests from FCTP.")
 
     args = parser.parse_args()
 
@@ -333,6 +341,8 @@ if __name__ == "__main__":
     # 5 for kenlib
     # 6 for meslib
     # 7 for pdslib
+    # 8 for raillib
+    # 9 for fctplib
     if args.input:
         f = [1, args.input]
     elif args.exclude:
@@ -345,8 +355,12 @@ if __name__ == "__main__":
         f = [5]
     elif args.meslib:
         f = [6]
-    elif args.pds:
+    elif args.pdslib:
         f = [7]
+    elif args.raillib:
+        f = [8]
+    elif args.fctplib:
+        f = [9]
     else:
         f = [0]
 

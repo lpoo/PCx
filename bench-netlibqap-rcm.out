@@ -1,0 +1,4 @@
+Name,Status,Rows b.p.,Cols b.p.,Rows a.p.,Cols a.p.,Nonzeros,Density,Relative Infeas,Relative Compl,Primal Objective,Dual Objetive,Max Add. Corr.,Iters,CPU Time [secs]
+netlibqap-qap8.mps,0,912,1632,912,1632,273509,6.565790e-01,1.226000e-11,2.560000e-13,2.035000e+02,2.035000e+02,0,32,1.720000e+00
+netlibqap-qap12.mps,15,3192,8856,3192,8856,3439794,6.748930e-01,1.007000e-07,1.710000e-05,5.229006e+02,5.228916e+02,5,42,8.677000e+01
+netlibqap-qap15.mps,15,6330,22275,6330,22275,13674441,6.823880e-01,5.223000e-06,4.420000e-05,1.041018e+03,1.040972e+03,7,54,8.185200e+02

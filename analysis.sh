@@ -33,7 +33,7 @@ then
     lib=$stdlib
 fi
 
-for l in "${@}"
+for l in $lib
 do
     echo 'Check if file `bench-${f}.join` exist.'
     if $(test ! -e bench-${l}.join)
@@ -42,5 +42,5 @@ do
         exit 2;
     fi
     echo "Found file \`bench-${l}.join\`. Starting analysis."
-    tail -n +3  bench-${l}.join | awk -SF ',' -f analysis.awk
+    tail -n +3  bench-${l}.join | awk -F ',' -f analysis.awk
 done

@@ -55,6 +55,6 @@ for l in $lib
 do
     for s in $specs
     do
-        python3 bench.py -o bench-$l-.out-$s -S $s.specs -c --$l
+        python3 bench.py -o bench-$l-$s.out -S $s.specs -c --$l
     done
 done

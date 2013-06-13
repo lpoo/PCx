@@ -70,7 +70,7 @@ function specs_sort(){
 }
 
 function bench_select(){
-    awk -SF , '{printf "%s,%s,%s,%s,%s\n", $1, $2, $7, $14, $15}' ${1} > ${1}-select
+    awk -F , '{printf "%s,%s,%s,%s,%s\n", $1, $2, $7, $14, $15}' ${1} > ${1}-select
 }
 
 function specs_select(){

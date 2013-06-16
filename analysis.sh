@@ -35,7 +35,7 @@ fi
 
 for l in $lib
 do
-    echo 'Check if file `bench-${f}.join` exist.'
+    echo "Check if file \`bench-${l}.join\` exist."
     if $(test ! -e bench-${l}.join)
     then
         echo "Can\'t find file \`bench-${l}.join\`. Aborting."

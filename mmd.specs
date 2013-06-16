@@ -1,0 +1,5 @@
+presolve yes
+solution no
+history 
+orderalg 1
+inputdirectory ./mps

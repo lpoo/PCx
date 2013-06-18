@@ -72,7 +72,7 @@ class PTInfo():
                 self.fact_nonzeros, self.fact_density, self.rel_infeas,
                 self.rel_compl, self.prim_obj, self.dual_obj, self.max_corr, self.it, self.cpu)
 
-def bench(S, p, o, mf, s, g, t):
+def bench(S, p, o, mf, s, g, t, k):
     """
     Run the benchmark.
 
@@ -90,6 +90,8 @@ def bench(S, p, o, mf, s, g, t):
     :type g: list
     :param t: time (in seconds) to keeping search for the solution of a file.
     :type t: int
+    :param k: keep the log and stdout
+    :type k: bool
     """
     import subprocess
     import fnmatch
@@ -143,7 +145,7 @@ def bench(S, p, o, mf, s, g, t):
     # Run PCx for every file in ``fl``.
     for f in fl:
         print("Running PCx for {0}. It can take some minutes.".format(f))
-        with open('bench.log.tmp', 'w') as log:
+        with open(f.replace(".mps", ".stdout"), 'w') as log:
             if S:
                 PCx_instance = subprocess.Popen(["./PCx", "-s", S, f], stdout=log)
             else:
@@ -185,7 +187,7 @@ def bench(S, p, o, mf, s, g, t):
                             info.add_acols(m.group('cols'))
                             step += 1
                     elif step == 4:
-                        m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*);  Density of L=(?P<density>[0-9].[0-9]*).*', l)
+                        m = re.match('.*Nonzeros in L=(?P<nonzeros>[0-9]*); *Density of L=(?P<density>-?[0-9].[0-9]*).*', l)
                         if m:
                             info.add_fact_nonzeros(m.group('nonzeros'))
                             info.add_fact_density(m.group('density'))
@@ -215,10 +217,13 @@ def bench(S, p, o, mf, s, g, t):
                         if m:
                             info.add_cpu(m.group('cpu'))
                             step += 1
-            subprocess.call(["rm", f.replace(".mps", ".log")])
         else:
             info.add_status(retcod)
         of.write(info.csv())
+        # Remove log and stdout
+        if not k:
+            subprocess.call(["rm", "-f", f.replace(".mps", ".log")])
+            subprocess.call(["rm", "-f", f.replace(".mps", ".stdout")])
     of.close()
 
 def check_spc_file(f2check, p):
@@ -289,6 +294,8 @@ if __name__ == "__main__":
             " solution of a file. [default: 7200s]")
     parser.add_argument('-S', '--specs', type=str, default=None,
             help='Specification file to be used. [default: None]')
+    parser.add_argument('-K', '--keep-all-log', action='store_true',
+            help='Keep the log and stdout.')
     bench_sort = parser.add_mutually_exclusive_group()
     bench_sort.add_argument('-n', '--name', action='store_true',
             help='Sort list of files to be used by name.')
@@ -366,6 +373,6 @@ if __name__ == "__main__":
 
     if check_spc(args.path):
         bench(args.specs, args.path, args.output, args.max, s,
-                f, args.time)
+                f, args.time, args.keep_all_log)
     else:
         print("The specification file must contain 'history yes'.\n")

@@ -68,10 +68,14 @@ do
         head -n 1 $ifilename | sed 's/,/ /g' | awk '{print \
         "\\multicolumn{1}{|c|}{Problem} & \\multicolumn{4}{|c|}{" toupper($1) "} & \
         \\multicolumn{4}{|c|}{" toupper($2) "} \\\\ \\hline"}' >> $ofilename
-        echo 'Name & R & NNZ & IT & T & R & NNZ & IT & T \\ \hline' >> $ofilename
+        echo '\multicolumn{1}{|c|}{Name} & \multicolumn{1}{|c|}{R} &
+        \multicolumn{1}{|c|}{NNZ} & \multicolumn{1}{|c|}{IT} &
+        \multicolumn{1}{|c|}{T} & \multicolumn{1}{|c|}{R} &
+        \multicolumn{1}{|c|}{NNZ} & \multicolumn{1}{|c|}{IT} &
+        \multicolumn{1}{|c|}{T} \\ \hline' >> $ofilename
         tail -n +3 $ifilename | sed 's/^[a-z]*-//; s/\.mps//; s/_/-/g; s/,/ \& /g;
         s/$/ \\\\ \\hline/' >> $ofilename
-        echo '/end{tabular}' >> $ofilename
+        echo '\end{tabular}' >> $ofilename
     fi
 
     if $(test $lang = 'pt')
@@ -81,19 +85,23 @@ do
         head -n 1 $ifilename | sed 's/,/ /g' | awk '{print \
         "\\multicolumn{1}{|c|}{Problema} & \\multicolumn{4}{|c|}{" toupper($1) "} & \
         \\multicolumn{4}{|c|}{" toupper($2) "} \\\\ \\hline"}' >> $ofilename
-        echo 'Nome & R & NNZ & IT & T & R & NNZ & IT & T \\ \hline' >> $ofilename
+        echo '\multicolumn{1}{|c|}{Nome} & \multicolumn{1}{|c|}{R} &
+        \multicolumn{1}{|c|}{NNZ} & \multicolumn{1}{|c|}{IT} &
+        \multicolumn{1}{|c|}{T} & \multicolumn{1}{|c|}{R} &
+        \multicolumn{1}{|c|}{NNZ} & \multicolumn{1}{|c|}{IT} &
+        \multicolumn{1}{|c|}{T} \\ \hline' >> $ofilename
         tail -n +3 $ifilename | sed 's/^[a-z]*-//; s/\.mps//; s/_/-/g; s/,/ \& /g; s/\./,/g;
         s/$/ \\\\ \\hline/' >> $ofilename
         echo '\end{tabular}' >> $ofilename
     fi
 
     # Split file if it has more than 40 lines
-    if $(test $(( $(wc -l < $ofilename) / 40 + 1)) -gt 1)
+    if $(test $(( ($(wc -l < $ofilename) - 9) / 40 + 1)) -gt 1)
     then
-        header=$(head -n 4 $ofilename)
+        header=$(head -n 8 $ofilename)
         footer=$(tail -n 1 $ofilename)
         head -n -1 $ofilename | tail -n +5 | split -a 1 -d -l 40 - x
-        for i in $(seq 0 $(( $(wc -l < $ofilename) / 40)) )
+        for i in $(seq 0 $(( ($(wc -l < $ofilename) - 9) / 40)) )
         do
             echo $header > ${ofilename}$i
             cat x$i >> ${ofilename}$i

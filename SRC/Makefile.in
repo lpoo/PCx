@@ -16,17 +16,17 @@ MYSOLVER_LIB = ../mysolver/libmysolver.a
 #NG_LIB    is defined in the build script
 #WSSMP_LIB is defined in the build script
 
-CC = @CC@
+CC ?= @CC@
 ifdef MEX
-#CFLAGS = -O -D$(PCx_ARCH) -DMEX $(MORECFLAGS)
-CFLAGS = -g -D$(PCx_ARCH) -DMEX
+#CFLAGS ?= -O -D$(PCx_ARCH) -DMEX $(MORECFLAGS)
+CFLAGS ?= @CFLAGS@ -D$(PCx_ARCH) -DMEX
 else
-#CFLAGS = -O -D$(PCx_ARCH) $(MORECFLAGS)
-CFLAGS = -g -D$(PCx_ARCH)
+#CFLAGS ?= -O -D$(PCx_ARCH) $(MORECFLAGS)
+CFLAGS ?= @CFLAGS@ -D$(PCx_ARCH)
 endif
 
-FC = @FC@
-FCFLAGS = @FCFLAGS@
+FC ?= @FC@
+FCFLAGS ?= @FCFLAGS@
 # The `LFLAGS = -O` was replace by `FLAGS = -z muldefs -O` because of
 # the following error:
 #
@@ -38,7 +38,7 @@ FCFLAGS = @FCFLAGS@
 #     collect2: error: ld returned 1 exit status
 #
 # LFLAGS = -O
-LFLAGS = -z muldefs -O
+LFLAGS ?= -z muldefs -O $(FCFLAGS)
 
 include ../MAKEARCH/$(PCx_ARCH).make
 # MISC_OBJS is defined in architecture-specific makefile
@@ -72,4 +72,4 @@ $(PCX_LIB): $(OBJS)
 	${CC} ${CFLAGS} -c -o ${TARGETDIR}/$*.o $<
 
 .f.o:
-	${FC} ${FFLAGS} -c -o ${TARGETDIR}/$*.o $<
+	${FC} ${FCFLAGS} -c -o ${TARGETDIR}/$*.o $<

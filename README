@@ -1,14 +1,15 @@
 PCx depends of the below programs:
 
-* Fotran compiler, e.g., gfortran
-* C compiler, e.g., gcc
-* Make, e.g., GNU Make
+* Fotran compiler, e.g., gfortran >= 4.8.1
+* C compiler, e.g., gcc >= 4.8.1
+* Make, e.g., GNU Make >= 3.82
+* Autoconf, e.g., GNU Autoconf >= 2.69
 
 The PCx's documentation depends of the below programs:
 
-* sphinx
-* doxygen
-* breathe
+* Sphinx >= 1.2b1
+* Doxygen >= 1.8.5
+* Breathe >= 1.0.0
 
 To install PCx on a Unix system, follow the below instructions:
 
@@ -16,7 +17,19 @@ To install PCx on a Unix system, follow the below instructions:
     $ ./configure
     $ make
 
-add for the documentation:
+If you got a error like
+
+    configure: error: cannot find install-sh, install.sh, or shtool in "." "./.." "./../.."
+
+try
+
+    $ libtoolize --force
+    $ aclocal
+    $ autoreconf -f -i -Wall,no-obsolete
+    $ ./configure
+    $ make
+
+And for the documentation:
 
     $ make doc
 

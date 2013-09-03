@@ -17,8 +17,8 @@ WSSMP_LIB = @WSSMP_LIB@
 NG_LIB = @NG_LIB@
 TARGETDIR = @TARGETDIR@
 
-FC = @FC@
-FFLAGS  = @FCFLAGS@
+FC ?= @FC@
+FCFLAGS ?= @FCFLAGS@
 
 LIB_FILES = \
  assmb.o btree2.o betree.o bfinit.o blkfct.o blkfc2.o blkslv.o   \
@@ -38,7 +38,7 @@ cholesky.a: $(LIB_FILES)
 	$(RANLIB) cholesky.a
 
 .f.o:
-	${FC} ${FFLAGS} -c $?
+	${FC} ${FCFLAGS} -c $?
 
 main:	${files}
 	${FC} -o $@ ${files}

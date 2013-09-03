@@ -5,7 +5,10 @@ AC_INIT([PCx], [1.1],,[http://pages.cs.wisc.edu/~swright/PCx/])
 echo "Uncompress files in mps folder. It will take some minutes."
 cd mps
 for f in `ls *.bz2`; do
-  bunzip2 $f
+  if test ! -e ${f/\.bz2/}; then
+      echo "    Uncompress $f."
+      bunzip2 -c $f > ${f/\.bz2/}
+  fi
 done
 cd ..
 
@@ -109,6 +112,7 @@ TARGETDIR=.
 AC_SUBST(TARGETDIR)
 
 # Library
+AC_CONFIG_MACRO_DIR([m4])
 AM_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
@@ -117,8 +121,6 @@ echo "Testing for a C compiler"
 AC_PROG_CC
 echo "Testing for a FORTRAN compiler"
 AC_PROG_FC
-
-#AC_LANG([FC])
 
 # Checks for libraries
 # Checks for header files

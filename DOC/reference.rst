@@ -45,11 +45,11 @@ Related to PCx
   Gilbert, E. Ng, and B.W. Peyton, SIAM J. Matrix Anal. Appl., Volume 15, 1994,
   pp. 1075-1091.
 * `Symbolic Factorisation of Sparse Matrix Using Elimination Trees
-  <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.124.8265&rep=rep1&type=pdf>`",
+  <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.124.8265&rep=rep1&type=pdf>`_,
   Jain, Peeyush.
 * `Symbolic Sparse Cholesky Factorisation Using Elimination Trees
-  <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7506&rep=rep1&type=pdf>`",
+  <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.163.7506&rep=rep1&type=pdf>`_,
   Jeroen Van Grondelle and Jeroen Van Grondelle,1999.
 * `Block sparse Cholesky algorithms on advanced uniprocessor computers
-  <http://web.ornl.gov/info/reports/1991/3445602878401.pdf>`", E. Ng and B.W.
+  <http://web.ornl.gov/info/reports/1991/3445602878401.pdf>`_, E. Ng and B.W.
   Peyton, SIAM J. Sci.  Comput., Volume 14, 1993, pp. 1034-1056.

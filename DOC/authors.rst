@@ -22,3 +22,20 @@ Hans Mittelmann prepared the executables for numerous architectures and ran many
 of the benchmark tests.
 
 Jean-Pierre Goux set up the request form and download system. 
+
+How to cite
+-----------
+
+To cite PCx in publications, please use:
+
+    Czyzyk, Joseph et. al. PCx User Guide (Version 1.1). 1997.
+
+A BibTeX entry for LaTeX users is ::
+
+    @techreport{PCx,
+        author    = "Joseph Czyzyk and Sanjay Mehrotra and Michael Wagner and
+        Stephen J. Wright",
+        title     = "PCx User Guide (Version 1.1)",
+        institution = "Optimization Technology Center",
+        year      = "1997",
+    }

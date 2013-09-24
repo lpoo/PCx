@@ -1,0 +1,14 @@
+To cite PCx in publications, please use:
+
+Czyzyk, Joseph et. al. PCx User Guide (Version 1.1). 1997.
+
+A BibTeX entry for LaTeX users is
+
+@techreport{PCx,
+    author    = "Joseph Czyzyk and Sanjay Mehrotra and Michael Wagner and
+    Stephen J. Wright",
+    title     = "PCx User Guide (Version 1.1)",
+    institution = "Optimization Technology Center",
+    year      = "1997",
+}
+

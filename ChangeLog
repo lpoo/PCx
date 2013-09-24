@@ -1,0 +1,149 @@
+2006-10-01
+
+	* Fixed bug in memory allocation for array min_phi in PCx.c
+
+2004-11-05
+
+	* Fixed hash.c to allow more than 1.3 million rows and columns;
+	
+	* redefined allowable hash table sizes.
+
+2004-03-19
+	* Fixed minor bugs concerning handling of upper bounds (in PCx.c) and
+	scaling (in scale.c).
+	
+	* Unified the unix and Matlab-ready distributions.
+
+2003-05-11
+
+	* Updated PCx-C (C version) to use latest version of fortran-to-C
+	utility f2c.
+
+2003-04-11
+
+	* Fixed another bug in preprocessor, again concerning row singletons.
+
+2002-02-28
+
+	* Fixed bug in preprocessor for bounded variables in a singleton row.
+
+2002-02-26
+
+	* Updated PCx-AMPL interface to fix some bugs in the interface, and
+	document the installation process more thoroughly.
+
+	* Also created precompiled executables for Intel Solaris, Sun Solaris,
+	and Linux.
+
+2001-12-23
+
+	* Fixed handling of "MI" in the BOUNDS section of MPS files; affects
+	only cases in which MI variables have upper bounds other than 0.
+
+2001-02-27
+
+	*  A few fixes in line search heuristic and MPS file handling; affects
+	only a few cases.
+
+2000-12-14
+
+	* Fixed readmps.c to avoid core dumping on incorrect MPS input files.
+
+1999-09-13
+
+	* Bug fix in PCx Unix and  C versions.
+	
+	* Bug affected instances with bound constraints in whch Gondzio
+	correctors were used.
+
+1999-08-12
+
+	* Unix and C versions changed to accept problems with zero rows in the
+	constraint matrix, and to improve efficiency of initial matrix ordering
+	routines. (We are working on improvements to the dense column handling,
+	which will be released shortly.)
+
+1998-08-06
+
+	* AMPL interface and PCxGUI (Java interface) released.
+
+1998-06-10
+
+	* Added DOS version 1.1, unified parameter.c for DOS, Unix, all-C
+	versions
+
+1998-03-10
+
+	* PCx 1.1 for Windows - parameter file bug fixed
+
+1998-03-01
+
+	* 2 minor memory bugs fixed, new linux version built
+
+1998-01-26
+
+	* PCx 1.1 for Windows released
+
+1997-12-08
+
+	* Computational results added for WSSMP and Ng-Peyton versions
+
+1997-11-02
+
+	* Release of version 1.1:
+
+	* Includes hooks to incorporate alternative linear equations solvers,
+	including WSSMP
+
+1997-10-20
+
+	* Fixed a few bugs in documentation
+
+1997-09-22
+
+	*  Fixed various leaks and changed input routine to always seek MPS file
+	in current directory first
+
+
+1997-08-18
+
+	* Fixed various minor leaks and bugs
+
+	* Provided cleaner interface to sparse Cholesky solvers
+
+1997-06-25
+
+	* Some memory leaks corrected
+
+1997-03-07
+
+	* Release of version 1.0:
+
+	* Includes higher-order corrections, scaling, bug fixes.
+
+
+1996-11-25
+
+	* New ComputeADAT routine: greatly improves efficiency on some problems
+
+1996-10-18
+
+	* Release of version beta-2.0:
+
+	* Includes dense column handling, many memory leak and bug fixes.
+
+1996-07-09
+
+	* Fixed bug in presolve.c
+
+1996-05-28
+
+	* Added #include stdlib.h to readmps.c for Linux
+
+1996-05-17
+
+	* Added Solaris executable and timing code
+
+1996-05-15
+
+	* Initial Release: version beta-1.0

@@ -1,0 +1,24 @@
+Authors
+=======
+
+The original authors of PCx are
+
+* Joe Czyzyk, Argonne and Poland;
+* `Sanjay Mehrotra
+  <http://www.iems.northwestern.edu/content/Member.asp?MemberIK=37>`_, Northwestern;
+* Michael Wagner, Cornell;
+* `Stephen Wright <http://www.cs.wisc.edu/~swright/>`_, Wisconsin.
+
+PCx uses the sparse Cholesky linear algebra routines of `Esmond Ng
+<http://crd-legacy.lbl.gov/~EGNg/>`_ and Barry Peyton. 
+
+Marc Wenzel programmed the dense-column-handling and conjugate gradient
+refinement features that were added for the beta-2.0 release of PCx.
+
+Doug Moore gave valuable advice and in particular pointed out and repaired many
+memory leaks in the beta-1.0 release.
+
+Hans Mittelmann prepared the executables for numerous architectures and ran many
+of the benchmark tests.
+
+Jean-Pierre Goux set up the request form and download system. 

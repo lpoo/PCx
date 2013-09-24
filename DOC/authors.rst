@@ -3,7 +3,7 @@ Authors
 
 The original authors of PCx are
 
-* Joe Czyzyk, Argonne and Poland;
+* Joseph Czyzyk, Argonne and Poland;
 * `Sanjay Mehrotra
   <http://www.iems.northwestern.edu/content/Member.asp?MemberIK=37>`_, Northwestern;
 * Michael Wagner, Cornell;

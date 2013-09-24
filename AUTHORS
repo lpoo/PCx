@@ -1,0 +1,19 @@
+Joseph Czyzyk
+Sanjay Mehrotra
+Michael Wagner
+Stephen J. Wright
+Esmond Ng
+        sparse Cholesky linear algebra routines
+Barry Peyton
+        sparse Cholesky linear algebra routines
+Marc Wenzel
+        programmed the dense-column-handling and conjugate gradient refinement
+        features that were added for the beta-2.0 release of PCx.
+Doug Moore
+        gave valuable advice and in particular pointed out and repaired many
+        memory leaks in the beta-1.0 release.
+Hans Mittelmann
+        prepared the executables for numerous architectures and ran many of the
+        benchmark tests.
+Jean-Pierre Goux
+        set up the request form and download system.

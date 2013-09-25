@@ -33,9 +33,22 @@ To cite PCx in publications, please use:
 A BibTeX entry for LaTeX users is ::
 
     @techreport{PCx,
-        author    = "Joseph Czyzyk and Sanjay Mehrotra and Michael Wagner and
-        Stephen J. Wright",
-        title     = "PCx User Guide (Version 1.1)",
-        institution = "Optimization Technology Center",
-        year      = "1997",
+        author    = {Joseph Czyzyk and Sanjay Mehrotra and Michael Wagner and
+        Stephen J. Wright},
+        title     = {PCx User Guide (Version 1.1)},
+        institution = {Optimization Technology Center},
+        year      = {1997},
+    }
+
+or ::
+
+    @article{Czyzyk:1999hk,
+        author = {Czyzyk, Joseph and Mehrotra, Sanjay and Wagner, Michael and
+            Wright, Stephen J},
+        title = {{PCx: an interior-point code for linear programming}},
+        journal = {Optimization Methods and Software},
+        year = {1999},
+        volume = {11},
+        number = {1},
+        pages = {397--430}
     }

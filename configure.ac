@@ -33,6 +33,8 @@ elif test -e /usr/bin/uname; then
   PCx_ARCH=`/usr/bin/uname`
   if test "$PCx_ARCH" == "FreeBSD"; then
     PCx_ARCH="freebsd"
+  elif test "$PCx_ARCH" == "Darwina"; then
+    PCx_ARCH="darwin"
   else
     echo "Unable to determine machines architecture"
     PCx_ARCH="unknown"
@@ -65,6 +67,24 @@ elif test "$PCx_ARCH" == "CRAY Y-MP"; then
 fi
 AC_SUBST(PCx_ARCH)
 
+# Configure options to F2C
+#
+# TODO Add all the PCx_ARCH
+if test "$PCx_ARCH" == "linux"; then
+  F2C_CFLAGS="-DNON_UNIX_STDIO -fPIC"
+  F2C_LDFLAGS="-x"
+elif test "$PCx_ARCH" == "freebsd"; then
+  F2C_CFLAGS="-DUSE_STRLEN"
+  F2C_LDFLAGS=""
+elif test "$PCx_ARCH" == "darwin"; then
+  F2C_CFLAGS="-DUSE_STRLEN"
+  F2C_LDFLAGS=""
+fi
+# F2C_CFLAGS="${F2C_CFLAGS} -DKR_headers"  # For old compilers
+F2C_CFLAGS="${F2C_CFLAGS}"  # For old compilers
+AC_SUBST(F2C_CFLAGS)
+AC_SUBST(F2C_LDFLAGS)
+
 # Configure the Cholesky solver
 echo 'Cheking for IBM WSSMP Cholesky solver';
 if test -z "$WSSMP_LIB"; then
@@ -85,7 +105,7 @@ AC_SUBST(WSSMP_LIB)
 echo 'Checking for Ng Peyton Cholesky solver';
 if test -z "$NG_LIB"; then
   if test -d Ng-Peyton; then
-    NG_LIB=../Ng-Peyton/cholesky.a
+    NG_LIB=../Ng-Peyton/libcholesky.a
     echo "Ng-Peyton found";
   else
     echo "No directory ./Ng-Peyton";
@@ -119,8 +139,6 @@ AM_PROG_LIBTOOL
 # Checks for programs
 echo "Testing for a C compiler"
 AC_PROG_CC
-echo "Testing for a FORTRAN compiler"
-AC_PROG_FC
 
 # Checks for libraries
 # Checks for header files
@@ -131,6 +149,6 @@ AC_PROG_FC
 # Checks for system
 # Services
 
-AC_CONFIG_FILES([Makefile Ng-Peyton/Makefile SRC/Makefile])
+AC_CONFIG_FILES([Makefile F2C/Makefile Ng-Peyton/Makefile SRC/Makefile])
 
 AC_OUTPUT

@@ -1,3 +1,3 @@
 RANLIB   = ranlib
 
-MISC_OBJS = nullmain.o
+#MISC_OBJS = nullmain.o

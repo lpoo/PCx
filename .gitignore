@@ -48,6 +48,11 @@ ltmain.sh
 # Test problem
 mps/*
 
+# F2C
+F2C/arith.h
+F2C/signal1.h
+F2C/sysdep1.h
+
 # Executable
 PCx
 

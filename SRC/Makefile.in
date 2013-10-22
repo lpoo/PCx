@@ -1,57 +1,47 @@
 # @configure_input@
 
-PCx_ARCH = @PCx_ARCH@
-WSSMP_LIB = @WSSMP_LIB@
-NG_LIB = @NG_LIB@
-TARGETDIR = @TARGETDIR@
+PCx_ARCH ?= @PCx_ARCH@
+WSSMP_LIB ?= @WSSMP_LIB@
+NG_LIB ?= @NG_LIB@
+TARGETDIR ?= @TARGETDIR@
 
 OBJS = presolve.o PCx2.o readmps.o lpmps.o memory.o hash.o \
        parameters.o split.o io.o timers.o PCx.o solve.o \
-       dcolumns.o wrappers.o basics.o scale.o lp.o \
+       blkLVL.o dcolumns.o wrappers.o basics.o scale.o lp.o \
        jair.o cblas.o algorithm.o rcm.o
 
-PCX_LIB   =  libPCx.a
+PCX_LIB = libPCx.a
 MYSOLVER_LIB = ../mysolver/libmysolver.a
+F2C_LIB = -I../F2C -L../F2C -lf2c
 
-#NG_LIB    is defined in the build script
-#WSSMP_LIB is defined in the build script
+# NG_LIB    is defined in the build script
+# WSSMP_LIB is defined in the build script
 
 CC ?= @CC@
+CFLAGS ?= @CFLAGS@
+CFLAGS += -D$(PCx_ARCH) ${F2C_LIB}
 ifdef MEX
-#CFLAGS ?= -O -D$(PCx_ARCH) -DMEX $(MORECFLAGS)
-CFLAGS ?= @CFLAGS@ -D$(PCx_ARCH) -DMEX
-else
-#CFLAGS ?= -O -D$(PCx_ARCH) $(MORECFLAGS)
-CFLAGS ?= @CFLAGS@ -D$(PCx_ARCH)
+CFLAGS += -DMEX
 endif
-
-FC ?= @FC@
-FCFLAGS ?= @FCFLAGS@
-# The `LFLAGS = -O` was replace by `FLAGS = -z muldefs -O` because of
-# the following error:
-#
-#     gfortran -O main.o blkLVL.o Ng-Peyton.o ./libPCx.a \
-#       nullmain.o ../Ng-Peyton/cholesky.a -o ../PCx -lm
-#     nullmain.o: In function `main':
-#     nullmain.f:(.text+0x0): multiple definition of `main'
-#     main.o:main.c:(.text+0x0): first defined here
-#     collect2: error: ld returned 1 exit status
-#
-# LFLAGS = -O
-LFLAGS ?= -z muldefs -O $(FCFLAGS)
 
 include ../MAKEARCH/$(PCx_ARCH).make
 # MISC_OBJS is defined in architecture-specific makefile
 
 # this is still the default:
-PCx_NgPeyton: main.o $(PCX_LIB) blkLVL.o Ng-Peyton.o $(MISC_OBJS) $(NG_LIB)
-	$(FC) $(LFLAGS) main.o blkLVL.o Ng-Peyton.o ${TARGETDIR}/$(PCX_LIB) \
+PCx_NgPeyton: main.o $(PCX_LIB) Ng-Peyton.o $(MISC_OBJS) $(NG_LIB)
+	$(CC) $(CFLAGS) main.o Ng-Peyton.o ${TARGETDIR}/$(PCX_LIB) \
+	  $(MISC_OBJS) $(NG_LIB) $(F2C_LIB) -o ../PCx -lm
+
+cversion: PCx_NgPeyton
+
+PCx_NgPeytonC: main.o $(PCX_LIB) Ng-Peyton.o $(MISC_OBJS) $(NG_LIB)
+	$(CC) $(LFLAGS) main.o Ng-Peyton.o ${TARGETDIR}/$(PCX_LIB) \
 	  $(MISC_OBJS) $(NG_LIB) -o ../PCx -lm
 
 # might have to add the parameter -bmaxdata:44000000 for large applications.
 # (or with en even larger number)
 PCx_wssmp: main.o $(PCX_LIB) wssmp.o $(MISC_OBJS) $(WSSMP_LIB)
-	$(FC) $(LFLAGS) main.o $(PCX_LIB) wssmp.o $(MISC_OBJS) \
+	$(CC) $(LFLAGS) main.o $(PCX_LIB) wssmp.o $(MISC_OBJS) \
 	  $(WSSMP_LIB) -o ../PCx -lm
 
 # template for other solvers
@@ -59,17 +49,14 @@ PCx_mysolver: main.o $(PCX_LIB) mysolver.o $(MISC_OBJS) $(MYSOLVER_LIB)
 	$(CC) $(LFLAGS) main.o $(PCX_LIB) mysolver.o $(MISC_OBJS) \
 	  $(MYSOLVER_LIB) -o ../PCx -lm
 
-objs: $(OBJS)
-
-clean:
-	/bin/rm -f *.o $(PCX_LIB) ../PCx
-
 $(PCX_LIB): $(OBJS)
 	cd ${TARGETDIR}; ar r $(PCX_LIB) $(OBJS)
 	$(RANLIB) $(PCX_LIB)
 
-.c.o:
+%.o: %.c
 	${CC} ${CFLAGS} -c -o ${TARGETDIR}/$*.o $<
 
-.f.o:
-	${FC} ${FCFLAGS} -c -o ${TARGETDIR}/$*.o $<
+.PHONY: clean
+
+clean:
+	\rm -f *.o $(PCX_LIB) ../PCx

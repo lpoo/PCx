@@ -1,9 +1,9 @@
 # @configure_input@
 
-export PCx_ARCH = @PCx_ARCH@
-export WSSMP_LIB = @WSSMP_LIB@
-export NG_LIB = @NG_LIB@
-export TARGETDIR = @TARGETDIR@
+export PCx_ARCH ?= @PCx_ARCH@
+export WSSMP_LIB ?= @WSSMP_LIB@
+export NG_LIB ?= @NG_LIB@
+export TARGETDIR ?= @TARGETDIR@
 
 export CC ?= @CC@
 export CFLAGS ?= @CFLAGS@
@@ -11,11 +11,17 @@ export FC ?= @FC@
 export FCFLAGS ?= @FCFLAGS@
 
 # default
-PCx:: NgPeyton
+PCx:: F2C NgPeyton
 	@echo "***************************************************";
 	@echo "Building PCx with the Ng Peyton Cholesky solver....";
 	@echo "***************************************************";
 	$(MAKE) $(MFLAGS) -C SRC PCx_NgPeyton
+
+F2C::
+	@echo "***************************************************";
+	@echo "Building the F2C library ....";
+	@echo "***************************************************";
+	$(MAKE) $(MFLAGS) -C F2C
 
 NgPeyton::
 	@echo "***************************************************";
@@ -44,16 +50,18 @@ mex:: NgPeyton
 	@echo "***********************************************";
 	$(MAKE) $(MFLAGS) -C mex
 
+.PHONY: doc clean
+
 doc::
 	-mkdir DOC/_doxygen
 	cd SRC; doxygen
 	$(MAKE) $(MFLAGS) -C DOC html
 
 clean::
-	rm -f PCx
-	rm -f *.log
-	rm -f Ng-Peyton/*.[ao]
-	rm -f SRC/*.[ao]
-	rm -f mex/*.mex*
-	rm -f mex/*.[ao]
-	rm -f F2C/*.[ao]
+	\rm -f PCx
+	\rm -f *.log
+	$(MAKE) $(MFLAGS) -C F2C clean
+	$(MAKE) $(MFLAGS) -C Ng-Peyton clean
+	$(MAKE) $(MFLAGS) -C SRC clean
+	\rm -f mex/*.mex*
+	\rm -f mex/*.[ao]

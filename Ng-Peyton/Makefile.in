@@ -12,13 +12,14 @@
 #***********************************************************************
 #***********************************************************************
 
-PCx_ARCH = @PCx_ARCH@
-WSSMP_LIB = @WSSMP_LIB@
-NG_LIB = @NG_LIB@
-TARGETDIR = @TARGETDIR@
+PCx_ARCH ?= @PCx_ARCH@
+WSSMP_LIB ?= @WSSMP_LIB@
+NG_LIB ?= @NG_LIB@
+TARGETDIR ?= @TARGETDIR@
 
-FC ?= @FC@
-FCFLAGS ?= @FCFLAGS@
+CC ?= @CC@
+CFLAGS ?= @CFLAGS@
+CFLAGS += -I../F2C
 
 LIB_FILES = \
  assmb.o btree2.o betree.o bfinit.o blkfct.o blkfc2.o blkslv.o   \
@@ -33,15 +34,14 @@ SAMPLE_FILES = create.o getrhs.o ordnat.o main.o
 
 include ../MAKEARCH/$(PCx_ARCH).make
 
-cholesky.a: $(LIB_FILES)
-	${AR} r cholesky.a $(LIB_FILES)
-	$(RANLIB) cholesky.a
+libcholesky.a: $(LIB_FILES)
+	${AR} r libcholesky.a $(LIB_FILES)
+	$(RANLIB) libcholesky.a
 
-.f.o:
-	${FC} ${FCFLAGS} -c $?
+%.o: %.c
+	${CC} ${CFLAGS} -c $?
 
-main:	${files}
-	${FC} -o $@ ${files}
+.PHONY:: clean
 
 clean:
-	\rm -f *.o main cholesky.a
+	\rm -f *.o libcholesky.a

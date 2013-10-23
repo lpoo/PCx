@@ -3,16 +3,21 @@
  * PCx 1.1 11/97
  *
  * Author: Joe Czyzyk, Steve Wright
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  *
  * last revised 2/27/2001
  */
 
+#define _CRT_SECURE_NO_WARNINGS 1 // Fernando
+#define _CRT_NONSTDC_NO_WARNINGS 1 // Fernando
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+//#include <math.h>
 #include <math.h>
+
 #include "memory.h"
 #include "main.h"
 
@@ -92,7 +97,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
   double          val1, val2;
   int             ColNumber, EntNumber, RowNumber;
   int             MPSQuickCheckBoundInfeasibility(),
-    AddMPSRow(), AddMPSColumn(), AddMPSCoefficient(), 
+    AddMPSRow(), AddMPSColumn(), AddMPSCoefficient(),
     AddMPSRHS(), AddMPSBound(), AddMPSRange();
 
   /* read header line */
@@ -132,7 +137,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
 
     RowNumber = AddMPSRow(MPS, name1, code);
     if(RowNumber == BAD_INPUT) {
-      printf("Bad Row Number in MPS file\n"); 
+      printf("Bad Row Number in MPS file\n");
       return BAD_INPUT; /* error return */
     }
   }				/* end while */
@@ -172,20 +177,20 @@ int ReadMPSFile(corefile, MPS, Inputs)
       ColNumber = AddMPSColumn(MPS, name1);
       if(ColNumber == BAD_INPUT) {
         printf("Bad Column Number in MPS file\n");
-        return BAD_INPUT; 
+        return BAD_INPUT;
       }
     }
     EntNumber = AddMPSCoefficient(MPS, name1, name2, val1, Inputs);
     if(EntNumber == BAD_INPUT) {
       printf("Bad Coefficient in MPS file\n");
-      return BAD_INPUT; 
+      return BAD_INPUT;
     }
 
     if (val2 != 0.0) {
       EntNumber = AddMPSCoefficient(MPS, name1, name3, val2, Inputs);
       if(EntNumber == BAD_INPUT) {
         printf("Bad Coefficient in MPS file\n");
-        return BAD_INPUT; 
+        return BAD_INPUT;
       }
     }
   }				/* end while */
@@ -211,7 +216,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
     return BAD_INPUT;
   }
   while ((return_getline = GetLine(line, corefile, 200)) == DATALINE) {
-    
+
     ParseDataLine(line, code, name1, name2, &val1, name3, &val2);
 
     if (NoRHSName(MPS))
@@ -222,12 +227,12 @@ int ReadMPSFile(corefile, MPS, Inputs)
 
       if(AddMPSRHS(MPS, name2, val1) == BAD_INPUT) {
         printf("Bad RHS element in MPS file\n");
-        return BAD_INPUT; 
+        return BAD_INPUT;
       }
       if (val2 != 0.0)
 	if(AddMPSRHS(MPS, name3, val2) == BAD_INPUT) {
           printf("Bad RHS element in MPS file\n");
-          return BAD_INPUT; 
+          return BAD_INPUT;
 	}
     }
   }				/* end while GetLine == DATALINE */
@@ -257,12 +262,12 @@ int ReadMPSFile(corefile, MPS, Inputs)
 	
 	if(AddMPSRange(MPS, name2, val1) == BAD_INPUT) {
           printf("Bad Range in MPS file\n");
-          return BAD_INPUT; 
+          return BAD_INPUT;
 	}
 	if (val2 != 0.0)
 	  if(AddMPSRange(MPS, name3, val2) == BAD_INPUT) {
             printf("Bad Range in MPS file\n");
-            return BAD_INPUT; 
+            return BAD_INPUT;
 	  }
       }
     }
@@ -271,7 +276,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
       printf("Read error in MPS file.\n");
       return BAD_INPUT;
     }
-    
+
   }
   /*****************************************************************/
 
@@ -283,7 +288,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
 #endif
 
     while ((return_getline = GetLine(line, corefile, 200)) == DATALINE) {
-      
+
       ParseDataLine(line, code, name1, name2, &val1, name3, &val2);
 
       if (NoBoundName(MPS))
@@ -294,12 +299,12 @@ int ReadMPSFile(corefile, MPS, Inputs)
 
 	if(AddMPSBound(MPS, code, name2, val1) == BAD_INPUT) {
           printf("Bad bound in MPS file\n");
-          return BAD_INPUT; 
+          return BAD_INPUT;
 	}
 	if (val2 != 0.0)
 	  if(AddMPSBound(MPS, code, name3, val2) == BAD_INPUT) {
             printf("Bad bound in MPS file\n");
-            return BAD_INPUT; 
+            return BAD_INPUT;
 	  }
       } else
 	printf("Ignoring bounds with name '%s'.\n", name1);
@@ -334,7 +339,7 @@ int ReadMPSFile(corefile, MPS, Inputs)
   /* Make a quick pass through the information to check for obvious
    * infeasibilities. */
 
-  if(MPSQuickCheckBoundInfeasibility(MPS) == BAD_INPUT) return BAD_INPUT; 
+  if(MPSQuickCheckBoundInfeasibility(MPS) == BAD_INPUT) return BAD_INPUT;
 
   /*****************************************************************/
 
@@ -409,13 +414,13 @@ int ResizeMPSMatrix(MPS, rows, cols, ents)
 
   if (rows != MPS->RowSize) {
     MPS->b = (double *) Realloc(MPS->b, rows * sizeof(double), "MPS->b");
-    
+
     MPS->Ranges = (double *) Realloc(MPS->Ranges, rows * sizeof(double),
 				     "MPS->Ranges");
-    
+
     MPS->RowType = (char *) Realloc(MPS->RowType, rows * sizeof(char),
 				    "MPS->RowType");
-    
+
     MPS->RowNames = (char **) Realloc(MPS->RowNames, rows * sizeof(char *),
 				      "MPS->RowNames");
     oldrows = MPS->RowSize;
@@ -439,7 +444,7 @@ int DeleteMPS(MPS)
   Free((char *) MPS->A.pEndRow);
   Free((char *) MPS->A.Row);
   Free((char *) MPS->A.Value);
-  
+
   Free((char *) MPS->b);
   Free((char *) MPS->c);
 
@@ -523,7 +528,7 @@ int             AddMPSRow(MPS, name, type)
     RowType = type[1];
   else {
     printf("The row '%s' has a missing type in the ROWS section.\n", name);
-    return BAD_INPUT;    
+    return BAD_INPUT;
   }
 
   RowType = toupper(RowType);
@@ -547,7 +552,7 @@ int             AddMPSRow(MPS, name, type)
   }
   if (Insert(MPS->RowTable, name, RowNumber) == 1) {
     printf("Duplicate row name '%s' in MPS file.\n", name);
-    return BAD_INPUT;    
+    return BAD_INPUT;
   }
   MPS->RowNames[RowNumber] = StrDup(name, "MPS->RowNames[]");
   MPS->RowType[RowNumber] = RowType;
@@ -583,7 +588,7 @@ int             AddMPSColumn(MPS, name)
   }
   if (Insert(MPS->ColTable, name, ColNumber) == 1) {
     printf("Duplicate column name '%s' in MPS file.\n", name);
-    return BAD_INPUT; 
+    return BAD_INPUT;
   }
   MPS->ColNames[ColNumber] = StrDup(name, "MPS->ColNames[]");
 
@@ -622,7 +627,7 @@ int             AddMPSCoefficient(MPS, colname, rowname, value, Inputs)
   RowNumber = GetRowNumber(MPS, rowname);
   if (RowNumber == -1) {
     printf("Unable to find row name '%s' in the row name array.\n", rowname);
-    return BAD_INPUT; 
+    return BAD_INPUT;
   }
   MPS->NumEnts++;
   EntNumber = MPS->NumEnts - 1;
@@ -681,7 +686,7 @@ int AddMPSRHS(MPS, rowname, value)
 
   if (RowNumber == -1) {
     printf("Unable to find row '%s' in row array in RHS section.\n", rowname);
-    return BAD_INPUT; 
+    return BAD_INPUT;
   }
   MPS->b[RowNumber] = value;
   return 0;
@@ -723,7 +728,7 @@ int AddMPSRange(MPS, rowname, value)
   if (RowNumber == -1) {
     printf("Unable to find row '%s' in row array in RANGES section.\n",
 	   rowname);
-    return BAD_INPUT; 
+    return BAD_INPUT;
   }
   MPS->Ranges[RowNumber] = value;
 
@@ -767,7 +772,7 @@ int AddMPSBound(MPS, code, colname, value)
   if (ColNumber == -1) {
     printf("Unable to find col '%s' in col array in BOUNDS section.\n",
 	   colname);
-    return BAD_INPUT; 
+    return BAD_INPUT;
   }
   if (strncmp(code, "LO", 2) == 0) {	/* lower bound */
 
@@ -989,7 +994,7 @@ int MPSQuickCheckBoundInfeasibility(MPS)
 	  printf("Bound infeasibility:\n");
 	  printf("The upper bound %f for column '%s' is less than zero.\n",
 		 MPS->UpBound[col], MPS->ColNames[col]);
-	  return BAD_INPUT; 
+	  return BAD_INPUT;
 	}
 	break;
 
@@ -999,7 +1004,7 @@ int MPSQuickCheckBoundInfeasibility(MPS)
 	  printf("The upper bound %f for column '%s' is less than the\n",
 		 MPS->UpBound[col], MPS->ColNames[col]);
 	  printf("lower bound %f.\n", MPS->LowBound[col]);
-	  return BAD_INPUT; 
+	  return BAD_INPUT;
 	}
 	break;
 
@@ -1053,7 +1058,7 @@ int PrintMPS(MPS)
   if (MPS->RangeName != NULL) {
     printf("\nRanges:\n");
     printf(" RangeName: %s\n", MPS->RangeName);
-    
+
     for (row = 0; row < MPS->NumRows; row++)
       if (MPS->Ranges[row] != 0.0)
 	printf(" Range[%d] = %f\n", row+1, MPS->Ranges[row]);
@@ -1065,7 +1070,7 @@ int PrintMPS(MPS)
 }				/* end PrintMPS */
 
 /******************************************************************/
-int 
+int
 PrintMPSMatrixToFile(MPS, filename)
   MPStype        *MPS;
   char           *filename;
@@ -1130,7 +1135,9 @@ GetLine(line, file, length)
       line[i] = ' ';
     return_line = fgets(line, length, file);	/* get line from file */
 
-  } while (return_line != NULL && line[0] == '*'); /* discard comment lines */
+  //} while (return_line != NULL && line[0] == '*'); /* discard comment lines */
+ } while (return_line != NULL && (line[0] == '*' || line[0] == 10)); /* discard comment lines */ // and blank lines too
+
 
   if(return_line == NULL) return READERROR;
 
@@ -1194,7 +1201,7 @@ int ParseDataLine(line, code, name1, name2, val1, name3, val2)
 }
 
 /******************************************************************/
-int 
+int
 string_copy(dest, string, max)
   char           *dest, *string;
   int             max;

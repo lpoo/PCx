@@ -3,7 +3,7 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -39,7 +39,7 @@ int GetTime(User, System)
   struct rusage   Time;
 
 if (getrusage(RUSAGE_SELF, &Time))
-    printf("Error getting time.\n"); 
+    printf("Error getting time.\n");
   *User = Time.ru_utime.tv_sec + Time.ru_utime.tv_usec / 1000000.0;
   *System = Time.ru_stime.tv_sec + Time.ru_stime.tv_usec / 1000000.0;
   return 0;
@@ -71,10 +71,10 @@ double *User, *System;
   int             fd;
   char            proc[50];
   prusage_t       prusage;
-  
+
   sprintf(proc,"/proc/%d", getpid());
 
-  if ((fd = open(proc,O_RDONLY)) == -1) 
+  if ((fd = open(proc,O_RDONLY)) == -1)
   {
     printf("Error opening process file.\n");
     *User = 0.0;

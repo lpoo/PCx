@@ -3,7 +3,7 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -26,7 +26,7 @@ static int      prime[NUMPRIMES] = {29, 229, 883, 1671, 2791, 4801, 8629,
 #define NUMPRIMES 18
 static int prime[NUMPRIMES] = {29, 229, 883, 1669, 2791, 4801, 8629,
 			       15289, 32749, 65521, 131071, 262139,
-			       524287, 1048573, 2097143, 4194301, 
+			       524287, 1048573, 2097143, 4194301,
 			       8388593, 16777213};
 
 

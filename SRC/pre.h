@@ -150,6 +150,6 @@ typedef struct ChangeStack {
 } ChangeStack;
 
 extern ChangeStack *NewRecord();
-extern LPtype   *Convert_MPS_LP();  
+extern LPtype   *Convert_MPS_LP();
 extern solution *MPSsolution();
 #endif

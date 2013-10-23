@@ -21,20 +21,20 @@ double dnrm2(int *n, double *x, int *incx)
     static double ssq;
 
 
-/*  DNRM2 returns the euclidean norm of a vector via the function   
-    name, so that   
+/*  DNRM2 returns the euclidean norm of a vector via the function
+    name, so that
 
-       DNRM2 := sqrt( x'*x )   
-
-
-
-    -- This version written on 25-October-1982.   
-       Modified on 14-October-1993 to inline the call to DLASSQ.   
-       Sven Hammarling, Nag Ltd.   
+       DNRM2 := sqrt( x'*x )
 
 
-    
-   Parameter adjustments   
+
+    -- This version written on 25-October-1982.
+       Modified on 14-October-1993 to inline the call to DLASSQ.
+       Sven Hammarling, Nag Ltd.
+
+
+
+   Parameter adjustments
        Function Body */
 #define X(I) x[(I)-1]
 
@@ -46,9 +46,9 @@ double dnrm2(int *n, double *x, int *incx)
     } else {
 	scale = 0.;
 	ssq = 1.;
-/*        The following loop is equivalent to this call to the LAPACK 
-  
-          auxiliary routine:   
+/*        The following loop is equivalent to this call to the LAPACK
+
+          auxiliary routine:
           CALL DLASSQ( N, X, INCX, SCALE, SSQ ) */
 
 	i__1 = (*n - 1) * *incx + 1;
@@ -100,14 +100,14 @@ double ddot(int *n, double *dx, int *incx, double *dy, int *incy)
     static int ix, iy, mp1;
 
 
-/*     forms the dot product of two vectors.   
-       uses unrolled loops for increments equal to one.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     forms the dot product of two vectors.
+       uses unrolled loops for increments equal to one.
+       jack dongarra, linpack, 3/11/78.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
@@ -122,7 +122,7 @@ double ddot(int *n, double *dx, int *incx, double *dy, int *incy)
 	goto L20;
     }
 
-/*        code for unequal increments or equal increments   
+/*        code for unequal increments or equal increments
             not equal to 1 */
 
     ix = 1;
@@ -143,7 +143,7 @@ double ddot(int *n, double *dx, int *incx, double *dy, int *incy)
     ret_val = dtemp;
     return ret_val;
 
-/*        code for both increments equal to 1   
+/*        code for both increments equal to 1
 
 
           clean-up loop */
@@ -165,7 +165,7 @@ L40:
     mp1 = m + 1;
     i__1 = *n;
     for (i = mp1; i <= *n; i += 5) {
-	dtemp = dtemp + DX(i) * DY(i) + DX(i + 1) * DY(i + 1) + DX(i + 2) * 
+	dtemp = dtemp + DX(i) * DY(i) + DX(i + 1) * DY(i + 1) + DX(i + 2) *
 		DY(i + 2) + DX(i + 3) * DY(i + 3) + DX(i + 4) * DY(i + 4);
 /* L50: */
     }
@@ -195,14 +195,14 @@ double dasum(int *n, double *dx, int *incx)
     static int nincx, mp1;
 
 
-/*     takes the sum of the absolute values.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 3/93 to return if incx .le. 0.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     takes the sum of the absolute values.
+       jack dongarra, linpack, 3/11/78.
+       modified 3/93 to return if incx .le. 0.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DX(I) dx[(I)-1]
 
@@ -228,7 +228,7 @@ double dasum(int *n, double *dx, int *incx)
     ret_val = dtemp;
     return ret_val;
 
-/*        code for increment equal to 1   
+/*        code for increment equal to 1
 
 
           clean-up loop */
@@ -251,7 +251,7 @@ L40:
     i__2 = *n;
     for (i = mp1; i <= *n; i += 6) {
 	dtemp = dtemp + (d__1 = DX(i), abs(d__1)) + (d__2 = DX(i + 1), abs(
-		d__2)) + (d__3 = DX(i + 2), abs(d__3)) + (d__4 = DX(i + 3), 
+		d__2)) + (d__3 = DX(i + 2), abs(d__3)) + (d__4 = DX(i + 3),
 		abs(d__4)) + (d__5 = DX(i + 4), abs(d__5)) + (d__6 = DX(i + 5)
 		, abs(d__6));
 /* L50: */
@@ -268,7 +268,7 @@ L60:
 */
 
 
-/* Subroutine */ int daxpy(int *n, double *da, double *dx, 
+/* Subroutine */ int daxpy(int *n, double *da, double *dx,
 	int *incx, double *dy, int *incy)
 {
 
@@ -280,14 +280,14 @@ L60:
     static int i, m, ix, iy, mp1;
 
 
-/*     constant times a vector plus a vector.   
-       uses unrolled loops for increments equal to one.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     constant times a vector plus a vector.
+       uses unrolled loops for increments equal to one.
+       jack dongarra, linpack, 3/11/78.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
@@ -303,7 +303,7 @@ L60:
 	goto L20;
     }
 
-/*        code for unequal increments or equal increments   
+/*        code for unequal increments or equal increments
             not equal to 1 */
 
     ix = 1;
@@ -323,7 +323,7 @@ L60:
     }
     return 0;
 
-/*        code for both increments equal to 1   
+/*        code for both increments equal to 1
 
 
           clean-up loop */
@@ -361,7 +361,7 @@ L40:
 */
 
 
-/* Subroutine */ int dscal(int *n, double *da, double *dx, 
+/* Subroutine */ int dscal(int *n, double *da, double *dx,
 	int *incx)
 {
 
@@ -373,15 +373,15 @@ L40:
     static int i, m, nincx, mp1;
 
 
-/*     scales a vector by a constant.   
-       uses unrolled loops for increment equal to one.   
-       jack dongarra, linpack, 3/11/78.   
-       modified 3/93 to return if incx .le. 0.   
-       modified 12/3/93, array(1) declarations changed to array(*)   
+/*     scales a vector by a constant.
+       uses unrolled loops for increment equal to one.
+       jack dongarra, linpack, 3/11/78.
+       modified 3/93 to return if incx .le. 0.
+       modified 12/3/93, array(1) declarations changed to array(*)
 
 
-    
-   Parameter adjustments   
+
+   Parameter adjustments
        Function Body */
 #define DX(I) dx[(I)-1]
 
@@ -404,7 +404,7 @@ L40:
     }
     return 0;
 
-/*        code for increment equal to 1   
+/*        code for increment equal to 1
 
 
           clean-up loop */

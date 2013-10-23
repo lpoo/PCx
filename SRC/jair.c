@@ -41,7 +41,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 //			ep2     = 0.00000000000000001;
 		}
 		else
-		{	   
+		{	
 			if((M->NumRows) < 20000)
 			{
 				param_p = 8;
@@ -107,8 +107,8 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 	wwa        = NewInt(aux1,"wwa");
 	Acol       = NewInt(M->NumCols + 1, "Acol");
 	r1r2       = NewInt(p,"r1r2");
-	duposi     = NewInt(aux6,"duposi");      
-	dl1posi    = NewInt(aux6,"dl1posi");     
+	duposi     = NewInt(aux6,"duposi");
+	dl1posi    = NewInt(aux6,"dl1posi");
 	normau     = NewDouble(NumBounds,  "normau");
 	fornang    = NewDouble(aux1,"fornang1");
 	somalin    = NewDouble(M->NumRows,"somalin");
@@ -124,8 +124,8 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 	valgaux    = NewDouble(pp2,"valgaux");
 	valg       = NewDouble(pp2,"valg");
 	valg1      = NewDouble(pp2,"valg1");
-	dumzero    = NewDouble(aux6,"dumzero");  
-	dl1mzero   = NewDouble(aux6,"dl1mzero"); 
+	dumzero    = NewDouble(aux6,"dumzero");
+	dl1mzero   = NewDouble(aux6,"dl1mzero");
 	N1         = NewDouble(aux6,"N1");
 	du         = NewDouble(aux6,"du");
 	dl1        = NewDouble(aux6,"dl1");
@@ -195,7 +195,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 
 	for(i = 0; i < M->NumCols; i++)
 	{
-		vv1 += x[i] + s[i];  
+		vv1 += x[i] + s[i];
 	}
 
 	for(i = 0; i < M->NumRows; i++)
@@ -209,7 +209,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 			y2[i] = -pi[i];
 		}
 
-		vv1 += y1[i] + y2[i]; 
+		vv1 += y1[i] + y2[i];
 	}
 
 	for (i = 0; i < NumBounds; i++)
@@ -467,7 +467,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 
 		for(i = 0; i < aux1; i++)
 		{
-			ww[i]  = i; 
+			ww[i]  = i;
 			wwa[i] = 0;
 		}
 
@@ -499,7 +499,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 			}
 
 			sortd(fornang, ww, aux1);	// ordena em ordem descendente, guarda a posição ori em ww		
-   
+
 			xzero = 0;
 
 			for(i = 0; i < aux1; i++)
@@ -730,7 +730,7 @@ void jair1(MMTtype *M, FactorType *Factor, double b[], double c[], double *px, d
 				{
 					for(j = 0; j < aux7; j++)
 					{
-						Paux2[j] = 0;   
+						Paux2[j] = 0;
 					}
 
 					if(r1r2[l-i] < M->NumCols)
@@ -1222,7 +1222,7 @@ void cholesky(int aux6, int pp2, int p, double s1, double v, double valgaux[], d
         rr4[i] = rr1[i] + (1 / l1[i]) * rr2[i];
     }
 
-    // Somando U*L1^(-1) na diagonal                             
+    // Somando U*L1^(-1) na diagonal
 
     p_i = 0;
     i  = 0;
@@ -1235,21 +1235,21 @@ void cholesky(int aux6, int pp2, int p, double s1, double v, double valgaux[], d
         i++;
         p_i += i;
     }
-   
+
     p_i = 0;
     i  = 0;
-   
+
     while (i < aux6)
     {
         pj = p_i;
         k  = i + 1;
-       
+
         for(j = 0; j < k; j++)
         {
             valgaux[pj] *= dd12[i] * dd12[j];
             pj++;
         }
-       
+
         i++;
         p_i += i;
     }
@@ -1342,7 +1342,7 @@ void resolucao_sistema(int aux6, int p, double s1, double sti[], double ssf[], d
 		{
 			saux += valg1[pw] * ssf[pk];
 			
-			pw -= pk; 
+			pw -= pk;
 			pk--;
 		}
 
@@ -1402,4 +1402,3 @@ void resolucao_sistema(int aux6, int p, double s1, double sti[], double ssf[], d
 		ssf2[i] = dd12[i] * ssf2[i]; // solucao final do segundo sistema
 	}
 }
-

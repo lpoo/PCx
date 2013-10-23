@@ -13,7 +13,7 @@ extern        char             P_name[100];
 /*-------------------------------------------------------------------*/
 int merge(int *p1, int n1, int *p2, int n2, int *p3)
 /* Merge sorted int vectors p1 and p2 into p3 eliminating
-   repeteated entries 
+   repeteated entries
 
    n1= size of p1
    n2= size of p2
@@ -42,7 +42,7 @@ int merge(int *p1, int n1, int *p2, int n2, int *p3)
 }
 
 /*-------------------------------------------------------------------*/
-void merge2(int *pi1, double * pd1, int n1, int *pi2, double *pd2, int n2, 
+void merge2(int *pi1, double * pd1, int n1, int *pi2, double *pd2, int n2,
 int *pi3, double *pd3)
 /* Merge sorted int vectors pi1 and pi2 into pi3
              double         pd1     pd2      pd3
@@ -94,7 +94,7 @@ void emerge(int *p1, int n1, int *pt, int n2, int *key, int *d, int *f,
        while(d[i] <= d2[j]) { key[m++]= k; pt[k++]= p1[i++]; }
        if(i == n1) return;
        t= TRUE;
-       for(l= A->col[p2[j]]; l < A->col[p2[j]+1]; l++) 
+       for(l= A->col[p2[j]]; l < A->col[p2[j]+1]; l++)
            if(f[A->row[l]] >= i)
            {
               t= FALSE;
@@ -126,7 +126,7 @@ void iiddownheap(int *v, int *v2, double *w, int n, int k)
    {
       j= k + k;
       if(j < n)
-         if(v[j] >= v[j+1]) 
+         if(v[j] >= v[j+1])
             if(v[j] == v[j+1])
                if(v2[j] < v2[j+1]) j++; else ;
             else ;
@@ -144,7 +144,7 @@ void iiddownheap(int *v, int *v2, double *w, int n, int k)
 }
 
 void sort(int *v, int *v2, double *va, int n)
-/* Sort int vector v, int v2 and double va by v's values 
+/* Sort int vector v, int v2 and double va by v's values
    Uses heapsort method
    method eventually)
 
@@ -264,7 +264,7 @@ void diownheap(double *v, int *w, int n, int k)
 }
 
 void sortd(double *va, int *v, int n)
-/* Sort double va by va's descending values 
+/* Sort double va by va's descending values
    Return original position on v
    Uses heapsort method
 
@@ -306,7 +306,7 @@ void iidownheap(int *v, int *w, int n, int k)
 }
 
 void sorti(int *v, int *w, int n)
-/* Sort int v by ascending value 
+/* Sort int v by ascending value
    Uses heapsort method
 
    n= vectors size */
@@ -350,7 +350,7 @@ void iiidownheap(int *v, int *w, int *u, int n, int k)
 }
 
 void sortii(int *v, int *w, int *u, int n)
-/* Sort int v by ascending value 
+/* Sort int v by ascending value
    Uses heapsort method
 
    n= vectors size */
@@ -371,7 +371,7 @@ void sortii(int *v, int *w, int *u, int n)
 
 int match(int m, int n, int *col, int *row, int *end, int *perm, int *work)
 {
-    int i, j, k, c, aux, mn, rank= 0; 
+    int i, j, k, c, aux, mn, rank= 0;
     int *pr, *below, *vc, *next;
 
     mn= MIN(m,n);
@@ -504,14 +504,14 @@ void fscanf_vetor(char name[200],int size,double *vetor )
   int i;
   int *vetor_aux;
 
-  
+
   file_vetor = fopen(name,"r");
   if (file_vetor == NULL)
   {
      printf("Nao foi possivel abrir o arquivo %s \n",name);
      error(0);
   }
-  for(i = 0; i < size; i++) 
+  for(i = 0; i < size; i++)
     fscanf(file_vetor, "%lf", &(vetor[i]));
   fclose(file_vetor);
 }
@@ -532,7 +532,7 @@ void fprintf_vetor(double *vetor, int size, char name_file[200] )
     printf("Nao foi possivel abrir o arquivo %s \n",vetor_file);
     error(0);
   }
-  //Save in file file_vetor the vetor 
+  //Save in file file_vetor the vetor
   fprintf(file_vetor, "\n");
        for (i = 0; i < size; i++)
          fprintf(file_vetor,"%3.15e \n ",vetor[i]);
@@ -555,7 +555,7 @@ void fprintf_vetor_int(int *vetor, int size, char name_file[200] )
     printf("Nao foi possivel abrir o arquivo %s \n",vetor_file);
     error(0);
   }
-  //Save in file file_vetor the vetor 
+  //Save in file file_vetor the vetor
   fprintf(file_vetor, "\n");
        for (i = 0; i < size; i++)
          fprintf(file_vetor,"%i \n ",vetor[i]);
@@ -578,7 +578,7 @@ void fprintf_col(int *vetor, int size, int nonzeros, char name_file[200] )
     printf("Nao foi possivel abrir o arquivo %s \n",vetor_file);
     error(0);
   }
-  
+
   //Save in file file_vetor the vetor col
   fprintf(file_vetor, "\n");
   for (i = 0; i < size; i++)
@@ -586,7 +586,7 @@ void fprintf_col(int *vetor, int size, int nonzeros, char name_file[200] )
     if (i == size-1)
       for (j = vetor[i]; j < nonzeros; j++)
         fprintf(file_vetor,"%i \n ",i);
-    else 
+    else
       for (j = vetor[i]; j < vetor[i+1]; j++)
         fprintf(file_vetor,"%i \n ",i);
   }
@@ -597,10 +597,10 @@ void fprintf_A_sparse(matrix *A)
 {
   fprintf_col(A->col, A->n, A->nnulos,"_col");
   fprintf_vetor_int(A->row,A->nnulos,"_row");
-  fprintf_vetor(A->val,A->nnulos,"_val");  
+  fprintf_vetor(A->val,A->nnulos,"_val");
 }
 void fprintf_A(matrix *A)
-    
+
 {
   int i, j, h, col, nul;
   char            A_file[200]; // Saving A
@@ -615,7 +615,7 @@ void fprintf_A(matrix *A)
       printf("Nao foi possivel abrir o arquivo %s \n",A_file);
       error(1);
    }
-  
+
   for (i = 0; i < A -> n; i++)
   {
     nul = 0;
@@ -643,7 +643,7 @@ void fprintf_A(matrix *A)
         }
       }
       if (j < A->nnulos - 1)
-      {  
+      {
         if (i == A->n-1)
         {
           j = j + 1;
@@ -655,8 +655,8 @@ void fprintf_A(matrix *A)
             j = j + 1;
             col = A->row[j];
           }
-      } 
-    } 
+      }
+    }
     while (nul < A->m);
     fprintf(Pre_A," \n");
   }

@@ -21,7 +21,7 @@ static integer c__1 = 1;
 /* flag "LEVEL" which indicates what level of loop unrolling */
 /* is required. This routine plugs in the appropriate two */
 /* routines and then calls BLKFCT */
-/* Subroutine */ int blklvl_(neqns, nsuper, xsuper, snode, split, xlindx, 
+/* Subroutine */ int blklvl_(neqns, nsuper, xsuper, snode, split, xlindx,
 	lindx, xlnz, lnz, iwsiz, iwork, tmpsiz, tmpvec, iflag, level)
 integer *neqns, *nsuper, *xsuper, *snode, *split, *xlindx, *lindx, *xlnz;
 doublereal *lnz;
@@ -38,7 +38,7 @@ integer *iflag, *level;
     /* Subroutine */ int s_stop();
 
     /* Local variables */
-    extern /* Subroutine */ int mmpy1_(), mmpy2_(), mmpy4_(), mmpy8_(), 
+    extern /* Subroutine */ int mmpy1_(), mmpy2_(), mmpy4_(), mmpy8_(),
 	    smxpy1_(), smxpy2_(), smxpy4_();
     extern /* Subroutine */ int blkfct_();
     extern /* Subroutine */ int smxpy8_();
@@ -94,4 +94,3 @@ integer *iflag, *level;
     }
     return 0;
 } /* blklvl_ */
-

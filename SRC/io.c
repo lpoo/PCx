@@ -3,11 +3,15 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
+#define _CRT_SECURE_NO_WARNINGS 1 // Fernando
+#define _CRT_NONSTDC_NO_WARNINGS 1 // Fernando
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>		/* for determining file size */
 #include <sys/stat.h>
 #include <string.h>
@@ -16,17 +20,21 @@
 #include "memory.h"
 #include "pre.h"
 
+#ifndef _PCX_Usual_
+	extern double * merit, *central_merit;
+#endif // _PCX_Usual_
+
 
 /*****************************************************************/
 /* contents:                                                     */
 /*****************************************************************/
 /*
 FILE *OpenInputFile(char *infile, int *filesize, Parameters *Inputs);
- 
-void PrintSolution(MPStype *MPS, solution *Solution, Parameters *Inputs, 
+
+void PrintSolution(MPStype *MPS, solution *Solution, Parameters *Inputs,
 	      char *infilename);
 
-void ComputeAndPrintObjectives(solution *Solution, LPtype *LP, 
+void ComputeAndPrintObjectives(solution *Solution, LPtype *LP,
 			       double *primal, double *dual);
 
 void ComputeAndPrintInfeasibilities(solution *Solution, LPtype *LP);
@@ -39,19 +47,19 @@ FILE *OpenInputFile(infile, filesize, Inputs)
      char           *infile;
      int            *filesize;
      Parameters     *Inputs;
-     
+
 {
    FILE           *fp;
    struct stat     buf;
    char            filename[200];
-   
+
    fp = NULL;
 
    /* Always look first in the current directory */
-	 
+	
    strcpy(filename, infile);
    fp = fopen(filename, "r");
-   if (fp == NULL) 
+   if (fp == NULL)
      {
        strcat(filename, ".mps");
        fp = fopen(filename, "r");
@@ -61,45 +69,45 @@ FILE *OpenInputFile(infile, filesize, Inputs)
      printf("File '%s' not found in current directory.\n", filename);
 
    /* If the specs file contains an input directory, look there */
-   
-     if (Inputs->InputDirectory != NULL) 
+
+     if (Inputs->InputDirectory != NULL)
        {
          printf("Looking in the specified input directory...\n");
 	 strcpy(filename, Inputs->InputDirectory);
 	 strcat(filename, infile);
 	 fp = fopen(filename, "r");
-	 if (fp == NULL) 
+	 if (fp == NULL)
 	    {
 	       strcat(filename, ".mps");
 	       fp = fopen(filename, "r");
 	    }
-	 if (fp == NULL) 
+	 if (fp == NULL)
 	    {
 	       strcpy(filename, Inputs->InputDirectory);
 	       strcat(filename, "/");
 	       strcat(filename, infile);
 	       fp = fopen(filename, "r");
 	    }
-	 if (fp == NULL) 
+	 if (fp == NULL)
 	    {
 	       strcat(filename, ".mps");
 	       fp = fopen(filename, "r");
 	    }
-      } 
+      }
    }
 
-   if (fp != NULL) 
+   if (fp != NULL)
       {
          /* copy actual filename to input variable */
 	 strcpy(infile, filename);
          printf("Reading input from file '%s'.\n", infile);
 	 stat(filename, &buf);
 	 *filesize = buf.st_size;
-      } 
-   else 
+      }
+   else
       {
 	 printf("ERROR: couldn't find file '%s'.\n", infile);
-	 if (stderr != stdout) 
+	 if (stderr != stdout)
 	    {
 	       fprintf(stderr, "ERROR: couldn't find file '%s'.\n", infile);
 	    }
@@ -112,6 +120,8 @@ FILE *OpenInputFile(infile, filesize, Inputs)
 /* Prints the solution from "Solution" to the output file "infile".out. Also
  * writes the history file "infile".log */
 
+//extern double * merit, *central_merit;
+
 void PrintSolution(MPS, Solution, Inputs, infilename)
      MPStype        *MPS;
      solution       *Solution;
@@ -120,14 +130,15 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 {
    char            outfilename[200], logfilename[200], *basename,
                   *suffix, statusTxt[40], rootfilename[200];
-   FILE           *outfile, *logfile;
+   char csv_file_name[200], preffix[10];
+   FILE           *outfile, *logfile, *csv_file;
    int             row, col, entry, i, j, len;
    int             WriteSolution, WriteHistory;
-   
+
    WriteSolution = Inputs->WriteSolution;
    WriteHistory = Inputs->WriteHistory;
-   
-   if (WriteSolution || WriteHistory) 
+
+   //if (WriteSolution || WriteHistory)
       {
 	 /* get prefix of file names by stripping off leading path and trailing
 	  * .mps */
@@ -136,47 +147,119 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 	    basename = infilename;
 	 else
 	    basename++;
-	 
+	
 	 suffix = strstr(basename, ".mps");
-	 if (suffix != NULL) 
+	 if (suffix != NULL)
 	    {
 	       len = strlen(basename) - strlen(suffix);
 	       strncpy(rootfilename, basename, len);
 	       rootfilename[len] = '\0';
 	       /* strcpy(basename, outfilename); */
 	    }
-	 else 
+	 else
 	    strcpy(rootfilename, basename);
       }
    /* if requested, open the output file */
-   
-   if (WriteSolution) 
+
+   if (WriteSolution)
       {
 	 strcpy(outfilename, rootfilename);
 	 strcat(outfilename, ".out");
 	 outfile = fopen(outfilename, "w");
-	 if (outfile == NULL) 
+	 if (outfile == NULL)
 	    {
 	       printf("Unable to open outfile '%s'; solution not printed.\n",
 		      outfilename);
 	    }
       }
+
+
+	if (!WriteHistory)
+	{
+		i = Solution->Status;
+		sprintf(preffix, "%d", i);
+		//	itoa(i, preffix, 10);
+		strcpy(csv_file_name, preffix);
+		strcat(csv_file_name, "_");
+		i = Solution->Iterations;
+		sprintf(preffix, "%d", i);
+		strcat(csv_file_name, preffix);
+		strcat(csv_file_name, "_");
+		strcat(csv_file_name, rootfilename);
+		strcat(csv_file_name, ".csv");
+		csv_file = fopen(csv_file_name, "w");
+
+		if (csv_file == NULL)
+		{
+		   printf("Unable to open csv_file '%s'; solution not printed.\n",
+			  csv_file_name);
+		   return;
+		}
+
+		if(Inputs->HOCorrections && Inputs->MaxCorrections > 0)
+		{
+			fprintf(csv_file, "Iter;Primal;Dual;PriInf;DualInf;log (mu centr);corr;log (phi);log (opt merit);log (centr merit)\n");
+		}
+		else
+		{
+			fprintf(csv_file, "Iter;Primal;Dual;PriInf;DualInf;log (mu centr);log (phi);log (opt merit);log (centr merit)\n");
+		}
+
+		for (i = 0; i <= Solution->Iterations; i++)
+		{
+			fprintf(csv_file, "%3d;%11.4e;%11.4e;%7.1e;%7.1e;%6.2f;",
+				i, Solution->IterationHistory[i].PrimalObjective,
+				Solution->IterationHistory[i].DualObjective,
+				Solution->IterationHistory[i].PriInf,
+				Solution->IterationHistory[i].DualInf,
+				Solution->IterationHistory[i].logmu);
+
+#ifndef _PCX_Usual_
+			if (Inputs->HOCorrections && Inputs->MaxCorrections > 0)
+			{
+				fprintf(csv_file, "%2d;%7.1e;%7.1e;%7.1e\n",
+					Solution->IterationHistory[i].NumCorrections,
+					log10(Solution->IterationHistory[i].phi), log10(merit[i]), log10(central_merit[i]));
+			}
+			else
+			{
+				fprintf(csv_file, "%7.1e;%7.1e;%7.1e\n",
+					log10(Solution->IterationHistory[i].phi), log10(merit[i]), log10(central_merit[i]));
+			}
+#else
+			if (Inputs->HOCorrections && Inputs->MaxCorrections > 0)
+			{
+				fprintf(csv_file, "%2d;%7.1e\n",
+					Solution->IterationHistory[i].NumCorrections,
+					log10(Solution->IterationHistory[i].phi));
+			}
+			else
+			{
+				fprintf(csv_file, "%7.1e\n",
+					log10(Solution->IterationHistory[i].phi));
+			}
+#endif // _PCX_Usual_
+		}
+		fclose(csv_file);
+	}
+
+
    /* if requested, open the history file */
-   
-   if (WriteHistory) 
+
+   if (WriteHistory)
       {
 	 strcpy(logfilename, rootfilename);
 	 strcat(logfilename, ".log");
 	 logfile = fopen(logfilename, "w");
-	 if (logfile == NULL) 
+	 if (logfile == NULL)
 	    {
 	       printf("Unable to open logfile '%s'; history not printed.\n",
 		      logfilename);
 	    }
       }
    /* determine solution status */
-   
-   switch (Solution->Status) 
+
+   switch (Solution->Status)
       {
       case OPTIMAL_SOL:
 	 strcpy(statusTxt, "OPTIMAL");
@@ -193,23 +276,23 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
       default:
 	 strcpy(statusTxt, "UNKNOWN");
       }
-   
+
    printf("\nProblem '%s' ", MPS->ProblemName);
    /*
      printf("In original problem, have %d variables, %d constraints\n",
      MPS->NumCols, MPS->NumRows);
      printf("Iterations =  %d\n", Solution->Iterations);
      */
-   printf("terminated with %s status (code %d) after %d iterations\n\n", 
+   printf("terminated with %s status (code %d) after %d iterations\n\n",
 	  statusTxt, Solution->Status, Solution->Iterations);
-   
+
    printf("Primal Objective = %13.8e\n", Solution->PrimalObjective);
    printf("Dual   Objective = %13.8e\n", Solution->DualObjective);
-   
+
    printf("\nComplementarity          = %9.2e\n", Solution->Complementarity);
    printf("Relative Complementarity = %9.2e\n",
 	  Solution->RelativeComplementarity);
-   
+
    printf("\nRelative Infeasibilities:\n");
    printf("Primal = %9.3e,    ", Solution->PrimalInfeasibility);
    printf("Dual   = %9.3e.\n", Solution->DualInfeasibility);
@@ -218,29 +301,29 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
    printf("\nRead Time       = %.2f seconds\n", Solution->ReadTime);
    printf("Preprocess time = %.2f seconds\n", Solution->PreprocessTime);
    printf("Solution time   = %.2f seconds\n", Solution->SolutionTime);
-   
-   if (WriteSolution && (outfile != NULL)) 
+
+   if (WriteSolution && (outfile != NULL))
       {
 	 /* If infeasible, print nothing except a note */
-	 if(Solution->Status == INFEASIBLE_SOL) 
+	 if(Solution->Status == INFEASIBLE_SOL)
 	    {
 	       fprintf(outfile, "INFEASIBLE status detected by PCx()");
-	    } 
-	 else 
+	    }
+	 else
 	    {
 	       fprintf(outfile, "Solution for '%s'\n", MPS->ProblemName);
 	       fprintf(outfile, "Variables:\n");
-	       
+	
 	       fprintf(outfile, " #   Label         Value       Reduced Cost");
 	       fprintf(outfile, "    Lower Bound    Upper Bound\n");
-	       for (col = 0; col < MPS->NumCols; col++) 
+	       for (col = 0; col < MPS->NumCols; col++)
 		  {
 		     fprintf(outfile, "%3d %9s  %14.7e  %14.7e  ", col,
-			     MPS->ColNames[col], Solution->x[col], 
+			     MPS->ColNames[col], Solution->x[col],
 			     Solution->DualLower[col]);
-		     
+		
 		     /* print lower bound */
-		     switch (MPS->BoundType[col]) 
+		     switch (MPS->BoundType[col])
 			{
 			case LOWER:
 			case UPPERLOWER:
@@ -256,9 +339,9 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 			   fprintf(outfile, "-Infinity      ");
 			   break;
 			}
-		     
+		
 		     /* print upper bound */
-		     switch (MPS->BoundType[col]) 
+		     switch (MPS->BoundType[col])
 			{
 			case UPPER:
 			case UPPERLOWER:
@@ -276,50 +359,50 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 			}
 		     fprintf(outfile, "\n");
 		  }				/* end col loop */
-	       
+	
 	       fprintf(outfile, "\nConstraints:\n");
 	       fprintf(outfile, " #   Label  Type    ");
 	       fprintf(outfile, "Activity        RHS          Dual");
 	       fprintf(outfile, "       Lower Bound  Upper Bound\n");
-	       
-	       for (row = 0; row < MPS->NumRows; row++) 
+	
+	       for (row = 0; row < MPS->NumRows; row++)
 		  {
 		     fprintf(outfile, "%3d %8s %c %14.7e %13.6e %13.6e",
-			     row, MPS->RowNames[row], MPS->RowType[row], 
-			     Solution->Activity[row], MPS->b[row], 
+			     row, MPS->RowNames[row], MPS->RowType[row],
+			     Solution->Activity[row], MPS->b[row],
 			     Solution->pi[row]);
-		     if (toupper(MPS->RowType[row]) == 'G') 
+		     if (toupper(MPS->RowType[row]) == 'G')
 			{
 			   if (MPS->Ranges[row] != 0.0)
 			      fprintf(outfile, " %13.6e %13.6e\n",
-				      MPS->b[row], MPS->b[row] + 
+				      MPS->b[row], MPS->b[row] +
 				      fabs(MPS->Ranges[row]));
 			   else
-			      fprintf(outfile, " %13.6e  INFINITY\n", 
+			      fprintf(outfile, " %13.6e  INFINITY\n",
 				      MPS->b[row]);
 			}
-		     if (toupper(MPS->RowType[row]) == 'L') 
+		     if (toupper(MPS->RowType[row]) == 'L')
 			{
 			   if (MPS->Ranges[row] != 0.0)
 			      fprintf(outfile, " %13.6e %13.6e\n",
-				      MPS->b[row] - fabs(MPS->Ranges[row]), 
+				      MPS->b[row] - fabs(MPS->Ranges[row]),
 				      MPS->b[row]);
 			   else
-			      fprintf(outfile, "  -INFINITY    %13.6e\n", 
+			      fprintf(outfile, "  -INFINITY    %13.6e\n",
 				      MPS->b[row]);
 			}
-		     if (toupper(MPS->RowType[row]) == 'E') 
+		     if (toupper(MPS->RowType[row]) == 'E')
 			{
 			   if (MPS->Ranges[row] > 0.0)
 			      fprintf(outfile, " %13.6e %13.6e\n",
-				      MPS->b[row], MPS->b[row] + 
+				      MPS->b[row], MPS->b[row] +
 				      MPS->Ranges[row]);
 			   else if (MPS->Ranges[row] < 0.0)
 			      fprintf(outfile, " %13.6e %13.6e\n",
-				      MPS->b[row] - MPS->Ranges[row], 
+				      MPS->b[row] - MPS->Ranges[row],
 				      MPS->b[row]);
 			   else			/* == 0.0 */
-			      fprintf(outfile, " %13.6e %13.6e\n", 
+			      fprintf(outfile, " %13.6e %13.6e\n",
 				      MPS->b[row], MPS->b[row]);
 			}
 		     if (toupper(MPS->RowType[row]) == 'N')
@@ -327,14 +410,14 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 		  }
 	       if (outfile != stdout)
 		  fclose(outfile);
-	       
+	
 	    }
       }
    /* write History file, if requested */
-   
-   if (WriteHistory && (logfile != NULL)) 
+
+   if (WriteHistory && (logfile != NULL))
       {
-	 fprintf(logfile, 
+	 fprintf(logfile,
 		 "\n******** PCx version 1.1 (Nov 1997) ************\n\n");
 	 fprintf(logfile, "Problem '%s' ", MPS->ProblemName);
 	 fprintf(logfile, "terminated with %s status\n", statusTxt);
@@ -342,10 +425,10 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 		 Solution->Iterations, Solution->Status);
 	 fprintf(logfile, "\nMPS formulation has %d rows, %d columns\n",
 		 MPS->NumRows,  MPS->NumCols);
-	 
+	
 	 fprintf(logfile, "\nPARAMETER SUMMARY\n");
 	 fprintf(logfile, "=================\n\n");
-	 
+	
 	 fprintf(logfile, "Maximum number of iterations: %d\n",
 		 Inputs->IterationLimit);
 	 fprintf(logfile, "Tolerances: Opt=%8.2e  PriFeas=%8.2e",
@@ -355,9 +438,9 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
          if (Inputs->HOCorrections) {
            fprintf(logfile, "Gondzio strategy selected: ");
            fprintf(logfile, " Maximum Gondzio corrections = %d\n", Inputs->MaxCorrections);
-         } else 
+         } else
              fprintf(logfile, "Mehrotra predictor-corrector strategy selected\n");
-	 
+	
 	 if (Inputs->Refinement)
 	    {
 	       fprintf(logfile, "Iterative refinement performed during");
@@ -365,120 +448,136 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 	    }
 	 else
 	    fprintf(logfile, "NO iterative refinement\n");
-	 
-	 if (Inputs->Preprocessing) 
+	
+	 if (Inputs->Preprocessing)
 	    {
 	       fprintf(logfile, "Presolving was performed:\n");
 	       fprintf(logfile, "   Before Presolving:  %d rows, %d columns\n",
 		       Solution->PriorRows, Solution->PriorColumns);
 	       fprintf(logfile, "   After  Presolving:  %d rows, %d columns",
 		       Solution->ReducedRows, Solution->ReducedColumns);
-	       fprintf(logfile, "  (%d %s)\n", Solution->Passes, 
+	       fprintf(logfile, "  (%d %s)\n", Solution->Passes,
 		       (Solution->Passes == 1)? "pass" : "passes");
 	    }
 	 else
 	    fprintf(logfile, "NO presolving was performed\n");
-	 
+	
 	 if (Inputs->Minimize)
 	    fprintf(logfile, "MINIMIZE the objective\n");
 	 else
 	    fprintf(logfile, "MAXIMIZE the objective\n");
-	 
+	
 	 if (Inputs->WriteSolution && (outfile != NULL))
 	    fprintf(logfile, "Solution written to output file %s\n",
 		    outfilename);
 	 else
 	    fprintf(logfile, "No solution file was written\n");
-	 
+	
 	 if (Inputs->ObjectiveName != NULL)
 	    fprintf(logfile, "Objective Name: %s\n", Inputs->ObjectiveName);
-	 
+	
 	 if (Inputs->RHSName != NULL)
 	    fprintf(logfile, "RHS Name: %s\n", Inputs->RHSName);
-	 
+	
 	 if (Inputs->RangeName != NULL)
 	    fprintf(logfile, "Range Name: %s\n", Inputs->RangeName);
-	 
+	
 	 if (Inputs->BoundName != NULL)
 	    fprintf(logfile, "Bound Name: %s\n", Inputs->BoundName);
-	 
+	
 	 fprintf(logfile, "\n");
-	 
+	
 	 fprintf(logfile, "\nFACTORIZATION SUMMARY\n");
 	 fprintf(logfile, "=====================\n\n");
 
 	 fprintf(logfile, "code used: %s\n", Solution->FactorizationCode);
 
 	 if(Solution->FactorizationHistory->NumDenseCols > 0)
-	    fprintf(logfile, "Dense columns extracted=%d\n", 
+	    fprintf(logfile, "Dense columns extracted=%d\n",
 		    Solution->FactorizationHistory->NumDenseCols);
 	 fprintf(logfile, "Nonzeros in L=%d;  Density of L=%f\n",
 		 Solution->FactorizationHistory->Nonzeros,
 		 Solution->FactorizationHistory->Density);
-		 
+		
 	 fprintf(logfile, "\nITERATION SUMMARY\n");
 	 fprintf(logfile, "=================\n\n");
-	 
-	 
-	 if(Inputs->HOCorrections && Inputs->MaxCorrections > 0) 
+	
+	
+	 if(Inputs->HOCorrections && Inputs->MaxCorrections > 0)
 	    {
-	       fprintf(logfile, " Iter    Primal       Dual      ");
-	       fprintf(logfile, "(PriInf  DualInf)  log(mu) corr  Merit\n");
-	    } 
-	 else 
-	    {
-	       fprintf(logfile, " Iter    Primal       Dual      ");
-	       fprintf(logfile, "(PriInf  DualInf)  log(mu)   Merit\n");
+	       fprintf(logfile, "Iter;Primal;Dual;PriInf;DualInf;log(mu);corr;Merit;New Merit;Central Merit\n");
 	    }
-	 
-	 
-	 for (i = 0; i <= Solution->Iterations; i++) 
+	 else
 	    {
-	       fprintf(logfile, "%3d  %11.4e  %11.4e  (%7.1e %7.1e)   %6.2f  ",
-		       i, Solution->IterationHistory[i].PrimalObjective,
-		       Solution->IterationHistory[i].DualObjective,
-		       Solution->IterationHistory[i].PriInf,
-		       Solution->IterationHistory[i].DualInf,
-		       Solution->IterationHistory[i].logmu);
-	       
+	       fprintf(logfile, "Iter;Primal;Dual;PriInf;DualInf;log(mu);Merit;New Merit;Central Merit\n");
+	    }
+	
+	
+	 if (!WriteHistory) for (i = 0; i <= Solution->Iterations; i++)
+	    {
+			fprintf(logfile, "%3d;%11.4e;%11.4e;%7.1e;%7.1e;%6.2f;",
+				i, Solution->IterationHistory[i].PrimalObjective,
+				Solution->IterationHistory[i].DualObjective,
+				Solution->IterationHistory[i].PriInf,
+				Solution->IterationHistory[i].DualInf,
+				Solution->IterationHistory[i].logmu);
+
+#ifndef _PCX_Usual_
 	       if (Inputs->HOCorrections && Inputs->MaxCorrections > 0)
-		  fprintf(logfile, "%2d    %7.1e\n", 
-			  Solution->IterationHistory[i].NumCorrections, 
-			  Solution->IterationHistory[i].phi);
+		   {
+				fprintf(logfile, "%2d;%7.1e;%7.1e;%7.1e\n",
+					Solution->IterationHistory[i].NumCorrections,
+					Solution->IterationHistory[i].phi, merit[i], central_merit[i]);
+		   }
 	       else
-		  fprintf(logfile, "  %7.1e\n", 
-			  Solution->IterationHistory[i].phi);
+		   {
+				fprintf(logfile, "%7.1e;%7.1e;%7.1e\n",
+					Solution->IterationHistory[i].phi, merit[i], central_merit[i]);
+		   }
+#else
+	       if (Inputs->HOCorrections && Inputs->MaxCorrections > 0)
+		   {
+				fprintf(logfile, "%2d;%7.1e\n",
+					Solution->IterationHistory[i].NumCorrections,
+					Solution->IterationHistory[i].phi);
+		   }
+	       else
+		   {
+				fprintf(logfile, "%7.1e\n",
+					Solution->IterationHistory[i].phi);
+		   }
+#endif // _PCX_Usual_
 	    }
-	 
+	
 	 fprintf(logfile, "\n %d iterations\n", Solution->Iterations);
-	 fprintf(logfile, "\nTerminated with status %s (code %d)\n", 
+	 fprintf(logfile, "\nTerminated with status %s (code %d)\n",
 		 statusTxt, Solution->Status);
 	 if (Solution->RestoredIteration != -1)
-	    fprintf(logfile, "\nSolution at iteration %d:\n", 
+	    fprintf(logfile, "\nSolution at iteration %d:\n",
 		    Solution->RestoredIteration);
-	 fprintf(logfile, "\nPrimal Objective = %13.8e\n", 
+	 fprintf(logfile, "\nPrimal Objective = %13.8e\n",
 		 Solution->PrimalObjective);
-	 fprintf(logfile, "Dual   Objective = %13.8e\n", 
+	 fprintf(logfile, "Dual   Objective = %13.8e\n",
 		 Solution->DualObjective);
-	 
-	 fprintf(logfile, "\nComplementarity          = %9.2e\n", 
+	
+	 fprintf(logfile, "\nComplementarity          = %9.2e\n",
 		 Solution->Complementarity);
 	 fprintf(logfile, "Relative Complementarity = %9.2e\n",
 		 Solution->RelativeComplementarity);
-	 
+	
 	 fprintf(logfile, "\nRelative Infeasibilities:\n");
-	 fprintf(logfile, "Primal = %9.3e,    ", 
+	 fprintf(logfile, "Primal = %9.3e,    ",
 		 Solution->PrimalInfeasibility);
 	 fprintf(logfile, "Dual   = %9.3e.\n", Solution->DualInfeasibility);
-	 
+	
 
 
 	 fprintf(logfile, "\nTIME SUMMARY\n");
 	 fprintf(logfile, "============\n\n");
 
-	 fprintf(logfile, "Time to read input file: %.2f sec\n", 
+	 fprintf(logfile, "Time to read input file: %.2f sec\n",
 		 Solution->ReadTime);
-	 if (Inputs->Preprocessing) 
+	 if (Inputs->Preprocessing)
 	    {
 	       fprintf(logfile, "Time to presolve       : %.2f sec\n\n",
 		       Solution->PreprocessTime);
@@ -489,7 +588,7 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 		 Solution->InitTime);
 	 fprintf(logfile, "(= %3.1f %% of total)\n",
 		 Solution->InitTime/Solution->SolutionTime * 100);
-	 
+	
 	 fprintf(logfile, "LoopTime               : %.2f sec",
 		 Solution->LoopTime);
 	 fprintf(logfile, " (= %2.1f %% of total)\n",
@@ -520,7 +619,7 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 	 fprintf(logfile, "   for one SolveADAT         : %f sec\n",
 		 Solution->SolveADATTime / (2*Solution->Iterations));
 #endif
-	 
+	
       }
 	 if ((WriteHistory) && (logfile != stdout))
 	    fclose(logfile);
@@ -533,19 +632,19 @@ void ComputeAndPrintObjectives(Solution, LP, primal, dual)
      LPtype         *LP;
      double         *primal, *dual;
 {
-   
+
    int             row, col, i;
-   
+
    for (col = 0, *primal = 0.0; col < LP->Cols; col++)
       *primal += (LP->c[col] * Solution->x[col]);
-   
+
    for (row = 0, *dual = 0.0; row < Solution->Rows; row++)
       *dual += (Solution->pi[row] * LP->b[row]);
-   
+
    for (col = 0; col < LP->Cols; col++)
       if (LP->VarType[col] == UPPER)
 	 *dual -= (Solution->DualUpper[col] * LP->UpBound[col]);
-   
+
    printf(" Primal Objective = %f\n", *primal + LP->cshift);
    printf(" Dual   Objective = %f\n", *dual + LP->cshift);
 }
@@ -557,22 +656,22 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
      LPtype         *LP;
 {
    int             row, col, i, k, SparseSaxpy(), SparseSaxpyT();
-   double          temp, *PrimalInf, *DualInf, complementarity, 
-                   cost2norm, rhs2norm, TwoNorm2(), 
+   double          temp, *PrimalInf, *DualInf, complementarity,
+                   cost2norm, rhs2norm, TwoNorm2(),
                    rel_primal, rel_dual, primal, dual;
-   
+
    /* compute primal infeasibility */
-   
+
    PrimalInf = NewDouble(LP->Rows, "PrimalInf in PrintInfeasibilities()");
    for (row = 0; row < LP->Rows; row++)
       PrimalInf[row] = -LP->b[row];
    SparseSaxpy(LP->A, Solution->x, PrimalInf);
    primal = TwoNorm2(PrimalInf, &(LP->Rows));
    Free((char *) PrimalInf);
-   
+
    /* compute bound infeasibility */
    for (col = 0; col < LP->Cols; col++)
-      if (LP->VarType[col] == UPPER) 
+      if (LP->VarType[col] == UPPER)
 	 {
 	    temp = Solution->x[col] - LP->UpBound[col];
 	    if (temp > 0.0)
@@ -581,7 +680,7 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
    /* actually, in the non-preprocessed problem there MAY BE free variables
     * --- need to test for this */
    for (col = 0; col < LP->Cols; col++)
-      if (Solution->x[col] < 0.0 && LP->VarType[col] != FREE) 
+      if (Solution->x[col] < 0.0 && LP->VarType[col] != FREE)
 	 {
 	    /*
 	      printf("Solution->x[%d] < 0.0: %f ", col, Solution->x[col]);
@@ -590,13 +689,13 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
 	      */
 	    primal += Solution->x[col] * Solution->x[col];
 	 }
-   
+
    /* compute dual infeasibility */
    DualInf = NewDouble(LP->Cols, "DualInf in PrintInfeasibilities()");
    for (col = 0; col < LP->Cols; col++)
       DualInf[col] = Solution->DualLower[col] -
 	 Solution->DualUpper[col] - LP->c[col];
-   
+
    SparseSaxpyT(LP->A, Solution->pi, DualInf);
    dual = TwoNorm2(DualInf, &(LP->Cols));
    /*
@@ -611,9 +710,9 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
      printf(" %d dual infeasibility = %f\n", col, DualInf[col]);
      }
      */
-   for (col = 0; col < LP->Cols; col++) 
+   for (col = 0; col < LP->Cols; col++)
       {
-	 if (Solution->DualUpper[col] < 0.0) 
+	 if (Solution->DualUpper[col] < 0.0)
 	    {
       /*
 	printf("Solution->DualUpper[%d] < 0.0: %f\n",
@@ -621,7 +720,7 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
 	*/
 	       dual += Solution->DualUpper[col] * Solution->DualUpper[col];
 	    }
-	 if (Solution->DualLower[col] < 0.0) 
+	 if (Solution->DualLower[col] < 0.0)
 	    {
 	       /*
 		 printf("Solution->DualLower[%d] < 0.0: %f\n",
@@ -631,35 +730,35 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
 	    }
       }
    Free((char *) DualInf);
-   
+
    /* compute complementarity */
-   
+
    complementarity = 0.0;
-   for (col = 0; col < LP->Cols; col++) 
+   for (col = 0; col < LP->Cols; col++)
       {
 	 temp = Solution->x[col] * Solution->DualLower[col];
 	 complementarity += temp;
-	 
-	 if (LP->VarType[col] == UPPER) 
+	
+	 if (LP->VarType[col] == UPPER)
 	    {
-	       temp = (LP->UpBound[col] - Solution->x[col]) * 
+	       temp = (LP->UpBound[col] - Solution->x[col]) *
 		  Solution->DualUpper[col];
 	       complementarity += temp;
 	    }
       }
    primal = sqrt(primal);
    dual = sqrt(dual);
-   
+
    /* compute norm of cost vector and rhs */
    cost2norm = sqrt(TwoNorm2(LP->c, &(LP->Cols)));
    rhs2norm  = TwoNorm2(LP->b, &(LP->Rows));
-   for(i=0; i<LP->NumberBounds; i++) 
+   for(i=0; i<LP->NumberBounds; i++)
       {
 	 k = LP->BoundIndex[i];
 	 rhs2norm += LP->UpBound[k]*LP->UpBound[k];
       }
    rhs2norm = sqrt(rhs2norm);
-   
+
    rel_dual = dual / (1.0 + cost2norm);
    rel_primal = primal / (1.0 + rhs2norm);
    Solution->PrimalInfeasibility = rel_primal;
@@ -672,7 +771,7 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
 void PrintType(type)
      int             type;
 {
-   switch (type) 
+   switch (type)
       {
       case NORMAL:
 	 printf("NORMAL");
@@ -697,4 +796,3 @@ void PrintType(type)
 	 break;
       }
 }
-

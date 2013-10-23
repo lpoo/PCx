@@ -3,9 +3,12 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
+
+#define _CRT_SECURE_NO_WARNINGS 1 // Fernando
+#define _CRT_NONSTDC_NO_WARNINGS 1 // Fernando
 
 #include <stdio.h>
 /* #include <malloc.h> */
@@ -14,7 +17,7 @@
 #include "main.h"
 #include "memory.h"
 
-void 
+void
 Free(c)
      char *c;
 {
@@ -29,13 +32,13 @@ Malloc(size, message)
      char           *message;
 {
    char           *ptr;
-   
+
    if (size <= 0)
       size=1;
 
    ptr = (char *) malloc((unsigned) size);
 
-  if (ptr == NULL) 
+  if (ptr == NULL)
      {
 	printf("Error in Malloc allocating %d for the variable %s.\n",
 	       size, message);
@@ -50,12 +53,12 @@ Calloc(num, size, message)
      char           *message;
 {
    char           *ptr;
-   
+
    if (size <= 0)
       size=1;
-   
+
    ptr = (char *) calloc((unsigned) num, (unsigned) size);
-   
+
 #if (DEBUG > 0)
    {
       int i;
@@ -63,10 +66,10 @@ Calloc(num, size, message)
 	 ptr[i] = '\0';
    }
 #endif
-   
-   if (ptr == NULL) 
+
+   if (ptr == NULL)
       {
-	 printf("Error in Calloc allocating %d for variable %s.\n", 
+	 printf("Error in Calloc allocating %d for variable %s.\n",
 		num, message);
 	 OutOfSpace();
       }
@@ -80,9 +83,9 @@ NewIterate(NumRows, NumCols, NumBounds)
      int             NumRows, NumCols, NumBounds;
 {
    Iterate        *ptr;
-   
+
    ptr = (Iterate *) Malloc(sizeof(Iterate), "ptr in NewIterate");
-   
+
    ptr->NumRows = NumRows;
    ptr->NumCols = NumCols;
    ptr->NumBounds = NumBounds;
@@ -99,9 +102,9 @@ solution   *
 NewSolution(Rows, Cols, MaxIterations)
      int             Rows, Cols, MaxIterations;
 {
-   
+
    solution       *Solution;
-   
+
    Solution = (solution *) Malloc(sizeof(solution), "Solution");
    Solution->Rows = Rows;
    Solution->Columns = Cols;
@@ -122,7 +125,7 @@ NewSolution(Rows, Cols, MaxIterations)
    Solution->FactorizationHistory = (FactorizationRecord *)
       Malloc(sizeof(FactorizationRecord), "FactorizationHistory");
    Solution->FactorizationHistory->Operations = 0;
-   Solution->FactorizationCode = (char *)Malloc(50*sizeof(char), 
+   Solution->FactorizationCode = (char *)Malloc(50*sizeof(char),
 						"Solution->FactorizationCode");
    strcpy(Solution->FactorizationCode, "not specified");
    Solution->RestoredIteration = -1;
@@ -151,7 +154,7 @@ NewMMTtype(NumRows, NumCols, Nonzeros)
      int             NumRows, NumCols, Nonzeros;
 {
    MMTtype        *MMT;
-   
+
    MMT = (MMTtype *) Malloc(sizeof(MMTtype), "MMT");
    MMT->NumRows = NumRows;
    MMT->NumCols = NumCols;
@@ -172,7 +175,7 @@ NewChanges(Rows, Cols)
      int             Rows, Cols;
 {
    MPSchanges     *Changes;
-   
+
    Changes = (MPSchanges *) Malloc(sizeof(MPSchanges), "Changes");
    Changes->Rows = Rows;
    Changes->Cols = Cols;
@@ -196,7 +199,7 @@ NewMPS(rows, cols, ents)
      int             rows, cols, ents;
 {
    MPStype        *MPS;
-   
+
    MPS = (MPStype *) Malloc(sizeof(MPStype), "MPS");
    MPS->RowSize = rows;
    MPS->ColSize = cols;
@@ -204,40 +207,40 @@ NewMPS(rows, cols, ents)
    MPS->NumRows = 0;
    MPS->NumCols = 0;
    MPS->NumEnts = 0;
-   
+
    MPS->A.pBeginRow = NewInt(cols, "MPS->A.pBeginRow");
    MPS->A.pEndRow = NewInt(cols, "MPS->A.pEndRow");
    MPS->A.Row = NewInt(ents, "MPS->A.Row");
    MPS->A.Value = NewDouble(ents, "MPS->A.Value");
-   
+
    MPS->A.NumRows = 0;
-   MPS->A.NumCols = 0; 
+   MPS->A.NumCols = 0;
    MPS->A.Nonzeros = 0;
-   
+
    MPS->b = NewDouble(rows, "MPS->b");
    MPS->c = NewDouble(cols, "MPS->c");
    MPS->cshift = 0.0;
-   
+
    MPS->Ranges = NewDouble(rows, "MPS->Ranges");
-   
+
    MPS->RowType = NewChar(rows, "MPS->RowType");
-   
+
    MPS->BoundType = NewInt(cols, "MPS->BoundType");
    MPS->UpBound = NewDouble(cols, "MPS->UpBound");
    MPS->LowBound = NewDouble(cols, "MPS->LowBound");
-   
+
    MPS->RowNames = NewCharPtr(rows, "MPS->RowNames");
    MPS->ColNames = NewCharPtr(cols, "MPS->ColNames");
-   
+
    MPS->RowTable = NewHashTable(rows);
    MPS->ColTable = NewHashTable(cols);
-   
+
    MPS->ProblemName   = NULL;
    MPS->ObjectiveName = NULL;
    MPS->RHSName       = NULL;
    MPS->RangeName     = NULL;
    MPS->BoundName     = NULL;
-   
+
    return MPS;
 }
 
@@ -246,14 +249,14 @@ NewLP(Rows, Cols, Ents)
      int             Rows, Cols, Ents;
 {
    LPtype         *LP;
-   
+
    LP = (LPtype *) Malloc(sizeof(LPtype), "LP");
 
    LP->Atranspose.pBeginRow = NewInt(Rows, "LP->Atranspose.pBeginRow");
    LP->Atranspose.pEndRow = NewInt(Rows, "LP->Atranspose.pEndRow");
    LP->Atranspose.Row = NewInt(Ents, "LP->Atranspose.Row");
    LP->Atranspose.Value = NewDouble(Ents, "LP->Atranspose.Value");
-   
+
    LP->Rows = Rows;
    LP->A.NumRows = Rows;
    LP->Atranspose.NumRows = Cols;
@@ -264,7 +267,7 @@ NewLP(Rows, Cols, Ents)
    LP->A.Nonzeros = Ents;
    LP->Atranspose.Nonzeros = Ents;
    LP->cshift = 0.0;
-   
+
    LP->b = NewDouble(Rows, "LP->b");
    LP->c = NewDouble(Cols, "LP->c");
 
@@ -274,20 +277,20 @@ NewLP(Rows, Cols, Ents)
    LP->BoundIndex = NewInt(Cols, "LP->BoundIndex");
    LP->NumberFree = 0;
    LP->FreeIndex = NewInt(Cols, "LP->FreeIndex");
-   
+
    LP->A.pBeginRow = NewInt(Cols, "LP->A.pBeginRow");
    LP->A.pEndRow = NewInt(Cols, "LP->A.pEndRow");
    LP->A.Row = NewInt(Ents, "LP->A.Row");
    LP->A.Value = NewDouble(Ents, "LP->A.Value");
-   
+
    LP->FreePlus  = NULL;
    LP->FreeMinus = NULL;
    LP->NumberSplit = 0;
-   
+
    LP->ColScale  = NULL;
    LP->RowScale  = NULL;
 
-   
+
    return LP;
 }
 
@@ -297,15 +300,15 @@ StrDup(s1, message)
      char           *s1, *message;
 {
    char           *ptr;
-   
+
    ptr = strdup(s1);
-   if (ptr == NULL) 
+   if (ptr == NULL)
       {
 	 printf("Error allocating space for %s\n", message);
 	 OutOfSpace();
       }
    return (ptr);
-   
+
 }
 
 double   *
@@ -314,7 +317,7 @@ NewDouble(size, message)
      char           *message;
 {
    double         *ptr;
-   
+
    if (size <= 0)
       size=1;
    ptr = (double *) Calloc(size, sizeof(double), message);
@@ -328,29 +331,29 @@ NewDouble2(size1, size2, message)
 {
    double        **ptr;
    int             i;
-   
+
    if (size1 <= 0)
       size1=1;
    if (size2 <= 0)
       size2=1;
    ptr = (double **) malloc((unsigned) (size1 * sizeof(double *)));
-   if (ptr == NULL) 
+   if (ptr == NULL)
       {
-	 printf("Error in NewDouble2 allocating the variable %s.\n", 
+	 printf("Error in NewDouble2 allocating the variable %s.\n",
 		message);
 	 OutOfSpace();
       }
-   
+
    ptr[0] = NewDouble(size1*size2, "ptr[]");
-   if (ptr[0] == NULL) 
+   if (ptr[0] == NULL)
       {
-	 printf("Error in NewDouble2 allocating the variable %s[].\n", 
+	 printf("Error in NewDouble2 allocating the variable %s[].\n",
 		message);
 	 OutOfSpace();
       }
-   for (i = 1; i < size1; i++) 
+   for (i = 1; i < size1; i++)
       ptr[i] = ptr[i-1] + size2;
-      
+
    return (ptr);
 }
 
@@ -369,7 +372,7 @@ NewInt(size, message)
      char           *message;
 {
    int            *ptr;
-   
+
    if (size <= 0)
       size=1;
    ptr = (int *) Calloc((unsigned) size, (unsigned) sizeof(int), message);
@@ -383,7 +386,7 @@ Realloc(oldptr, size, message)
      char           *message;
 {
    char           *ptr;
-   
+
    if (size <= 0)
       size=1;
    if (oldptr == NULL)
@@ -401,11 +404,11 @@ double **
 NewDoublePtr(size, message)
      int             size;
      char           *message;
-     
+
 {
    double        **ptr;
    int             i;
-   
+
    if (size <= 0)
       size=1;
    ptr = (double **) Malloc(size * sizeof(double *), message);
@@ -422,14 +425,14 @@ int   **
 NewIntPtr(size, message)
      int             size;
      char           *message;
-     
+
 {
    int           **ptr, i;
-   
+
    if (size <= 0)
       size=1;
    ptr = (int **) Malloc(size * sizeof(int *), message);
-   if (ptr == NULL) 
+   if (ptr == NULL)
       {
 	 printf("Error in NewIntPtr allocating %d for %s.\n", size, message);
 	 OutOfSpace();
@@ -446,11 +449,11 @@ NewChar(size, message)
 {
    char           *ptr;
    int             i;
-   
+
    if (size <= 0)
       size=1;
    ptr = (char *) Malloc(size * sizeof(char), message);
-   if (ptr == NULL) 
+   if (ptr == NULL)
       {
 	 printf("Error in NewChar allocating %d for %s.\n", size, message);
 	 OutOfSpace();
@@ -467,11 +470,11 @@ NewCharPtr(size, message)
 {
    char          **ptr;
    int             i;
-   
+
    if (size <= 0)
       size=1;
    ptr = (char **) Malloc(size * sizeof(char *), message);
-   if (ptr == NULL) 
+   if (ptr == NULL)
       {
 	 printf("Error in NewCharPtr allocating %d for %s.\n", size, message);
 	 OutOfSpace();
@@ -481,11 +484,9 @@ NewCharPtr(size, message)
    return (ptr);
 }
 
-void 
+void
 OutOfSpace()
 {
    printf("**Out of Memory**\n");
    exit(MEMORY_ERROR);
 }
-
-

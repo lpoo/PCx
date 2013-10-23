@@ -1,9 +1,9 @@
 /* header file for interface to sparse symm. p.d. system solver
  *
- * PCx 1.0   08/97 
+ * PCx 1.0   08/97
  *
  * Author: Michael Wagner
- * 
+ *
  * (C) 1997 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -20,7 +20,7 @@
 /*                                                                    */
 /* Allocation and deallocation routines for FactorType                */
 /*                                                                    */
-/* Also allocates and deallocates storage spage behind                */ 
+/* Also allocates and deallocates storage spage behind                */
 /* FactorType->ptr                                                    */
 /*                                                                    */
 /**********************************************************************/
@@ -67,7 +67,7 @@ int Factorize(/* FactorType *Factor, Parameters *Inputs */);
 
 int Solve(/* FactorType *Factor, double *rhs, double *Solution */);
 
-/**********************************************************************/ 
+/**********************************************************************/
 /*                                                                    */
 /* Computes auxiliary matrices for Sherman Morrison formula to handle */
 /*   dense part of system  (see manual page 9, formulas 28 and        */
@@ -92,7 +92,7 @@ int Solve(/* FactorType *Factor, double *rhs, double *Solution */);
 /* W and Lden refer to Factor->W and Factor-Lden respectively         */
 /**********************************************************************/
 
-int ComputeWandLdense(/* MMTtype *Adense, FactorType *Factor, 
+int ComputeWandLdense(/* MMTtype *Adense, FactorType *Factor,
 		      double *scale, int NumCols */);
 
 /**********************************************************************/
@@ -107,5 +107,3 @@ int ComputeWandLdense(/* MMTtype *Adense, FactorType *Factor,
 int EnhancedSolve(/* FactorType *Factor, double *rhs, double *Solution */);
 
 /**********************************************************************/
-
-

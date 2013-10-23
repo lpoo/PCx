@@ -1,15 +1,16 @@
-/* split free variables 
+/* split free variables
  *
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+//#include <math.h>
 #include "memory.h"
 #include "main.h"
 
@@ -59,12 +60,12 @@ int SplitFreeVars(LP)
      allocate extra space for its additional nonzeros */
 
   LP->Atranspose.Row = (int *)
-    Realloc(LP->Atranspose.Row, NewEnts * sizeof(int), 
+    Realloc(LP->Atranspose.Row, NewEnts * sizeof(int),
                                      "LP->Atranspose.Row");
   LP->Atranspose.Value = (double *)
-    Realloc(LP->Atranspose.Value, NewEnts * sizeof(double), 
+    Realloc(LP->Atranspose.Value, NewEnts * sizeof(double),
                                      "LP->Atranspose.Value");
- 
+
   LP->Atranspose.NumRows = NewCols; LP->Atranspose.Nonzeros = NewEnts;
 
   NextCol = LP->Cols; NextEnt = LP->Ents;
@@ -141,7 +142,7 @@ int ShiftSplitVariables(LP, Current)
 {
   int             i, im, ip;
   int             NumCols, NumBounds;
-  double          mutemp=0.0, splitshift, xmax, xmin, 
+  double          mutemp=0.0, splitshift, xmax, xmin,
                   goal, avx, sxmax=0.0, smin=10.e0, smax=100.e0;
 
   NumCols = LP->Cols;
@@ -163,8 +164,8 @@ int ShiftSplitVariables(LP, Current)
 
   for (i = 0; i < LP->NumberSplit; i++) {
     im = LP->FreeMinus[i];
-    ip = LP->FreePlus[i];    
-    mutemp -= ( Current->x[ip] * Current->s[ip] + 
+    ip = LP->FreePlus[i];
+    mutemp -= ( Current->x[ip] * Current->s[ip] +
                 Current->x[im] * Current->s[im]);
     avx -= (Current->x[ip] + Current->x[im]);
     sxmax = MAX(Current->x[ip], Current->x[im]);
@@ -175,7 +176,7 @@ int ShiftSplitVariables(LP, Current)
 
   for (i = 0; i < LP->NumberSplit; i++) {
     im = LP->FreeMinus[i];
-    ip = LP->FreePlus[i];    
+    ip = LP->FreePlus[i];
 
     xmax = MAX(Current->x[ip], Current->x[im]);
     xmin = MIN(Current->x[ip], Current->x[im]);
@@ -199,16 +200,13 @@ int ShiftSplitVariables(LP, Current)
   goal = 1.e-2;
   for (i = 0; i < LP->NumberSplit; i++) {
     im = LP->FreeMinus[i];
-    ip = LP->FreePlus[i];    
+    ip = LP->FreePlus[i];
 
     if (Current->s[im] * Current->x[im] < goal*mutemp)
-       Current->s[im] =  goal * mutemp / Current->x[im]; 
+       Current->s[im] =  goal * mutemp / Current->x[im];
     if (Current->s[ip] * Current->x[ip] < goal*mutemp)
        Current->s[ip] =  goal * mutemp / Current->x[ip];
   }
 
   return 0;
 }
-
-
-

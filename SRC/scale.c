@@ -1,12 +1,13 @@
-/* solve for the predictor and corrector steps 
+/* solve for the predictor and corrector steps
  *
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
+//#include <math.h>
 #include <math.h>
 #include <stdio.h>
 #include "main.h"
@@ -42,7 +43,7 @@ int ScaleLP(LP, Inputs)
   A  = &(LP->A);             b = LP->b;
   AT = &(LP->Atranspose);    c = LP->c;
 
-  UpBound      = LP->UpBound;     
+  UpBound      = LP->UpBound;
   BoundIndex   = LP->BoundIndex;
   NumberBounds = LP->NumberBounds;
 
@@ -69,13 +70,13 @@ int ScaleLP(LP, Inputs)
   /* Call Curtis-Reid routine */
 
   NonzerosA= A->pEndRow[Cols-1] - A->pBeginRow[0];
-  if (ScaleFactor < 0.1 * NonzerosA) 
+  if (ScaleFactor < 0.1 * NonzerosA)
     goto cleanup; /* and return */
 
   passes = CurtisReidScaling(A, AT, Rows, Cols, RowScale, ColScale);
 
   /* scale columns and rows of A, entries of c */
-    
+
   for (col = 0; col < Cols; col++) {
 
     c[col] *= ColScale[col];
@@ -84,16 +85,16 @@ int ScaleLP(LP, Inputs)
       row = A->Row[ent]-1;
       A->Value[ent] *= (ColScale[col] * RowScale[row]);
     }
-  }    
+  }
 
   ScaleFactor = CurtisReidMeasure(A, Rows, Cols);
-  
+
   if (Inputs->Diagnostics)
-    printf("After  Scaling: ScaleFactor = %.1f   (%d %s)\n\n", 
+    printf("After  Scaling: ScaleFactor = %.1f   (%d %s)\n\n",
 	   ScaleFactor, passes, (passes == 1)? "pass" : "passes");
 
   /* For each entry, scale b by rowscale */
-    
+
   for (row = 0; row < Rows; row++)
     b[row] *= RowScale[row];
 
@@ -105,14 +106,14 @@ int ScaleLP(LP, Inputs)
   }
 
   /* Do the same for Atranspose */
-    
+
   for (col = 0; col < Rows; col++) {
     for (ent = AT->pBeginRow[col]-1; ent <= AT->pEndRow[col]-1; ent++) {
       row = AT->Row[ent] - 1;
       AT->Value[ent] *= (ColScale[row] * RowScale[col]);
     }
-  }    
-    
+  }
+
   for (col = 0; col < Cols; col++)
     LP->ColScale[col] *= ColScale[col];
 
@@ -150,7 +151,7 @@ double        *RowScale, *ColScale;
 	ScaleFactor += (logvalue * logvalue);
       }
     }
-      
+
   return(ScaleFactor);
 }
 
@@ -180,7 +181,7 @@ int            Rows, Cols;
 	ScaleFactor += (logvalue * logvalue);
       }
     }
-      
+
   return(ScaleFactor);
 }
 
@@ -228,8 +229,8 @@ double        *RowScale, *ColScale;
   int    *RowCount, *ColCount;
   double  CRM2();
 
-  /*  Allocate temporary memory  and 
-   *  find RowSum and ColSum measures 
+  /*  Allocate temporary memory  and
+   *  find RowSum and ColSum measures
    */
 
   RowSum   = NewDouble(Rows, "RowSum");
@@ -253,7 +254,7 @@ double        *RowScale, *ColScale;
     for (ent = A->pBeginRow[col]-1; ent <= A->pEndRow[col]-1; ent++) {
       row   = A->Row[ent]-1;
       value = fabs(A->Value[ent]);
-      
+
       if (value > 0.0) {
 	logvalue = log(value);
 	ColSum[col] += logvalue;
@@ -274,9 +275,9 @@ double        *RowScale, *ColScale;
 
   RowScalem2 = NewDouble(Rows, "RowScalem2");
   ColScalem2 = NewDouble(Cols, "ColScalem2");
-  
-  /* Initialize 
-   * RowScale = RowCount^-1 RowSum 
+
+  /* Initialize
+   * RowScale = RowCount^-1 RowSum
    * ColScale = 0.0
    * residual = ColSum - E^T RowCount^-1 RowSum
    */
@@ -337,7 +338,7 @@ double        *RowScale, *ColScale;
 	  RowScale[row] *= (1.0 + ek * ekm1 / (qk * qkm1));
 
 	for (row = 0; row < Rows; row++)
-	  RowScale[row] += 
+	  RowScale[row] +=
 	    (residual_odd[row] / (qk * qkm1 * (double) RowCount[row]) -
 	    RowScalem2[row] * ek * ekm1 / (qk * qkm1));
 
@@ -355,13 +356,13 @@ double        *RowScale, *ColScale;
 	ColScale[col] *= (1.0 + ek * ekm1 / (qk * qkm1));
 
       for (col = 0; col < Cols; col++)
-	ColScale[col] += 
+	ColScale[col] +=
 	  (residual_even[col] / ((double) ColCount[col] * qk * qkm1) -
 	  ColScalem2[col] * ek * ekm1 / (qk * qkm1));
 
       break;
     } /* end switch */
-  
+
     /* update residual and sk (pass + 1) */
 
     switch (pass % 2) {
@@ -370,7 +371,7 @@ double        *RowScale, *ColScale;
       for (row = 0; row < Rows; row++)
 	residual_odd[row] *= ek;
 
-      for (col = 0; col < Cols; col++) 
+      for (col = 0; col < Cols; col++)
 	for (ent = A->pBeginRow[col] - 1; ent <= A->pEndRow[col] - 1; ent++) {
 	  row = A->Row[ent] - 1;
 	  residual_odd[row] += (residual_even[col] / (double) ColCount[col]);
@@ -394,7 +395,7 @@ double        *RowScale, *ColScale;
       for (col = 0; col < Cols; col++)
 	residual_even[col] *= ek;
 
-      for (col = 0; col < Rows; col++) 
+      for (col = 0; col < Rows; col++)
 	for (ent = AT->pBeginRow[col] - 1; ent <= AT->pEndRow[col] - 1; ent++) {
 	  row = AT->Row[ent] - 1;
 	  residual_even[row] += (residual_odd[col] / (double) RowCount[col]);
@@ -426,7 +427,7 @@ double        *RowScale, *ColScale;
     qk   = 1.0 - ek;
 
     /*
-    printf("sk = %g  skm1 = %g   Objective = %g\n", 
+    printf("sk = %g  skm1 = %g   Objective = %g\n",
        sk, skm1, CRM2(A, Rows, Cols, RowScale, ColScale));
     printf("ek = %g  ekm1 = %g  ekm2 = %g\n", ek, ekm1, ekm2);
     printf("qk = %g  qkm1 = %g  qkm2 = %g\n", qk, qkm1, qkm2);
@@ -448,7 +449,7 @@ double        *RowScale, *ColScale;
 	for (row = 0; row < Rows; row++)
 	  RowScale[row] += (residual_odd[row] / (qkm1 * (double) RowCount[row]) -
 			    RowScalem2[row] * ek * ekm1 / qkm1);
-        
+
 	break;
 	
       case 1: /* pass is odd, compute ColScale */
@@ -461,7 +462,7 @@ double        *RowScale, *ColScale;
 			    ColScalem2[col] * ek * ekm1 / qkm1);
 	
 	break;
-     
+
  }
     }
 
@@ -531,7 +532,7 @@ int UnscaleLP(LP, Solution)
   double       *UpBound;
   int           NumberBounds;
   int          *BoundIndex;
-  
+
   int           row, col, ent, i;
 
   /* Make local copies */
@@ -542,7 +543,7 @@ int UnscaleLP(LP, Solution)
   A  = &(LP->A);             b = LP->b;
   AT = &(LP->Atranspose);    c = LP->c;
 
-  UpBound      = LP->UpBound;     
+  UpBound      = LP->UpBound;
   BoundIndex   = LP->BoundIndex;
   NumberBounds = LP->NumberBounds;
 
@@ -552,34 +553,34 @@ int UnscaleLP(LP, Solution)
     c[col] /= LP->ColScale[col];
     Solution->x[col]         *= LP->ColScale[col];
     Solution->DualLower[col] /= LP->ColScale[col];
-    
+
     for (ent = A->pBeginRow[col]-1; ent <= A->pEndRow[col]-1; ent++) {
       row = A->Row[ent]-1;
       A->Value[ent] /= (LP->ColScale[col] * LP->RowScale[row]);
     }
-  }    
-  
+  }
+
   for (row = 0; row < Rows; row++) {
     b[row] /= LP->RowScale[row];
     Solution->pi[row] *= LP->RowScale[row];
   }
-  
+
   /* scale bounds */
-  
+
   for (ent = 0; ent < NumberBounds; ent++) {
     col = BoundIndex[ent];
     UpBound[col] *= LP->ColScale[col];
     Solution->DualUpper[col] /= LP->ColScale[col];
   }
-  
+
   /* Do the same for Atranspose */
-  
+
   for (col = 0; col < Rows; col++) {
     for (ent = AT->pBeginRow[col]-1;
        ent <= AT->pEndRow[col]-1 && (row = AT->Row[ent] - 1) < Cols;
        ent++) {
       AT->Value[ent] /= (LP->ColScale[row] * LP->RowScale[col]);
     }
-  }    
+  }
   return 0;
 }  /* end for LP->NumScale loop */

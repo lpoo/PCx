@@ -111,10 +111,8 @@ void jair1(int);
 
 /* Rotinas usadas por Daniele */
 int baseinicial(matrix *, matrix *, int *, int *, int *, int *, int, int *, int *);
-//int sistema(int, int, base *, elementar *, double *); 
+//int sistema(int, int, base *, elementar *, double *);
 
 //int atualizacao(elementar *, matrix *, base *, int, int *, int *, int);
 
 int redundante(int *, int *, matrix *, int *, int *, int, int *, int);
-
-

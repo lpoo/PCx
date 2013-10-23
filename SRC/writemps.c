@@ -1,9 +1,9 @@
 /* writemps
  *
- * PCx  9/19/96. 
+ * PCx  9/19/96.
  *
  * Author: Martin Wechs
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -11,11 +11,15 @@
  * utility function to dump an MPS data structure as an MPS file
  */
 
+#define _CRT_SECURE_NO_WARNINGS 1 // Fernando
+#define _CRT_NONSTDC_NO_WARNINGS 1 // Fernando
+
 #include<stdio.h>
 #include<math.h>
+//#include <math.h>
 #include<ctype.h>
 #include<string.h>
-#include"main.h" 
+#include"main.h"
 #include"memory.h"
 
 #define  DEBUG 0
@@ -30,10 +34,10 @@ char  spaces[16];
 int   i;
 
 #if (DEBUG>3)
- printf("%d %d\n",offset,length);  
+ printf("%d %d\n",offset,length);
 #endif
 
-      for(i=0;i<16;i++) spaces[i]=' '; 
+      for(i=0;i<16;i++) spaces[i]=' ';
 
       spaces[offset]='\0';
       fprintf(outfile,"%s",spaces);
@@ -54,16 +58,16 @@ int    i,k;
 double vlog;
 
 
-      for(i=0;i<16;i++) spaces[i]=' '; 
+      for(i=0;i<16;i++) spaces[i]=' ';
 
       spaces[offset]='\0';
       fprintf(outfile,"%s",spaces);
-      spaces[offset]=' ';   
+      spaces[offset]=' ';
 
       vlog=0; if (value!=0) vlog=log10(fabs(value));
 
 #if (DEBUG>3)
-  printf("Value:  %4.14f %4.14f %d  %d\n",vlog,value ,offset,length); 
+  printf("Value:  %4.14f %4.14f %d  %d\n",vlog,value ,offset,length);
 #endif
 
       if (fabs(vlog)>=length-2) {
@@ -77,11 +81,11 @@ double vlog;
 #endif
         length--;
         offset=length-i; if (value<0) offset--;
-        spaces[0]='%'; 
-        k=0; if (i>9) { spaces[1]='1'; i-=10; k++; } 
-        spaces[k+1]=i+'0'; 
-        spaces[k+2]='.'; 
-        if (offset>9) { spaces[k+3]='1'; offset-=10; k++; } 
+        spaces[0]='%';
+        k=0; if (i>9) { spaces[1]='1'; i-=10; k++; }
+        spaces[k+1]=i+'0';
+        spaces[k+2]='.';
+        if (offset>9) { spaces[k+3]='1'; offset-=10; k++; }
         spaces[3+k]=offset+'0';
         spaces[4+k]='f'; spaces[5+k]='\0';
 
@@ -94,12 +98,12 @@ double vlog;
   printf("%s\n",&spaces[7]);
 #endif
 
-        k=7; if (spaces[1]=='0') if (spaces[k++]=='-') spaces[k]='-';  
+        k=7; if (spaces[1]=='0') if (spaces[k++]=='-') spaces[k]='-';
         i=k; k+=length;
-	while (spaces[k]=='0') spaces[k--]=' '; 
-        fprintf(outfile,"%s",&spaces[i]); 
+	while (spaces[k]=='0') spaces[k--]=' ';
+        fprintf(outfile,"%s",&spaces[i]);
       }
-} 
+}
 
 void printROW(outfile,NumRows,MPSValue,RowNames,Name)
 FILE     *outfile;
@@ -111,9 +115,9 @@ char     *Name;
 int      i,k=0;
 double   value;
 
-   for (i=0; i<NumRows;i++) { 
-     value=MPSValue[i]; 
-     if (value!=0.0) { 
+   for (i=0; i<NumRows;i++) {
+     value=MPSValue[i];
+     if (value!=0.0) {
        if (!(k&1)) {
          fprintf(outfile,"\n");
          printSTR(outfile,Name,4,8);
@@ -129,7 +133,7 @@ void WriteMPS(MPS,Inputs)
 MPStype    *MPS;
 Parameters *Inputs;
 {
-FILE	     *outfile; 
+FILE	     *outfile;
 sparseMatrix *A;
 char         c,filename[23];
 char         *ProblemName,*ColName;
@@ -137,7 +141,7 @@ double       value;
 int          offset1,offset2,offset3;
 int          i,k;
 
-     filename[8]='_';filename[9]='p'; filename[10]='c'; 
+     filename[8]='_';filename[9]='p'; filename[10]='c';
      filename[11]='x'; filename[12]='.'; filename[13]='m';
      filename[14]='p'; filename[15]='s'; filename[16]='\0';
 
@@ -151,16 +155,16 @@ int          i,k;
      for (i=0;i<8;i++) filename[i]=ProblemName[i];
 
 #if (DEBUG>2)
-  printf("Test name\n"); 
+  printf("Test name\n");
 #endif
-   
+
      offset1=-1; offset2=8;
      for (i=0;i<8;i++) {
        if (filename[i]=='\0') filename[i]=' ';
        if ((filename[i]!=' ')&&(offset1==-1)) offset1=i;
        if ((filename[i]==' ')&&(offset1!=-1)) { offset2=i; i=8; }
-     }     
-     if (offset1<0) printf("Sorry but there is no LP-Name\n");   
+     }
+     if (offset1<0) printf("Sorry but there is no LP-Name\n");
 
 #if (DEBUG>1)
   printf("Add extention %d %d\n",offset1, offset2);
@@ -173,64 +177,64 @@ int          i,k;
      }
 
 #if (DEBUG>1)
-  printf("Open file %s\n",&filename[offset3]);  
+  printf("Open file %s\n",&filename[offset3]);
 #endif
 
      outfile=fopen(&filename[offset3],"w");
 
 #if (DEBUG>1)
-  printf("Write NAME\n");    
+  printf("Write NAME\n");
 #endif
 
      fprintf(outfile,"NAME          ");
      fprintf(outfile,"%s",ProblemName);
 
 #if (DEBUG>1)
-  printf("ROWS\n");     
+  printf("ROWS\n");
 #endif
 
      filename[1]='\0';
-     fprintf(outfile,"\nROWS\n");     
-     for (i=0; i<MPS->NumRows;i++) { 
+     fprintf(outfile,"\nROWS\n");
+     for (i=0; i<MPS->NumRows;i++) {
         filename[0]= (MPS->RowType)[i];
         fprintf(outfile," %s  ",filename);
-        fprintf(outfile,"%s\n",(MPS->RowNames)[i]);   
+        fprintf(outfile,"%s\n",(MPS->RowNames)[i]);
      }
-  
+
      fprintf(outfile," N  ");
-     fprintf(outfile,"%s\n",MPS->ObjectiveName);   
+     fprintf(outfile,"%s\n",MPS->ObjectiveName);
 
 
 #if (DEBUG>1)
   printf("COLUMNS\n");
 #endif
- 
-     fprintf(outfile,"COLUMNS");     
-     for (i=0; i<MPS->NumCols;i++) { 
+
+     fprintf(outfile,"COLUMNS");
+     for (i=0; i<MPS->NumCols;i++) {
        ColName=(MPS->ColNames)[i];
        for (k=(A->pBeginRow)[i]-1;k<(A->pEndRow)[i];){
-           fprintf(outfile,"\n"); 
+           fprintf(outfile,"\n");
            printSTR(outfile,ColName,4,8);
            printSTR(outfile,(MPS->RowNames)[(A->Row)[k]-1],2,8);
            printVAL(outfile,(A->Value)[k++],2,12);
            if (k<A->pEndRow[i]) {
                 printSTR(outfile,(MPS->RowNames)[A->Row[k]-1],3,8);
                 printVAL(outfile,(A->Value)[k++],2,12);
-           }  
-       } 
+           }
+       }
        if (MPS->c[i]!=0) {
            k=A->pEndRow[i]-A->pBeginRow[i];
-           if (k&1) {  
-             fprintf(outfile,"\n"); 
+           if (k&1) {
+             fprintf(outfile,"\n");
              printSTR(outfile,ColName,4,8);
            }
            printSTR(outfile,MPS->ObjectiveName,3-(k&1),8);
            value=MPS->c[i];
            if (!(Inputs->Minimize)) value=-value;
-           printVAL(outfile,value,2,12); 
+           printVAL(outfile,value,2,12);
        }
      }
-  
+
 
 #if (DEBUG>1)
   printf("RHS\n");
@@ -239,7 +243,7 @@ int          i,k;
      fprintf(outfile,"\nRHS");
 
      printROW(outfile,MPS->NumRows,MPS->b,MPS->RowNames,MPS->RHSName);
-     
+
 
 #if (DEBUG>1)
   printf("SHIFT\n");
@@ -251,8 +255,8 @@ int          i,k;
          printSTR(outfile,MPS->RHSName,4,8);
        }
        printSTR(outfile,MPS->ObjectiveName,2,8);
-       printVAL(outfile,MPS->cshift,2+(k&1),12); 
-     } 
+       printVAL(outfile,MPS->cshift,2+(k&1),12);
+     }
 
 
 #if (DEBUG>1)
@@ -260,9 +264,9 @@ int          i,k;
 #endif
 
      /* Here are the RANGES */
-     
+
      if (MPS->RangeName!=NULL) {
-       fprintf(outfile,"\nRANGES"); 
+       fprintf(outfile,"\nRANGES");
        printROW(outfile,MPS->NumRows,MPS->Ranges,MPS->RowNames,MPS->RangeName);
      }
 
@@ -281,7 +285,7 @@ int          i,k;
        filename[12]='L'; filename[13]='O'; filename[14]='\0';
        filename[16]='F'; filename[17]='X'; filename[18]='\0';
        filename[20]='M'; filename[21]='I'; filename[22]='\0';
-      
+
        fprintf(outfile,"\nBOUNDS");
        for (i=0;i<MPS->NumCols;i++) {
          k=MPS->BoundType[i];
@@ -312,7 +316,7 @@ int          i,k;
                break;
              case FIX:
                printVAL(outfile,MPS->UpBound[i],2,12);
-             }  
+             }
 
 #if (DEBUG>2)
   printf("End switch\n");
@@ -322,18 +326,18 @@ int          i,k;
 
              printSTR(outfile,&filename[12],1,2);
              printSTR(outfile,MPS->BoundName,1,8);
-             printSTR(outfile,MPS->ColNames[i],2,8); 
+             printSTR(outfile,MPS->ColNames[i],2,8);
              printVAL(outfile,MPS->LowBound[i],2,12);
 
-             fprintf(outfile,"\n"); 
+             fprintf(outfile,"\n");
 
              printSTR(outfile,&filename[8],1,2);
              printSTR(outfile,MPS->BoundName,1,8);
-             printSTR(outfile,MPS->ColNames[i],2,8); 
+             printSTR(outfile,MPS->ColNames[i],2,8);
              printVAL(outfile,MPS->UpBound[i],2,12);
 
            }
-         }     
+         }
        } /* End FOR i=0:NumCols */
      }  /* endif               */
 
@@ -343,7 +347,7 @@ int          i,k;
 #if (DEBUG>1)
   printf("Close the file\n");
 #endif
-    
+
      close(outfile);
 }
 
@@ -366,18 +370,18 @@ int        i,j,k;
   printf("write name\n");
 #endif
 
-  MPS->ProblemName = (char *) Malloc(9,"ProblemName in convertLP_MPS"); 
-  i=0; while (i<8) { 
-    (MPS->ProblemName)[i]=Name[i]; 
+  MPS->ProblemName = (char *) Malloc(9,"ProblemName in convertLP_MPS");
+  i=0; while (i<8) {
+    (MPS->ProblemName)[i]=Name[i];
     if (Name[i++]=='\0') i=8;
-  } 
+  }
   MPS->ProblemName[8]='\0';
 
 #if (DEBUG>1)
   printf("Set names  %s\n",MPS->ProblemName);
 #endif
 
-  MPS->NumRows = LP->Rows; 
+  MPS->NumRows = LP->Rows;
   MPS->NumCols = LP->Cols;
   MPS->NumEnts = LP->Ents;
 
@@ -388,14 +392,14 @@ int        i,j,k;
                                       "RowNames in convertLP_MPS");
   MPS->ColNames = (char **) Malloc(sizeof(char*)*(LP->Cols),
                                       "ColNames in convertLP_MPS");
-  
+
 #if (DEBUG>1)
   printf("RowNames\n");
 #endif
 
   j=3; k=10;
   for (i=0;i<LP->Rows;i++) {
-     (MPS->RowType)[i] = 'E';  
+     (MPS->RowType)[i] = 'E';
      if (i>=k) { j++; k*=10; }
      (MPS->RowNames)[i] = (char *) Malloc(j,"RowName in convertLP_MPS");
 
@@ -404,23 +408,23 @@ int        i,j,k;
 #endif
 
      sprintf(MPS->RowNames[i],"R%d",i);
-  } 
+  }
 
 #if (DEBUG>1)
   printf("ColNames\n");
 #endif
 
   j=3; k=10;
-  for (i=0;i<LP->Cols;i++) { 
+  for (i=0;i<LP->Cols;i++) {
      if (i>=k) { j++; k*=10; }
      (MPS->ColNames)[i] = (char *) Malloc(j,"ColName in convertLP_MPS");
 
-#if (DEBUG>3)  
+#if (DEBUG>3)
   printf("C%d ",i);
 #endif
 
      sprintf(MPS->ColNames[i],"C%d",i);
-  } 
+  }
 
 #if (DEBUG>1)
   printf("RHS and matrix\n");
@@ -434,9 +438,9 @@ int        i,j,k;
   MPS->ObjectiveName = "Obj";
 
   MPS->cshift = LP->cshift;
-  
+
   AMPS=(char *) &(MPS->A); ALP=(char *) &(LP->A);
- 
+
   for (i=0;i<sizeof(sparseMatrix);i++) AMPS[i] = ALP[i];
 
 #if (DEBUG>2)
@@ -445,7 +449,7 @@ int        i,j,k;
                    (MPS->A).Nonzeros,(LP->A).Nonzeros);
 #endif
 
-  MPS->RangeName = NULL; 
+  MPS->RangeName = NULL;
 
 #if (DEBUG>1)
   printf("Bounds\n");
@@ -461,7 +465,7 @@ int        i,j,k;
   if (k) {
     MPS->BoundName = (char *) Malloc(6,"BoundName in convertLP_MPS");
     MPS->BoundName = "Bound";
-  
+
     MPS->BoundType = NewInt(LP->Cols ,"BoundType in convertLP_MPS");
     MPS->UpBound = LP->UpBound;
 
@@ -500,14 +504,14 @@ int        i,j,k;
        k=LP->FreeMinus[i];
        MPS->BoundType[k] = FIX;
        MPS->UpBound[k] = 0.0;
-    }    
-  } else 
+    }
+  } else
        MPS->BoundName = NULL;
 
 #if (DEBUG>1)
   printf("End convert\n");
 #endif
-   
+
    return MPS;
 }
 
@@ -531,5 +535,3 @@ MPStype *MPS;
 
         WriteMPS(MPS,Inputs);
 }
-
-

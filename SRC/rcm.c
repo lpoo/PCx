@@ -13,7 +13,7 @@
 #include "string.h"
 #include "rcm.h"
 
-/** 
+/**
  * \fn create_CC
  * \brief Memory allocation for a CC struct.
  * \param neqns The size of the CC struct members.
@@ -58,7 +58,7 @@ CC* create_CC(int neqns, int ncomp, int *comp){
   return comps;
 }
 
-/** 
+/**
  * \fn free_CC
  * \brief Free memory of a CC struct.
  * \param comp The CC struct.
@@ -75,7 +75,7 @@ void free_CC(CC *comps){
 }
 
 
-/** 
+/**
  * \fn create_CC_trans
  * \brief Create CC_trans
  * \param neqns The size of the stack of CC_trans.
@@ -92,7 +92,7 @@ CC_trans *create_CC_trans(int neqns){
 }
 
 
-/** 
+/**
  * \fn free_CC_trans
  * \brief Free memory of a CC_trans struct.
  * \param trans The CC_trans struct.
@@ -105,7 +105,7 @@ void free_CC_trans(CC_trans *trans){
 }
 
 
-/** 
+/**
  * \fn is_CC_trans_empty
  * \brief Check if the CC_trans stack is empty.
  * \param trans The CC_trans struct.
@@ -119,7 +119,7 @@ int is_CC_trans_empty(CC_trans *trans){
 }
 
 
-/** 
+/**
  * \fn add_CC_trans
  * \brief Add a element in the CC_trans stack.
  * \param trans The CC_trans struct.
@@ -131,7 +131,7 @@ void add_CC_trans(CC_trans *trans, int n){
 }
 
 
-/** 
+/**
  * \fn pop_CC_trans
  * \brief Pop a element of the CC_trans stack.
  * \param trans The CC_trans struct.
@@ -147,7 +147,7 @@ int pop_CC_trans(CC_trans *trans){
     abort();
 }
 
-/** 
+/**
  * \fn Q_enq
  * \brief Check if queue is empty.
  * \param Q The queue.
@@ -156,7 +156,7 @@ int Q_is_empty(CMQ *Q){
   return (Q->qh == Q->qt);
 }
 
-/** 
+/**
  * \fn Q_enq
  * \brief Enqueue operation.
  * \param Q The queue.
@@ -169,7 +169,7 @@ void Q_enq(CMQ *Q, CMN *o){
   Q->qt = (Q->qt + 1) % (Q->N + 1);
 }
 
-/** 
+/**
  * \fn Q_deq
  * \brief Dequeue operation.
  * \param Q The queue.
@@ -193,7 +193,7 @@ void Q_deq(CMQ *Q, CMN *o){
   h = (h + 1) % n; \
 }while(0)
 
-/** 
+/**
  * Cuthill-McKee reordering algorithm.
  * \param neqns Number of rows.
  * \param xadj is a vector of ``neqns + 1`` positions where ``xadj[i]`` inform
@@ -225,7 +225,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
   degree = calc_degree(*neqns, xadj);
   /* Order the degree will improve the performance. */
   order_by_degree(*neqns, xadj, work, degree);
-  
+
   /* Loop over every connected component. */
   i = 0;
   for (c = 0; c < comp->N; c++) {
@@ -270,7 +270,7 @@ int rcm(int *neqns, int *xadj, int *adjncy, int *invp, int *perm, int *nofsub){
   return 0;
 }
 
-/** 
+/**
  * \fn fcc
  * \brief Find the connect component.
  * \param neqns Number of rows.
@@ -323,7 +323,7 @@ CC *fcc(int neqns, int *xadj, int *adjncy){
   return create_CC(neqns, comp_number, comp_info);
 }
 
-/** 
+/**
  * \fn calc_degree
  * \brief Calculate the degree.
  * \param neqns
@@ -352,7 +352,7 @@ int *calc_degree(int neqns, int *xadj){
 #define LCHILDREN(i) 2 * i + 1
 #define RCHILDREN(i) 2 * i + 2
 
-/** 
+/**
  * \fn buid_heap
  * \brief build a max heap (either the keys of parent nodes are always greater
  * than or equal to those of the children and the highest key is in the root
@@ -398,7 +398,7 @@ int* build_heap(int *adjncy, int *degree, int min, int max){
   return heap;
 }
 
-/** 
+/**
  * \fn heap_sort
  * \brief Sort part of a vector using heap sort.
  * \param adjncy
@@ -436,7 +436,7 @@ void heap_sort(int *adjncy, int *degree, int min, int max){
   free(heap);
 }
 
-/** 
+/**
  * \fn order_by_degree
  * \brief Order vector base on degree
  * \param neqns
@@ -451,7 +451,7 @@ void order_by_degree(int neqns, int *xadj, int *adjncy, int *degree){
   }
 }
 
-/** 
+/**
  * \fn ppnf
  * \brief Return a pseudo-peripheral node.
  * \param neqns Number of rows.
@@ -496,7 +496,7 @@ int ppnf(int neqns, int *xadj, int *adjncy, int *degree, int r){
   return x;
 }
 
-/** 
+/**
  * \fn rls
  * \brief Build the level structure of `r`.
  * \param neqns Number of rows.
@@ -541,7 +541,7 @@ int rls(int neqns, int *xadj, int *adjncy, int r, int *L, int *nL){
   return blp;
 }
 
-/** 
+/**
  * \fn min_degree
  * \brief Select a node of minimum degree from the higher level of `L`.
  * \param neqns Number of rows.

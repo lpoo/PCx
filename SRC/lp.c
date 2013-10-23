@@ -3,7 +3,7 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 #include <stdio.h>
@@ -15,7 +15,7 @@
 int PrintLP(LP)
   LPtype   *LP;
 {
-  
+
   int row, col, ent;
 
   printf("LP: Cols = %d Rows = %d\n", LP->Cols, LP->Rows);

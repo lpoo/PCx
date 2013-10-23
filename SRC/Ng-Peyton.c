@@ -3,9 +3,12 @@
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
+
+#define _CRT_SECURE_NO_WARNINGS 1 // Fernando
+#define _CRT_NONSTDC_NO_WARNINGS 1 // Fernando
 
 #include <stdio.h>
 #include "main.h"
@@ -14,13 +17,12 @@
 #include "Ng-Peyton.h"
 #include "rcm.h"
 #include "string.h"
+#include "f2c.h"
 
 /*****************************************************************/
 /* This is an implementation of solver.h for the Ng-Peyton Solver*/
 /*****************************************************************/
 
-#ifndef rs6000
-#ifndef hpux
 #define ordmmd    ordmmd_
 #define sfinit    sfinit_
 #define bfinit    bfinit_
@@ -31,8 +33,6 @@
 #define symfct    symfct_
 #define inpnv     inpnv_
 #define ordnat    ordnat_
-#endif
-#endif
 
 /*****************************************************************/
 /* Allocation and deallocation routines for the FactorType data  */
@@ -69,8 +69,8 @@ NewFactorType(A, Ndense, NumCols)
 
   NgPeyton = NewNgPeytonType(N);
   FactorSpace->ptr = NgPeyton;
-  
-  FactorSpace->FactorizationCode = (char *) Malloc(50*sizeof(char), 
+
+  FactorSpace->FactorizationCode = (char *) Malloc(50*sizeof(char),
 						  "FactorizationCode");
   strcpy(FactorSpace->FactorizationCode,"Ng-Peyton sparse Cholesky library");
 
@@ -82,7 +82,7 @@ FreeFactorType(Factor)
      FactorType *Factor;
 {
    void FreeNgPeytonType();
-   
+
    Free((char *) Factor->Perm);
    Free((char *) Factor->InvPerm);
    Free((char *) Factor->maskDense);
@@ -94,12 +94,12 @@ FreeFactorType(Factor)
    Free((char *) Factor->AAT->Value);
    Free((char *) Factor->AAT);
 
-   
+
    Free((char *) Factor->FactorizationCode);
-   
+
    /* THIS IS THE ONLY SOLVER SPECIFIC LINE */
    FreeNgPeytonType(Factor->ptr);
-   
+
    Free((char *) Factor);
 }
 
@@ -130,7 +130,7 @@ NewNgPeytonType(N)
 }
 
 
-void 
+void
 FreeNgPeytonType(NgPeyton)
      NgPeytonType *NgPeyton;
 {
@@ -139,7 +139,7 @@ FreeNgPeytonType(NgPeyton)
    Free((char *) NgPeyton->pSuperNodeCols);
    Free((char *) NgPeyton->SuperNodeRows);
    Free((char *) NgPeyton->pBeginRowL);
-   Free((char *) NgPeyton->L);  
+   Free((char *) NgPeyton->L);
    Free((char *) NgPeyton);
 }
 
@@ -160,7 +160,7 @@ int ordinc(int dimension, int *InvPerm, int *Perm){
 /* Ordering and symbolic factorization routine                   */
 /*****************************************************************/
 
-int             
+int
 Order(Factor, OrderAlg)
      FactorType     *Factor;
      int             OrderAlg;
@@ -177,26 +177,26 @@ Order(Factor, OrderAlg)
 
    dimension = Factor->AAT->NumCols;
    nonzeros = Factor->AAT->Nonzeros - dimension;
-   
+
    NgPeyton = (NgPeytonType *) Factor->ptr;
 
    WorkSize = 4 * dimension;
    Work = NewInt(WorkSize, "Work in Order()");
-   
+
    /* Compute sparse structure without diagonal elements */
-   
+
    TempBeginRow = NewInt(dimension + 1, "TempBeginRow in Order()");
    TempRow = NewInt(nonzeros, "TempRow in Order()");
-   
+
    NumCols = Factor->AAT->NumCols;
-   
+
    for (col = 0; col < NumCols; col++)
       TempBeginRow[col] = Factor->AAT->pBeginRow[col] - col;
-   
+
    TempBeginRow[NumCols] = Factor->AAT->pEndRow[dimension - 1] + 1 - NumCols;
-   
+
    offset = 0;
-   for (col = 0; col < NumCols; col++) 
+   for (col = 0; col < NumCols; col++)
       {
         if (Factor->AAT->pEndRow[col] -
             Factor->AAT->pBeginRow[col] + 1 == 0)
@@ -229,12 +229,12 @@ Order(Factor, OrderAlg)
 
    for (col = 0; col < NumCols + 1; col++)
       NgPeyton->pSuperNodeCols[col] = TempBeginRow[col];
-   
+
    NgPeyton->SuperNodeRows = NewInt(nonzeros, "NgPeyton->SuperNodeRows");
-   
+
    for (entry = 0; entry < nonzeros; entry++)
       NgPeyton->SuperNodeRows[entry] = TempRow[entry];
-   
+
    /* Select and apply order algorithm. */
 
    switch (OrderAlg) {
@@ -274,11 +274,11 @@ Order(Factor, OrderAlg)
 
    /* Symbolic Factorization Initialization: Compute supernode partition and
     * storage requirements */
-   
+
    WorkSize = 7 * dimension + 3;
    Work = (int *) Realloc(Work, WorkSize * sizeof(int), "Work in Order()");
    ColumnCount = NewInt(dimension, "ColumnCount");
-   
+
    sfinit(&dimension, &nonzeros,
          TempBeginRow, TempRow,
          Factor->Perm, Factor->InvPerm, ColumnCount,
@@ -289,31 +289,31 @@ Order(Factor, OrderAlg)
 
    if (flag)
       printf("sfinit error flag = %d\n", flag);
-   
-   if (flag == -1) 
+
+   if (flag == -1)
       {
         printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
         printf("in Order().\n");
         return FACTORIZE_ERROR;
       }
-   
-   printf("Cholesky factor will have density %8.5f\n", 
-                  (( 2.0 * Factor->NonzerosL - dimension ) / 
+
+   printf("Cholesky factor will have density %8.5f\n",
+                  (( 2.0 * Factor->NonzerosL - dimension ) /
                   dimension) / dimension);
 
    /* allocate memory for Cholesky factor here */
    NgPeyton->L = NewDouble(Factor->NonzerosL, "L");
 
- 
+
    NgPeyton->SuperNodeRows =
       (int *) Realloc(NgPeyton->SuperNodeRows,
                      Factor->NonzerosL * sizeof(int), "SuperNodeRows");
-   
+
    /* Perform supernodal symbolic factorization */
-   
+
    WorkSize = NgPeyton->NumSuperNodes + 2 * dimension + 1;
    Work = (int *) Realloc(Work, WorkSize * sizeof(int), "Work");
-   
+
    symfct(&dimension, &nonzeros,
          TempBeginRow, TempRow,
          Factor->Perm, Factor->InvPerm,
@@ -322,17 +322,17 @@ Order(Factor, OrderAlg)
          NgPeyton->mapColumnToSupernode, &(NgPeyton->NumCompressedCols),
          NgPeyton->pSuperNodeCols, NgPeyton->SuperNodeRows,
          NgPeyton->pBeginRowL, &WorkSize, Work, &flag);
-   
+
    if (flag)
       printf("symfct error flag = %d\n", flag);
 
-   if (flag == -1) 
+   if (flag == -1)
       {
         printf("Size of Work array, %d, is larger than WorkSize\n", WorkSize);
         printf("in Order().\n");
         return FACTORIZE_ERROR;
       }
-   if (flag == -2) 
+   if (flag == -2)
       {
         printf("Inconsistency in the input to symfct in Order().\n");
         return FACTORIZE_ERROR;
@@ -348,7 +348,7 @@ Order(Factor, OrderAlg)
 /*****************************************************************/
 /*****************************************************************/
 
-int             
+int
 EnterNumbers(Factor)
      FactorType     *Factor;
 {
@@ -356,10 +356,10 @@ EnterNumbers(Factor)
    NgPeytonType   *NgPeyton;
 
    NgPeyton = (NgPeytonType *) Factor->ptr;
- 
+
    WorkSize = 2 * (Factor->AAT->NumCols) + (NgPeyton->NumSuperNodes) + 1;
    Work = NewInt(WorkSize, "Work in EnterNumbers()");
-  
+
    inpnv(&(Factor->AAT->NumCols),
 	 Factor->AAT->pBeginRow,
 	 Factor->AAT->Row,
@@ -372,7 +372,7 @@ EnterNumbers(Factor)
 	 NgPeyton->SuperNodeRows,
 	 NgPeyton->pBeginRowL,
 	 NgPeyton->L, Work);
-   
+
    Free((char *) Work);
    return 0;
 }
@@ -381,7 +381,7 @@ EnterNumbers(Factor)
 /* Compute Cholesky factor and do the singularity handling       */
 /*****************************************************************/
 
-int             
+int
 Factorize(Factor, Inputs)
      FactorType     *Factor;
      Parameters     *Inputs;
@@ -392,12 +392,23 @@ Factorize(Factor, Inputs)
    NgPeytonType   *NgPeyton;
 
    EnterNumbers(Factor);
-   
+
    NgPeyton = (NgPeytonType *) Factor->ptr;
 
    CacheSize = Inputs->CacheSize;
-   
+
+#define gambiarra
+
+#ifdef gambiarra
+   if (first == 0)
+   {
+	   Fatorize_Split = NewInt(Factor->AAT->NumCols, "Split");
+   };
+   Split = Fatorize_Split;
+#else
    Split = NewInt(Factor->AAT->NumCols, "Split");
+
+#endif // gambiarra
 
    Factor->SmallDiagonals = NO;
    bfinit(&(Factor->AAT->NumCols),
@@ -406,15 +417,38 @@ Factorize(Factor, Inputs)
 	  NgPeyton->mapColumnToSupernode,
 	  NgPeyton->pSuperNodeCols,
 	  NgPeyton->SuperNodeRows, &CacheSize, &TmpSize, Split);
-   
+
    /* allocate the amount of memory returned as TmpSize */
-   
+
+#ifdef gambiarra
+   if (first == 0)
+   {
+	   Fatorize_Tmp = NewDouble(TmpSize, "Tmp");
+	   Fatorize_TmpSize = TmpSize;
+   } else if (Fatorize_TmpSize != TmpSize)
+	   Fatorize_TmpSize = -1;
+   Tmp = Fatorize_Tmp;
+#else
    Tmp = NewDouble(TmpSize, "Tmp");
-   
+#endif // gambiarra
+
    UnrollingLevel = Inputs->UnrollingLevel;
    WorkSize = 2 * (Factor->AAT->NumCols) + 2 * (NgPeyton->NumSuperNodes);
+
+#ifdef gambiarra
+   if (first == 0)
+   {
+	   Fatorize_Work = NewInt(WorkSize, "Work");
+	   first = 1;
+	   Fatorize_WorkSize = WorkSize;
+   } else if (Fatorize_WorkSize != WorkSize)
+	   Fatorize_WorkSize = -1;
+
+   Work = Fatorize_Work;
+#else
    Work = NewInt(WorkSize, "Work");
-   
+#endif // gambiarra
+
    blklvl(&(Factor->AAT->NumCols),
 	  &(NgPeyton->NumSuperNodes),
 	  NgPeyton->SuperPartitioning,
@@ -425,8 +459,8 @@ Factorize(Factor, Inputs)
 	  NgPeyton->pBeginRowL,
 	  NgPeyton->L, &WorkSize, Work,
 	  &TmpSize, Tmp, &ErrorFlag, &UnrollingLevel);
-   
-   switch (ErrorFlag) 
+
+   switch (ErrorFlag)
       {
       case -1:
 	 Factor->SmallDiagonals = YES;
@@ -438,28 +472,30 @@ Factorize(Factor, Inputs)
 	 printf("Insufficient work storage (iwork) in Factorize().\n");
 	 break;
       }
-   
+
    /* lstats_(&(Factor->NumSuperNodes), Factor->SuperPartitioning,
     * Factor->pSuperNodeCols, Factor->SuperNodeRows, Factor->pBeginRowL,
     * &TmpSize, &six); */
-   
+
+#ifndef gambiarra
    Free((char *) Tmp);
    Free((char *) Work);
    Free((char *) Split);
-   
-   if (ErrorFlag == -2 || ErrorFlag == -3) 
+#endif // gambiarra
+
+   if (ErrorFlag == -2 || ErrorFlag == -3)
       {
 	 printf("blkLVL error flag = %d\n", ErrorFlag);
 	 return FACTORIZE_ERROR;
-      } 
-   else 
+      }
+   else
       return 0;
 }
 
 /*****************************************************************/
 /*****************************************************************/
 
-int             
+int
 Solve(Factor, rhs, Solution)
      FactorType     *Factor;
      double         *rhs, *Solution;
@@ -467,14 +503,14 @@ Solve(Factor, rhs, Solution)
    int             i;
    double         *TempRHS;
    NgPeytonType   *NgPeyton;
-   
+
    TempRHS = NewDouble(Factor->AAT->NumCols, "TempRHS in Solve()");
-      
+
    NgPeyton = (NgPeytonType *) Factor->ptr;
 
    for (i = 0; i < Factor->AAT->NumCols; i++)
       TempRHS[i] = rhs[Factor->Perm[i] - 1];
-   
+
    blkslv(&(NgPeyton->NumSuperNodes),
 	  NgPeyton->SuperPartitioning,
 	  NgPeyton->pSuperNodeCols,
@@ -482,10 +518,10 @@ Solve(Factor, rhs, Solution)
 	  NgPeyton->pBeginRowL,
 	  NgPeyton->L,
 	  TempRHS);
-   
+
    for (i = 0; i < Factor->AAT->NumCols; i++)
       Solution[i] = TempRHS[Factor->InvPerm[i] - 1];
-   
+
    Free((char *) TempRHS);
    return 0;
 }
@@ -496,7 +532,7 @@ Solve(Factor, rhs, Solution)
 /* Skips the final inverse permutation step.                     */
 /*****************************************************************/
 
-int             
+int
 SolveForward(Factor, rhs, Solution)
      FactorType     *Factor;
      double         *rhs, *Solution;
@@ -506,12 +542,12 @@ SolveForward(Factor, rhs, Solution)
    NgPeytonType   *NgPeyton;
 
    TempRHS = NewDouble(Factor->AAT->NumCols, "TempRHS in SolveForward()");
-      
+
    NgPeyton = (NgPeytonType *) Factor->ptr;
 
    for (i = 0; i < Factor->AAT->NumCols; i++)
       TempRHS[i] = rhs[Factor->Perm[i] - 1];
-   
+
    blkslf(&(NgPeyton->NumSuperNodes),
 	  NgPeyton->SuperPartitioning,
 	  NgPeyton->pSuperNodeCols,
@@ -519,10 +555,10 @@ SolveForward(Factor, rhs, Solution)
 	  NgPeyton->pBeginRowL,
 	  NgPeyton->L,
 	  TempRHS);
-   
+
    for (i = 0; i < Factor->AAT->NumCols; i++)
       Solution[i] = TempRHS[i];
-   
+
    Free((char *) TempRHS);
    return 0;
 }
@@ -534,7 +570,7 @@ SolveForward(Factor, rhs, Solution)
 /* inverse permutation step.                                     */
 /*****************************************************************/
 
-int             
+int
 SolveBackward(Factor, rhs, Solution)
      FactorType     *Factor;
      double         *rhs, *Solution;
@@ -544,12 +580,12 @@ SolveBackward(Factor, rhs, Solution)
    NgPeytonType   *NgPeyton;
 
    TempRHS = NewDouble(Factor->AAT->NumCols, "TempRHS in SolveBackward()");
-      
+
    NgPeyton = (NgPeytonType *) Factor->ptr;
 
    for (i = 0; i < Factor->AAT->NumCols; i++)
       TempRHS[i] = rhs[i];
-   
+
    blkslb(&(NgPeyton->NumSuperNodes),
 	  NgPeyton->SuperPartitioning,
 	  NgPeyton->pSuperNodeCols,
@@ -557,16 +593,16 @@ SolveBackward(Factor, rhs, Solution)
 	  NgPeyton->pBeginRowL,
 	  NgPeyton->L,
 	  TempRHS);
-   
+
    for (i = 0; i < Factor->AAT->NumCols; i++)
       Solution[i] = TempRHS[Factor->InvPerm[i] - 1];
-   
+
    Free((char *) TempRHS);
    return 0;
 }
 
-/****************************************************************************** 
-computes W = (L^-1 * P * Adense) and 
+/******************************************************************************
+computes W = (L^-1 * P * Adense) and
 	 the (dense) cholesky-factor of scaleDense^{-1} + W^T W
 	 in the lower part of Ldense
 uses routine SolveForward() for the sparse part
@@ -589,55 +625,55 @@ ComputeWandLdense(Adense, Factor, scale, NumCols)
    int          status, SolveForward();	   /* from solverfiles */
    int     SparseSaxpyTM();        	   /* from wrappers.c */
    void    StripScale();
-   
+
    temprhs = NewDouble(Adense->NumRows, "temprhs in ComputeWandLdense");
-   scaleDense = NewDouble(Factor->Ndense, 
+   scaleDense = NewDouble(Factor->Ndense,
 			  "scaleDense in ComputeWandLdense");
    StripScale(scale, scaleDense, Factor->maskDense, NumCols, 1);
-   
-   for (i = 0; i < Factor->Ndense; i++) 
+
+   for (i = 0; i < Factor->Ndense; i++)
       {
-	 for (k=0; k < (Adense->NumRows); k++)  
+	 for (k=0; k < (Adense->NumRows); k++)
 	    temprhs[k] = 0.0;
-	 
-	 for (j = ((Adense->pBeginRow)[i])-1; 
+	
+	 for (j = ((Adense->pBeginRow)[i])-1;
 	      j <= ((Adense->pEndRow)[i])-1; j++)
 	    temprhs[((Adense->Row)[j])-1] = (Adense->Value)[j];
 
 	 status = SolveForward(Factor, temprhs, (Factor->W)[i]);
       };
-   
+
    for (i=0; i < (Factor->Ndense); i++)
-      for(j=0; j <= i; j++) 
+      for(j=0; j <= i; j++)
 	 {
 	    temp=0.0;
-	    for(k=0; k < (Adense->NumRows); k++) 
+	    for(k=0; k < (Adense->NumRows); k++)
 	       temp += (Factor->W)[i][k] * (Factor->W)[j][k];
 	    (Factor->Ldense)[i][j] = temp;
 	    (Factor->Ldense)[j][i] = temp;
-	 } 
-   
-   for (i=0; i < (Factor->Ndense); i++) 
+	 }
+
+   for (i=0; i < (Factor->Ndense); i++)
       (Factor->Ldense)[i][i] += 1.0 / scaleDense[i];
-   
+
    for (i = 0; i < (Factor->Ndense); i++)
-      for (k = i; k < (Factor->Ndense); k++) 
+      for (k = i; k < (Factor->Ndense); k++)
 	 {
 	    temp = (Factor->Ldense)[i][k];
-	    for (j = (i-1); j >= 0; j--)  
+	    for (j = (i-1); j >= 0; j--)
 	       temp -= ((Factor->Ldense)[k][j])*((Factor->Ldense)[i][j]);
-	    if ( i==k ) 
+	    if ( i==k )
 	       {
 		  if ( temp <= 0.0 )	
 		     return FACTORIZE_ERROR;
-		  else  
+		  else
 		     scaleDense[i] = 1.0/sqrt(temp);
-	       } 
+	       }
 	    else
 	       (Factor->Ldense)[k][i] = temp*scaleDense[i];
 	 };
 
-   for (i = 0; i < (Factor->Ndense); i++) 
+   for (i = 0; i < (Factor->Ndense); i++)
       (Factor->Ldense)[i][i] = 1.0/scaleDense[i];
 
    Free((char *) temprhs);
@@ -645,7 +681,7 @@ ComputeWandLdense(Adense, Factor, scale, NumCols)
    return 0;
 }
 
-/***************************************************************************** 
+/*****************************************************************************
 solves the psd-equation (A*scale*A^t)*Solution=rhs via Sherman-Morrison
 uses routine Solve() for the sparse part
 	input:  Factor with ready-to-use members L, Ldense, W;
@@ -660,36 +696,36 @@ EnhancedSolve(Factor, rhs, Solution)
    int		i, j, k;
    double      *temprhs, *tempd, temp;
    int          status, SolveForward(), SolveBackward();
-   
+
    /* start with the forward substitution */
-   
+
    temprhs = NewDouble(Factor->AAT->NumCols, "temprhs in EnhancedSolve");
    SolveForward(Factor, rhs, temprhs);
-   
-   if ( (Factor->Ndense) > 0 ) 
+
+   if ( (Factor->Ndense) > 0 )
       {	
-	 
+	
 	 tempd = NewDouble(Factor->Ndense, "tempdense in EnhancedSolve");
 	 /* compute W^T temprhs */
-	 for(i=0; i < (Factor->Ndense); i++) 
+	 for(i=0; i < (Factor->Ndense); i++)
 	    {
-	       temp = 0.0; 
+	       temp = 0.0;
 	       for(k=0; k< (Factor->AAT->NumCols); k++)
 		  temp += (Factor->W)[i][k] * temprhs[k];
 	       tempd[i] = temp;
 	    }
 
 	 /* back- and forward-substitution with Ldense */
-	 
-	 for (i = 0; i < Factor->Ndense; i++) 
+	
+	 for (i = 0; i < Factor->Ndense; i++)
 	    {
 	       temp = 0.0;
 	       for (j = 0; j < i; j++)
 		  temp = temp + (Factor->Ldense)[i][j] * tempd[j];
 	       tempd[i] = (tempd[i] - temp) / (Factor->Ldense)[i][i];
 	    };
-	 
-	 for (i = (Factor->Ndense)-1; i>=0; i--) 
+	
+	 for (i = (Factor->Ndense)-1; i>=0; i--)
 	    {
 	       temp = 0.0;
 	       for (j = i+1; j < (Factor->Ndense); j++)
@@ -698,17 +734,17 @@ EnhancedSolve(Factor, rhs, Solution)
 	    };
 
 	 /* modify temprhs by adding W * tempd */
-	 
+	
 	 for(i=0; i<(Factor->Ndense); i++)
 	    for(k=0; k < (Factor->AAT->NumCols); k++)
 	       temprhs[k] -= (Factor->W)[i][k] * tempd[i];
          Free((char*) tempd);
       } /* end if ( (Factor->Ndense) > 0 ) */
-   
+
    /* finally, do the back substitution */
-   
+
    SolveBackward(Factor, temprhs, Solution);
-   
+
    Free((char *) temprhs);
    return 0;	
 }

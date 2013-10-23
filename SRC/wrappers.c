@@ -1,9 +1,9 @@
-/* wrapper routines for basic sparse linear algebra 
+/* wrapper routines for basic sparse linear algebra
  *
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -142,4 +142,3 @@ double          TwoNorm2(x, n)
   NormTwoSquareRealDenseVector(x, n, &temp);
   return temp;
 }
-

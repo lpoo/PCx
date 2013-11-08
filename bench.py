@@ -276,7 +276,10 @@ if __name__ == "__main__":
     import argparse
     from argparse import RawTextHelpFormatter
 
-    if sys.version_info[0] < 3 and sys.version_info[1] < 3:
+    if sys.version_info[0] >= 3:
+        if sys.version_info[1] < 3:
+            raise Exception('It require Python 3.3 or later.')
+    else:
         raise Exception('It require Python 3.3 or later.')
 
     # Parse of flags.

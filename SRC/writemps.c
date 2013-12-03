@@ -17,9 +17,7 @@
 #include<string.h>
 #include"main.h" 
 #include"memory.h"
-
-#define  DEBUG 0
-
+#include"def.h"
 
 void  printSTR(outfile,name,offset,length)
 FILE  *outfile;

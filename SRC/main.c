@@ -9,11 +9,17 @@
 
 
 #include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
 #include "main.h"
 #include "memory.h"
 #include "pre.h"
+
+#ifdef DEBUG
+#include <errno.h>
+#endif
 
 char    infile[200];
 char    outfile[200];
@@ -87,11 +93,6 @@ main(argc, argv)
    marca=0;
    aumenta=0;
 
-   if (argc < 2)
-      {
-         usage(argv);
-	 exit(INVOCATION_ERROR);
-      }
    /* Create the parameter data structure, insert the parameter values into
     * it, and check their validity.  */
 
@@ -113,11 +114,8 @@ main(argc, argv)
      }
    }
 
-   strcpy(eigfile,"./OUT/");
    strcpy(infile, argv[1]);
    strcpy(P_name, argv[1]);
-   strcat(eigfile,infile);
-   strcat(eigfile,"_MN2V.out");
 
    param_eta = 10;
 
@@ -133,8 +131,8 @@ main(argc, argv)
 	 printf("Error return from CheckParameters\n");
 	 exit(SPECS_ERROR);
       }
-   /* open the input file (currently an MPS file) */
 
+   /* open the input file (currently an MPS file) */
    fp = OpenInputFile(infile, &filesize, Inputs);
    if (fp == NULL)
       {
@@ -143,15 +141,33 @@ main(argc, argv)
 	 exit(INPUT_ERROR);
       }
 
-
-   /*Create a file for saving the results on ./OUT/ directory, the name of the problems is "problem".out*/
-   eigout=fopen(eigfile,"w");
-   fprintf(eigout,"Problem %s \n", infile);
+   strcpy(eigfile, Inputs->OutputDirectory);
+   // Test if output directory exist. If not, create it.
+   DIR *out = NULL;
+   out = opendir(eigfile);
+   if (out == NULL) {
+     mkdir(eigfile, S_IRWXU);  // The directory must have rwx permission
+   }
+   else {
+     closedir(out); // Avoid corrupt the directory
+   }
+   // Check if need to add '/' in the output file name
+   if (eigfile[strlen(eigfile)] != '/') {
+     strcat(eigfile, "/");
+   }
+   strcat(eigfile, argv[1]);  // Need to use argv[1] because `infile` can start with `.`
+   strcat(eigfile, ".out");
+   eigout = fopen(eigfile,"w");
+   if (eigout == NULL) {
+#ifdef DEBUG
+     printf("Can't open `%s` because of %d\nTo find what that means: $ grep %d /usr/include/*/errno*.h\n", eigfile, errno, errno);
+#else
+     printf("Can't open `%s`.\n", eigfile);
+#endif
+     exit(1);
+   }
+   fprintf(eigout, "Problem %s \n", infile);
    fflush(eigout);
-   if (eigout == NULL)
-     {
-       printf("Nao foi possivel abrir o arquivo %s \n",eigfile);
-     }
 
   // Create a file for saving POS vetor, name= POS_file
    /*strcpy(POS_file,"./OUT/Pos_file");
@@ -276,6 +292,8 @@ main(argc, argv)
    /* Output the results */
 
    PrintSolution(MPS, Solution, Inputs, &outfile);
+
+   fclose(eigout);
 
    status = Solution->Status; /* For return code. */
    FreeSolution(Solution);

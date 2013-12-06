@@ -18,9 +18,9 @@
 #define PREPROCESS_VERBOSE
 */
 
-/* define TIMING_PROFILE by un-commenting the line below. 
+/* define TIMING_PROFILE by un-commenting the line below.
    If defined, extra profiling information is added to the
-   log file 
+   log file
 */
 
 /*
@@ -77,7 +77,7 @@ typedef struct {   /* sparse structure, with pointer information for
     int NumRows, NumCols, Nonzeros;
     int *pBeginRow, *pBeginRowT; /* Fortran style indexing is used here! */
     int *pEndRow, *pEndRowT;   /* indices range from 1 to n, NOT 0 to n-1 */
-    int *Row, *RowT;           
+    int *Row, *RowT;
     double *Value, *ValueT;
 } MMTtype;
 
@@ -104,7 +104,7 @@ typedef struct {
    int      *maskDense;
    double  **W, **Ldense;
 } FactorType;
-   
+
 /****************************************************************/
 
 typedef struct  {
@@ -153,7 +153,7 @@ typedef struct  {
   double *VarShifts; /* records shifting of each component. NB sign
                         change is applied AFTER the shift */
   double cshift; /* shift in objective. This value must be ADDED to the
-	primal objective the dual objective in the transformed problem 
+	primal objective the dual objective in the transformed problem
 	to get the original cost */
 
 } MPSchanges;
@@ -174,9 +174,9 @@ typedef struct LPtype {
   double cshift;     /* constant shift for the cost; the objective
                         function is cshift + c.x */
 
-  int    *VarType;   /* For each variable specify type: 
+  int    *VarType;   /* For each variable specify type:
 			Upper :  0 <= x <= Upbound,
-			Normal:  0 <= x, 
+			Normal:  0 <= x,
 			Free */
   double *UpBound;   /* If upper bound, specify */
 
@@ -198,10 +198,10 @@ typedef struct LPtype {
 /****************************************************************/
 
 typedef struct Parameters {
-  
+
   int     IterationLimit;
   double  OptTol;         /* absolute tolerance */
-  double  PriFeasTol, DualFeasTol; /* tolerances for primal and 
+  double  PriFeasTol, DualFeasTol; /* tolerances for primal and
                                       dual infeasibilities */
 
   double  AlphaScale;     /* If AlphaMax is the largest value of Alpha in [0,1]
@@ -213,10 +213,11 @@ typedef struct Parameters {
   int Preprocessing;      /* 1 = perform preprocessing; 0 = don't */
   int Scaling;            /* 1 = perform scaling; 0 = don't */
   int HOCorrections;      /* 1 = perform Gondzio corrections; 0 = don't */
-  int MaxCorrections;     /* Maximum number of Gondzio corrections; 
+  int MaxCorrections;     /* Maximum number of Gondzio corrections;
                              0 = computed by the code */
   int Minimize;           /* 1 = Minimize the objective; 0= Maximize */
   char *InputDirectory;   /* look for input file in this directory */
+  char *OutputDirectory;   /* write output files in this directory */
   int WriteSolution;      /* 1 = Write solution to a file; 0 = don't */
   int WriteHistory;       /* 1 = Write history to a file; 0 = don't  */
 
@@ -256,7 +257,7 @@ typedef struct {
 } FactorizationRecord;
 
 typedef struct solution {
-  
+
   int Rows;          /* number of rows in A */
   int Columns;       /* number of variables */
 
@@ -281,7 +282,7 @@ typedef struct solution {
 
   double PrimalInfeasibility;
   double DualInfeasibility;
-  
+
   int  Iterations;
   IterationRecord *IterationHistory;
 
@@ -325,7 +326,7 @@ typedef struct {
   int     Iteration;
 } Iterate;
 
-typedef struct 
+typedef struct
 {
   FILE  *warningfile;
   FILE  *errorfile;

@@ -116,6 +116,13 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
+AC_ARG_ENABLE([debug],
+    AS_HELP_STRING([--enable-debug], [Enable debug features]),
+    [CFLAGS="-g -O2 -DDEBUG";
+     FCFLAGS="-g -O2"],
+    [CFLAGS="-O3";
+     FCFLAGS="-O3"])
+
 # Checks for programs
 echo "Testing for a C compiler"
 AC_PROG_CC

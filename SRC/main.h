@@ -14,8 +14,6 @@
 #define printf          mexPrintf
 #endif
 
-
-
 /*
 #define PREPROCESS_VERBOSE
 */
@@ -28,8 +26,6 @@
 /*
 #define TIMING_PROFILE
 */
-
-
 
 #define PINFTY       0     /* normal */
 #define NORMAL       0
@@ -54,6 +50,8 @@
 
 #define YES              1
 #define NO               0
+
+#define CHOL 0
 
 /* used to flag error in the input; see source file readmps.c */
 #define BAD_INPUT       -10
@@ -210,7 +208,6 @@ typedef struct Parameters {
                              for which (x + Alpha Dx, s + Alpha ds) >= 0,
                              take a step of length AlphaScale * AlphaMax.
                              (Typical values are .99 or .999) */
-  int Diagnostics;        /* More detailed messages with higher number */
   int ReportingLevel;     /* More detailed messages with higher number */
   int Refinement;         /* 1 = perform iterative refinement; 0 = don't */
   int Preprocessing;      /* 1 = perform preprocessing; 0 = don't */

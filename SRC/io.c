@@ -17,6 +17,8 @@
 #include "pre.h"
 
 
+extern FILE *eigout;
+
 /*****************************************************************/
 /* contents:                                                     */
 /*****************************************************************/
@@ -373,8 +375,19 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 		       Solution->PriorRows, Solution->PriorColumns);
 	       fprintf(logfile, "   After  Presolving:  %d rows, %d columns",
 		       Solution->ReducedRows, Solution->ReducedColumns);
-	       fprintf(logfile, "  (%d %s)\n", Solution->Passes, 
+	       fprintf(logfile, "  (%d %s)\n", Solution->Passes,
 		       (Solution->Passes == 1)? "pass" : "passes");
+
+               fprintf(eigout, "Presolving was performed:\n");
+	       fprintf(eigout, "   Before Presolving:  %d rows, %d columns\n",
+		       Solution->PriorRows, Solution->PriorColumns);
+	       fprintf(eigout, "   After  Presolving:  %d rows, %d columns",
+		       Solution->ReducedRows, Solution->ReducedColumns);
+	       fprintf(eigout, "  (%d %s)\n", Solution->Passes,
+		       (Solution->Passes == 1)? "pass" : "passes");
+
+	       fflush(eigout);
+
 	    }
 	 else
 	    fprintf(logfile, "NO presolving was performed\n");
@@ -548,6 +561,9 @@ void ComputeAndPrintObjectives(Solution, LP, primal, dual)
    
    printf(" Primal Objective = %f\n", *primal + LP->cshift);
    printf(" Dual   Objective = %f\n", *dual + LP->cshift);
+
+   fprintf(eigout," Primal Objective = %13.8e\n", *primal + LP->cshift);
+   fprintf(eigout," Dual   Objective = %13.8e\n", *dual + LP->cshift);
 }
 
 /********************************************************************/
@@ -667,6 +683,11 @@ void ComputeAndPrintInfeasibilities(Solution, LP)
    Solution->Complementarity = complementarity;
    Solution->RelativeComplementarity =
       fabs(complementarity) / (1.0 + fabs(Solution->PrimalObjective));
+
+   fprintf(eigout," \n Primal Inf = %9.2e \n", rel_dual);
+   fprintf(eigout," Dual Inf = %9.2e \n", rel_primal);
+   fprintf(eigout," \n Complementarity = %9.2e \n",complementarity);
+   fprintf(eigout," Rel Complementary =  %9.2e \n \n ", Solution->RelativeComplementarity);
 }
 
 void PrintType(type)

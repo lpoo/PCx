@@ -14,25 +14,10 @@ extern float OPS;
 #endif
 #define one &iii
 
-/* Estruturas utilizadas por Daniele */
-/*struct BASE { int m;
-              int *col, *row, *diag;
-              double *val;
-};
-
-typedef struct BASE base; */
-
-/*struct ELEMENTAR { int n, entsE;
-                   int *row, *col, *pos;
-                   double *val;
-};
-
-typedef struct ELEMENTAR elementar; */
-
 struct MATRIX { int m, n;
                 unsigned long int nnulos;
                 int *row, *col;
-                double *val;
+                double *val, *val1,*val2; //mudei jair
               };
 
 typedef struct MATRIX matrix;
@@ -104,17 +89,7 @@ int calculaestruturaAAt(matrix *, matrix *, matrix *);
 int calculaAAt(matrix *A, matrix *At, double *d, matrix *, int *, double *);
 int precond(matrix *, matrix *, int, double *);
 int solsis(matrix *, matrix *, double *, double *);
-int VaRitz(double *,double *, int, int);
+//int VaRitz(double *,double *, int, int);
 
 /* Rutinas usadas pelo jair*/
-void jair1(int);
-
-/* Rotinas usadas por Daniele */
-int baseinicial(matrix *, matrix *, int *, int *, int *, int *, int, int *, int *);
-//int sistema(int, int, base *, elementar *, double *); 
-
-//int atualizacao(elementar *, matrix *, base *, int, int *, int *, int);
-
-int redundante(int *, int *, matrix *, int *, int *, int, int *, int);
-
-
+//void jair1(int , int , Iterate *);

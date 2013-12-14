@@ -1,9 +1,9 @@
 /* Preprocessor
  *
  * PCx 1.1 11/97
- * 
+ *
  * Author: Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -14,27 +14,29 @@
 #include "main.h"
 #include "pre.h"
 
+extern FILE *eigout;
+
 /* #define PREPROCESS_VERBOSE  */
 
 /* Preprocess an LP supplied in the form
- * 
+ *
  * min c.x ,   Ax=b,
- * 
+ *
  * where the components of x fall into one of three classes:
- * 
+ *
  * FREE NORMAL  0 <= x_i UPPER   0 <= x_i <= u_i
- * 
- * Stores and return a list of changes, so that various components of the 
+ *
+ * Stores and return a list of changes, so that various components of the
  * primal and dual solution can be recovered later.
- * 
+ *
  * On entry: LP points to a linear program, in the PCx data structure;
  * pReducedLP, pRecord are ignored;
- * 
+ *
  * On return: LP is unchanged; pReducedLP points to the reduced LP; pRecord
  * points to a record of all the changes (needed for postprocessing);
  * Preprocess() returns the number of Passes, or one of the three flags
  * INFEASIBLE, UNBOUNDED, or PREPROCESSING_ERROR.
- * 
+ *
  * SJW December 94. */
 
 SparseVector   *NewSparseVector(nonzeros)
@@ -57,12 +59,18 @@ FreeSparseVector(sparseVector)
   return 0;
 }
 
+#ifdef CGM
+int             Preprocess(LP, pReducedLP, pRecord)
+#else
 int             Preprocess(LP, pReducedLP, pRecord, Inputs)
+#endif
   LPtype         *LP;
   LPtype        **pReducedLP;
-  ChangeStack   **pRecord; 
+#ifdef CGM
+#else
   Parameters     *Inputs;
-
+#endif
+  ChangeStack   **pRecord;
 {
   int             i, j, k, inx, inxrc, inxt, inxk, size, sizeUnit, rows,
                   cols, top, nonzeros, nonzerosc, singleton, infeasible = 0,
@@ -76,9 +84,9 @@ int             Preprocess(LP, pReducedLP, pRecord, Inputs)
 
 
   /* declare the preprocessing component routines */
-  int             ObviouslyInfeasible(), DuplicateCols(), nDuplicateCols, 
+  int             ObviouslyInfeasible(), DuplicateCols(), nDuplicateCols,
                   DuplicateRows(), nDuplicateRows;
-  void            FindEmptyRows(), FindEmptyCols(), 
+  void            FindEmptyRows(), FindEmptyCols(),
                   FindFixedVariables(), FindSingletonRows(),
                   FindColumnSingletons(), FindForcedRows(),
                   DeleteChangeStack();
@@ -92,9 +100,10 @@ int             Preprocess(LP, pReducedLP, pRecord, Inputs)
   for (i = 0; i < cols; i++)
     Record->VarType[i] = LP->VarType[i];
 
-  if (Inputs->Diagnostics > 0)
-    printf("\nBefore Presolving:  %d rows, %d columns\n",
-	   rows, cols);
+#ifdef DEBUG
+  printf("\nBefore Presolving:  %d rows, %d columns, %d entries\n",
+         rows, cols, LP->Ents);
+#endif
 
   /* Initialize the modified cost and rhs vectors */
   cNew = NewDouble(cols, "cNew");
@@ -229,7 +238,10 @@ int             Preprocess(LP, pReducedLP, pRecord, Inputs)
     printf("**** %d reductions on pass %d\n", ReducedOnThisPass, Pass);
 #endif
   }
-  Pass--;
+
+  rank(LP,Record,&top,&Pass);
+
+ Pass--;
 
   if (Pass != 0) {
     /* repack the reduced problem */
@@ -239,11 +251,14 @@ int             Preprocess(LP, pReducedLP, pRecord, Inputs)
   } else
     *pReducedLP = LP;
 
-
-  if (Inputs->Diagnostics > 0)
-    printf("After  Presolving:  %d rows, %d columns (%d %s)\n\n",
-	   (*pReducedLP)->Rows, (*pReducedLP)->Cols, Pass,
-	   (Pass == 1)? "pass" : "passes");
+#ifdef DEBUG
+  printf("After  Presolving:  %d rows, %d columns, %d entries (%d %s)\n",
+         (*pReducedLP)->Rows, (*pReducedLP)->Cols, (*pReducedLP)->Ents, Pass,
+         (Pass == 1)? "pass" : "passes");
+  fprintf(eigout,"After  Presolving:  %d rows, %d columns, %d entries (%d %s)\n",
+         (*pReducedLP)->Rows, (*pReducedLP)->Cols, (*pReducedLP)->Ents, Pass,
+         (Pass == 1)? "pass" : "passes");
+#endif
 
   Record->Passes = Pass;
   Record->ReducedRows = (*pReducedLP)->Rows;
@@ -311,7 +326,7 @@ LPtype         *repackLP(LP, RowMask, ColumnMask, VarType, cNew, bNew, cshift)
 
   LPnew->FreePlus = NULL;
   LPnew->FreeMinus = NULL;
-  
+
   LPnew->RowScale = NULL;
   LPnew->ColScale = NULL;
 
@@ -322,7 +337,12 @@ LPtype         *repackLP(LP, RowMask, ColumnMask, VarType, cNew, bNew, cshift)
   LPnew->UpBound = NewDouble(cols, "LPnew->UpBound");
 
   LPnew->A.pBeginRow = NewInt(cols, "LPnew->A.pBeginRow");
+#ifdef CGM
+  LPnew->A.pEndRow = NewInt(cols+1, "LPnew->A.pEndRow");
+  LPnew->A.pEndRow++;
+#else
   LPnew->A.pEndRow = NewInt(cols, "LPnew->A.pEndRow");
+#endif
   LPnew->A.Row = NewInt(ents, "LPnew->A.Row");
   LPnew->A.Value = NewDouble(ents, "LPnew->A.Value");
 
@@ -400,7 +420,7 @@ LPtype         *repackLP(LP, RowMask, ColumnMask, VarType, cNew, bNew, cshift)
 int             ObviouslyInfeasible(LP, bNew, nonzerosRow, Record)
   LPtype         *LP;
   double         *bNew;
-  int            *nonzerosRow;  
+  int            *nonzerosRow;
   ChangeStack    *Record;
 {
   int             infeasible, i, cols, rows;
@@ -702,24 +722,34 @@ void            FindSingletonRows(LP, Record, nonzerosRow, nonzerosCol,
    in the lines below  - disgraceful!! */
 
 	  (*infeasible) = 0;
-	  if (Record->VarType[inxrc-1] == NORMAL) {
-	    if (xfix < -TINY) {
+#ifdef CGM
+	  if (Record->VarType[i] == NORMAL)
+	    if (xfix < -TINY)
 	      (*infeasible) += 1;
-	      printf(" ERROR: detected inconsistency in RowSingleton\n row %d column %d xfix %e (component should be nonnegative)\n",
-		   i + 1, inxrc, xfix);
-	    }
-	  } else if (Record->VarType[inxrc-1] == UPPER) {
-	    if (xfix < -TINY || xfix > LP->UpBound[inxrc-1]) {
-	      (*infeasible)++;
-	      printf(" ERROR: detected inconsistency in RowSingleton\n row %d column %d xfix %e (component should be in [0, %e]\n",
-		     i + 1, inxrc, xfix, LP->UpBound[inxrc-1]);
-	    }
-	      
-	  } 
+	    else if (Record->VarType[i] == UPPER)
+	      if (xfix < -TINY || xfix > LP->UpBound[i])
+		(*infeasible)++;
+#else
+          if (Record->VarType[inxrc-1] == NORMAL) {
+            if (xfix < -TINY) {
+              (*infeasible) += 1;
+               printf(" ERROR: detected inconsistency in RowSingleton\n row %d column %d xfix %e (component should be nonnegative)\n",
+                   i + 1, inxrc, xfix);
+            }
+          } else if (Record->VarType[inxrc-1] == UPPER) {
+            if (xfix < -TINY || xfix > LP->UpBound[inxrc-1]) {
+              (*infeasible)++;
+               printf(" ERROR: detected inconsistency in RowSingleton\n row %d column %d xfix %e (component should be in [0, %e]\n",
+                   i + 1, inxrc, xfix, LP->UpBound[inxrc-1]);
+            }
+#endif
 
-	  /* if infeasible, return a null pointer */
-	  if (*infeasible) 
+	  /* if infeasible, print a message and return a null pointer */
+	  if (*infeasible) {
+	    printf(" ERROR: detected inconsistency row %d column %d xfix %e\n",
+		   i + 1, inxrc, xfix);
 	    return;
+	  }
 
 	  Record->StackOfChanges[*top] = (SingleChange *)
 	    Malloc(sizeof(SingleChange), "Record->StackOfChanges[]");
@@ -783,7 +813,7 @@ void            FindSingletonRows(LP, Record, nonzerosRow, nonzerosCol,
  * column and transform the objective funtion */
 
 void            FindColumnSingletons(LP, Record, nonzerosRow, nonzerosCol,
-				     cNew, bNew, preprocessing_error, top, 
+				     cNew, bNew, preprocessing_error, top,
 				     Pass, ReducedOnThisPass)
   LPtype         *LP;
   ChangeStack    *Record;
@@ -1847,7 +1877,7 @@ ChangeStack    *NewRecord(LP)
   Record->Passes = 0;
   Record->ReducedRows = 0;
   Record->ReducedColumns = 0;
-  
+
   /* NewInt initializes the mask vectors to zeros, meaning that the default
    * status for each row and column is "STILL_ACTIVE" */
 
@@ -1939,15 +1969,15 @@ int             ResizeRecord(Record)
 
 /* Postprocess reads through the record of changes made by Preprocess, in
  * reverse order, and "undoes" them.
- * 
+ *
  * On entry: LP points to a linear program, in the PCx data structure; pRecord
  * points to a record of all the changes; pSolution points to a solution of
  * the reduced problem.
- * 
- * On return: pSolution points to a solution of the original problem. The 
+ *
+ * On return: pSolution points to a solution of the original problem. The
  * solution of the reduced problem is deleted. The record  pointed to by
  * pRecord is also deleted and the space is freed.  SJW 6/24/97.
- * 
+ *
  * SJW 12/95 */
 
 int             Postprocess(LP, pRecord, pSolution)
@@ -2077,7 +2107,7 @@ int             Postprocess(LP, pRecord, pSolution)
   if (inx != Solution->Columns) {
     printf(" reduced primal dimension %d contradicts ColumnMask %d\n",
 	   inx, Solution->Columns);
-    FreeSolution(FullSolution); 
+    FreeSolution(FullSolution);
     DeleteChangeStack(Record);
     return PREPROCESSING_ERROR;
   }
@@ -2087,7 +2117,7 @@ int             Postprocess(LP, pRecord, pSolution)
   if (inx != Solution->Rows) {
     printf(" reduced dual dimension %d contradicts RowMask %d\n",
 	   inx, Solution->Rows);
-    FreeSolution(FullSolution); 
+    FreeSolution(FullSolution);
     DeleteChangeStack(Record);
     return PREPROCESSING_ERROR;
   }
@@ -2268,7 +2298,7 @@ int             Postprocess(LP, pRecord, pSolution)
 	if (piUpper < piLower - TOLERANCE) {
 	  printf(" Error in Postprocess(): Forced Row %d.\n", inxr);
 	  printf(" pi bounds overlap. Lower %f Upper %f\n", piLower, piUpper);
-          FreeSolution(FullSolution); 
+          FreeSolution(FullSolution);
           DeleteChangeStack(Record);
           return PREPROCESSING_ERROR;
 	}
@@ -2293,7 +2323,7 @@ int             Postprocess(LP, pRecord, pSolution)
 	  if (temp < (-TOLERANCE)) {
 	    printf(" Error in Postprocess(): Forced Row %d:\n", inxr);
 	    printf(" Negative value %g for DualLower component %d.\n", temp, j);
-            FreeSolution(FullSolution); 
+            FreeSolution(FullSolution);
             DeleteChangeStack(Record);
             return PREPROCESSING_ERROR;
 	  }
@@ -2303,7 +2333,7 @@ int             Postprocess(LP, pRecord, pSolution)
 	  if (temp < (-TOLERANCE)) {
 	    printf(" Error in Postprocess(): Forced row %d:\n", inxr);
 	    printf(" Negative value %g for DualLower component %d.\n", temp, j);
-            FreeSolution(FullSolution); 
+            FreeSolution(FullSolution);
             DeleteChangeStack(Record);
             return PREPROCESSING_ERROR;
 	  }
@@ -2313,7 +2343,7 @@ int             Postprocess(LP, pRecord, pSolution)
 	  if (temp > (TOLERANCE)) {
 	    printf(" Error in Postprocess(): Forced row %d:\n", inxr);
 	    printf(" Negative value %g for DualUpper component %d.\n", -temp, j);
-            FreeSolution(FullSolution); 
+            FreeSolution(FullSolution);
             DeleteChangeStack(Record);
             return PREPROCESSING_ERROR;
 	  }
@@ -2323,7 +2353,7 @@ int             Postprocess(LP, pRecord, pSolution)
 	  if (temp > (TOLERANCE)) {
 	    printf(" Error in Postprocess: Forced row %d:\n", inxr);
 	    printf(" Negative value %g for DualUpper component %d.\n", -temp, j);
-            FreeSolution(FullSolution); 
+            FreeSolution(FullSolution);
             DeleteChangeStack(Record);
             return PREPROCESSING_ERROR;
 	  }
@@ -2359,20 +2389,18 @@ int             Postprocess(LP, pRecord, pSolution)
       printf("Postprocess: Column %d has not been freed\n", i);
       err--;
     }
-  if(err<0) { 
-    FreeSolution(FullSolution); 
+  if(err<0) {
+    FreeSolution(FullSolution);
     DeleteChangeStack(Record);
     return PREPROCESSING_ERROR;
   }
-  
+
   /* free memory for old Solution (*pSolution) */
-  FreeSolution(Solution); 
-  
+  FreeSolution(Solution);
+
   /* free memory for Record (no longer needed) */
   DeleteChangeStack(Record);
 
   *pSolution = FullSolution;
   return 0;
 }
-
-

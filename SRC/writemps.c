@@ -19,6 +19,8 @@
 #include"memory.h"
 #include"def.h"
 
+#define  DEBUG 0
+
 void  printSTR(outfile,name,offset,length)
 FILE  *outfile;
 char  *name;

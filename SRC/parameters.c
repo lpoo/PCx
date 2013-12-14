@@ -86,7 +86,6 @@ NewParameters()
    ptr->PriFeasTol     = 1.0e-8;
    ptr->DualFeasTol    = 1.0e-8;
    ptr->AlphaScale     = 0.9;
-   ptr->Diagnostics    = 1;	
    ptr->ReportingLevel = 2;	
    ptr->Refinement     = NO;	/* don't do iterative refinement */
    ptr->Preprocessing  = YES;	/* do preprocessing */

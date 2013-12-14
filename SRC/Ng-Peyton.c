@@ -388,6 +388,7 @@ Factorize(Factor, Inputs)
 {
    int             WorkSize, *Work, TmpSize, *Split, UnrollingLevel, CacheSize;
    int             ErrorFlag;
+static int six;
    double         *Tmp;
    NgPeytonType   *NgPeyton;
 
@@ -439,9 +440,11 @@ Factorize(Factor, Inputs)
 	 break;
       }
    
-   /* lstats_(&(Factor->NumSuperNodes), Factor->SuperPartitioning,
-    * Factor->pSuperNodeCols, Factor->SuperNodeRows, Factor->pBeginRowL,
-    * &TmpSize, &six); */
+if(six >= 0) { six= 6;
+    lstats_(&(NgPeyton->NumSuperNodes), NgPeyton->SuperPartitioning,
+     NgPeyton->pSuperNodeCols, NgPeyton->SuperNodeRows, NgPeyton->pBeginRowL,
+     &TmpSize, &six);
+} six= -1;
    
    Free((char *) Tmp);
    Free((char *) Work);

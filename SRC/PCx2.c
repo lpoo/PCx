@@ -141,7 +141,9 @@ ComputeObjInf(A, b, c, upbound, Current, xibound, xib, xis,
     *mu += Current->x[i] * Current->s[i];
   for (i = 0; i < NumBounds; i++)
     *mu += Current->w[i] * Current->r[i];
+#ifndef CGM
   *mu = *mu / (NumCols + NumBounds);
+#endif
 
   *primal_objective = 0.0;
   for (i = 0; i < NumCols; i++)
@@ -374,10 +376,18 @@ ComputeStepFactor(Current, Predictor, alpha_P, alpha_D, Inputs)
 	       Predictor->x[BlockPrimal];
 	 }
       
+#ifdef CGM
+      PrimalFactor = MAX(PrimalFactor, gamma_f);
+#else
       PrimalFactor = MAX(PrimalFactor, gamma_f * MaxStepPrimal);
+#endif
       PrimalFactor = MIN(PrimalFactor, 1.0);
       
+#ifdef CGM
+      *alpha_P = MaxStepPrimal * PrimalFactor;
+#else
       *alpha_P = PrimalFactor;
+#endif
    }
    
    /*   dual step length */
@@ -401,10 +411,18 @@ ComputeStepFactor(Current, Predictor, alpha_P, alpha_D, Inputs)
 		  Predictor->s[BlockDual];
 	    }
 	 
-	 DualFactor = MAX(DualFactor, gamma_f * MaxStepDual);
+#ifdef CGM
+	 DualFactor = MAX(DualFactor, gamma_f);
+#else
+         DualFactor = MAX(DualFactor, gamma_f * MaxStepDual);
+#endif
 	 DualFactor = MIN(DualFactor, 1.0);
 	 
-	 *alpha_D = DualFactor;
+#ifdef CGM
+	 *alpha_D = MaxStepDual * DualFactor;
+#else
+         *alpha_D = DualFactor;
+#endif
       }
    return 0;
 }
@@ -502,8 +520,12 @@ FreePCxMemory(xib, xibound, xis, scale, scaleSparse, Current, Predictor,
 	 Free((char *) Asparse->ValueT);
 	 Free((char *) Asparse);
       };
-   
+
+#ifdef CGM
+   FreeSplitType(Factor);
+#else
    FreeFactorType(Factor);
+#endif
 
    return 0;
 }

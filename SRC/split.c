@@ -47,7 +47,8 @@ int SplitFreeVars(LP)
   LP->A.pBeginRow = (int *)
     Realloc(LP->A.pBeginRow, NewCols * sizeof(int), "LP->A.pBeginRow");
   LP->A.pEndRow = (int *)
-    Realloc(LP->A.pEndRow, NewCols * sizeof(int), "LP->A.pEndRow");
+    Realloc(LP->A.pEndRow-1, (NewCols+1) * sizeof(int), "LP->A.pEndRow");
+LP->A.pEndRow++;
   LP->A.Row = (int *)
     Realloc(LP->A.Row, NewEnts * sizeof(int), "LP->A.Row");
   LP->A.Value = (double *)

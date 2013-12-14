@@ -1,19 +1,19 @@
 C Interface to the BLKFCT routine.
 
 C PCx beta-0.1   5/1/96
-C 
+C
 C Authors: Joe Czyzyk, Sanjay Mehrotra, Steve Wright.
 C
 C (C) 1996 University of Chicago. See COPYRIGHT in main directory.
 
 C It's called from the C routine with all the required
 C parameters except for the matrix-matrix and matrix-vector
-C multiply routines MMPYN and SMXPY. Instead, there's a 
+C multiply routines MMPYN and SMXPY. Instead, there's a
 C flag "LEVEL" which indicates what level of loop unrolling
 C is required. This routine plugs in the appropriate two
 C routines and then calls BLKFCT
 
-      SUBROUTINE  BLKLVL (  NEQNS , NSUPER, XSUPER, SNODE , SPLIT , 
+      SUBROUTINE  BLKLVL (  NEQNS , NSUPER, XSUPER, SNODE , SPLIT ,
      &                      XLINDX, LINDX , XLNZ  , LNZ   , IWSIZ ,
      &                      IWORK , TMPSIZ, TMPVEC, IFLAG , LEVEL   )
 C
@@ -24,8 +24,8 @@ C       PARAMETERS.
 C       -----------
 C
         INTEGER             XLINDX(*)     , XLNZ(*)
-        INTEGER             IWORK(*)      , LINDX(*)      , 
-     &                      SNODE(*)      , SPLIT(*)      , 
+        INTEGER             IWORK(*)      , LINDX(*)      ,
+     &                      SNODE(*)      , SPLIT(*)      ,
      &                      XSUPER(*)
         INTEGER             IFLAG , IWSIZ , NEQNS , NSUPER, TMPSIZ
         INTEGER             LEVEL

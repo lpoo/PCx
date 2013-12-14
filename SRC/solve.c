@@ -1,9 +1,9 @@
-/* solve for the predictor and corrector steps 
+/* solve for the predictor and corrector steps
  *
  * PCx 1.1 11/97
  *
  * Authors: Joe Czyzyk, Sanjay Mehrotra, Michael Wagner, Steve Wright.
- * 
+ *
  * (C) 1996 University of Chicago. See COPYRIGHT in main directory.
  */
 
@@ -12,13 +12,15 @@
 #include "main.h"
 #include "memory.h"
 
+extern int LLt, Eta;
+
 ComputePredictor(A, Factor, scale, Current,
 		 xis, xibound, xib,
 		 upbound, PriFeasTol, Predictor, Inputs, time)
      MMTtype        *A;
-     
+
      FactorType     *Factor;
-     
+
      double         *scale, *upbound;
      double         *xis, *xibound, *xib, PriFeasTol;
      Iterate        *Current, *Predictor;
@@ -27,9 +29,9 @@ ComputePredictor(A, Factor, scale, Current,
 {
    int             SolveAugmented();
    int             NumRows, NumCols, NumBounds, irow, i, row, col, entry;
-   double         *rhs_col, *rhs_row, *x, *s, *pi, *r, *w, 
+   double         *rhs_col, *rhs_row, *x, *s, *pi, *r, *w,
                   *dx, *ds, *dpi, *dr, *dw;
-   
+
   /*******************************************************************/
   /* Initialize and transfer to local pointers                       */
   /*******************************************************************/
@@ -39,54 +41,59 @@ ComputePredictor(A, Factor, scale, Current,
    w = Current->w;     dw = Predictor->w;
    r = Current->r;     dr = Predictor->r;
    pi = Current->pi;  dpi = Predictor->pi;
-   
+
    NumRows = A->NumRows;
    NumCols = A->NumCols;
    NumBounds = Current->NumBounds;
-   
+
    rhs_col = NewDouble(NumCols, "rhs_column");
    rhs_row = NewDouble(NumRows, "rhs_row");
-   
+
   /*******************************************************************/
   /* rhs = [xis - s + r - W^-1R xiw    xib]                          */
   /*******************************************************************/
-   
+
    for (i = 0; i < NumCols; i++)
       rhs_col[i] = (xis[i] - s[i]);
-   
-   for (i = 0; i < NumBounds; i++) 
+
+   for (i = 0; i < NumBounds; i++)
       {
 	 irow = Current->BoundIndex[i] - 1;
 	 rhs_col[irow] += (r[i] - xibound[i] * r[i] / w[i]);
       }
-   
+
    for (i = 0; i < NumRows; i++)
       rhs_row[i] = xib[i];
-   
+
   /*******************************************************************/
   /* Solve for predictor (affine-scaling) step                       */
   /*******************************************************************/
 
    /* find dpi and dx by solving the augmented system */
-   
+
+#ifdef CGM
+   SolveAugmented(A, Factor, rhs_col, rhs_row, dx, dpi, scale,
+		  PriFeasTol, NumRows, NumCols, Inputs, time, 0);
+#else
    SolveAugmented(A, Factor, rhs_col, rhs_row, dx, dpi, scale,
 		  PriFeasTol, NumRows, NumCols, Inputs, time);
-   
+#endif
+
    /* recover dw */
-   for (i = 0; i < NumBounds; i++) 
+   for (i = 0; i < NumBounds; i++)
       {
 	 irow = Current->BoundIndex[i] - 1;
 	 dw[i] = xibound[i] - dx[irow];
       }
-   
+
    /* recover ds */
    for (i = 0; i < NumCols; i++)
       ds[i] = s[i] * (1.0 - (dx[i] / x[i]));
-   
+
    /* recover dr */
    for (i = 0; i < NumBounds; i++)
       dr[i] = r[i] * (1.0 - (dw[i] / w[i]));
-   
+
    Free((char *) rhs_col);
    Free((char *) rhs_row);
    return 0;
@@ -94,14 +101,22 @@ ComputePredictor(A, Factor, scale, Current,
 
 /******************************************************************/
 
-ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu, 
+#ifdef CGM
+ComputeCorrector(A, Factor, scale, Current, xis,xibound,xib,upbound, sigma, mu,
 		 PriFeasTol, Predictor, Corrector, Inputs, time)
+#else
+ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
+		 PriFeasTol, Predictor, Corrector, Inputs, time)
+#endif
      MMTtype        *A;
-     
+
      FactorType     *Factor;
-     
+
      double         *scale;
      double         *xis, *upbound;
+#ifdef GCM
+     double         *xibound, *xib;
+#endif
      double          sigma, mu, PriFeasTol;
      Iterate        *Current, *Predictor, *Corrector;
      Parameters     *Inputs;
@@ -110,11 +125,11 @@ ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
    int             SolveAugmented();
    int             NumRows, NumCols, NumBounds, i, irow;
    double         *rhs_col, *rhs_row;
-   
+
    double         *x, *s, *pi, *r, *w;
    double         *dx, *ds, *dpi, *dr, *dw;
    double         *dx2, *ds2, *dpi2, *dr2, *dw2;
-   
+
   /*******************************************************************/
   /* Initialize and transfer to local pointers                       */
   /*******************************************************************/
@@ -124,11 +139,11 @@ ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
    w = Current->w;      dw = Predictor->w;        dw2 = Corrector->w;
    r = Current->r;      dr = Predictor->r;        dr2 = Corrector->r;
    pi = Current->pi;   dpi = Predictor->pi;      dpi2 = Corrector->pi;
-   
+
    NumRows = A->NumRows;
    NumCols = A->NumCols;
    NumBounds = Current->NumBounds;
-   
+
    rhs_col = NewDouble(NumCols, "rhs_col");
    rhs_row = NewDouble(NumRows, "rhs_row");
 
@@ -139,40 +154,70 @@ ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
   /*******************************************************************/
 
    for (i = 0; i < NumCols; i++)
+#ifdef CGM
+      rhs_col[i] = xis[i] - s[i] + (sigma * mu - dx[i] * ds[i]) / x[i];
+#else
       rhs_col[i] = (sigma * mu - dx[i] * ds[i]) / x[i];
-   
-   for (i = 0; i < NumBounds; i++) 
+#endif
+
+   for (i = 0; i < NumBounds; i++)
       {
 	 irow = Current->BoundIndex[i] - 1;
-	 rhs_col[irow] += -(sigma * mu - dw[i] * dr[i]) / w[i];
+#ifdef CGM
+	 rhs_col[irow] += ((r[i] - xibound[i] * r[i] / w[i])
+                       -(sigma * mu - dw[i] * dr[i]) / w[i]);
+#else
+         rhs_col[irow] += -(sigma * mu - dw[i] * dr[i]) / w[i];
+#endif
       }
-   
+
    for (i = 0; i < NumRows; i++)
+#ifdef CGM
+      rhs_row[i] = xib[i];
+#else
       rhs_row[i] = 0.0;
-   
+#endif
+
   /*******************************************************************/
   /* Solve for corrector step                                        */
   /*******************************************************************/
 
   /* find dpi2 and dx2 by solving the augmented system */
 
+#ifdef CGM
+   SolveAugmented(A, Factor, rhs_col, rhs_row, dx2, dpi2, scale,
+		  PriFeasTol, NumRows, NumCols, Inputs, time, 1);
+#else
    SolveAugmented(A, Factor, rhs_col, rhs_row, dx2, dpi2, scale,
 		  PriFeasTol, NumRows, NumCols, Inputs, time);
+#endif
 
   /* recover dw2 */
-   for (i = 0; i < NumBounds; i++) 
+   for (i = 0; i < NumBounds; i++)
       {
 	 irow = Current->BoundIndex[i] - 1;
+#ifdef CGM
+	 dw2[i] = xibound[i] - dx2[irow];
+#else
 	 dw2[i] = -dx2[irow];
+#endif
       }
-   
+
   /* recover ds2 */
    for (i = 0; i < NumCols; i++)
+#ifdef CGM
+      ds2[i] = s[i]*(1.0-(dx2[i] / x[i])) - (sigma * mu - dx[i] * ds[i]) / x[i];
+#else
       ds2[i] = s[i] * (-(dx2[i] / x[i])) - (sigma * mu - dx[i] * ds[i]) / x[i];
+#endif
 
   /* recover dr2 */
    for (i = 0; i < NumBounds; i++)
+#ifdef CGM
+      dr2[i] = r[i]*(1.0-(dw2[i] / w[i])) - (sigma * mu - dw[i] * dr[i]) / w[i];
+#else
       dr2[i] = r[i] * (-(dw2[i] / w[i])) - (sigma * mu - dw[i] * dr[i]) / w[i];
+#endif
 
    Free((char *) rhs_col);
    Free((char *) rhs_row);
@@ -183,12 +228,12 @@ ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
 
 /* The Gondzio correction code is based on a paper by
  * Jacek Gondzio: "Multiple Centrality Corrections in a Primal-Dual
- * Method for Linear Programming," Computational Optimization and 
- * Applications 6 (1996) 137-156, and also by the heuristics in 
+ * Method for Linear Programming," Computational Optimization and
+ * Applications 6 (1996) 137-156, and also by the heuristics in
  * Gondzio's HOPDM code, version 2.13.
  */
 
-ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu, 
+ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
 			   Predictor, Corrector, Inputs, MaxCorrections)
 
      MMTtype        *A;
@@ -204,17 +249,17 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
    int             CorrectionNumber;
    int             ContinueCorrecting;
    double         *rhs_col, *rhs_row;
-   
+
    double         *x, *s, *pi, *r, *w;
    double         *dx, *ds, *dpi, *dr, *dw;
    double         *dx2, *ds2, *dpi2, *dr2, *dw2;
    double         *comp_xs, *comp_rw, sigmamu;
    double          munew,signew;
-   
+
    double          Step0_p, Step0_d, Step1_p, Step1_d;
    double          mu_min, mu_max;   /* define the Gondzio centering box */
-   
-   double          beta_min = 0.1, beta_max = 10.0;  /* Gondzio algorithmic 
+
+   double          beta_min = 0.1, beta_max = 10.0;  /* Gondzio algorithmic
 							parameters */
    double          StepFactor0 = 0.08, StepFactor1 = 1.08;
 
@@ -223,26 +268,26 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
   /*******************************************************************/
   /* Initialize and transfer to local pointers                       */
   /*******************************************************************/
-  
+
    x = Current->x;    dx = Predictor->x;    dx2 = Corrector->x;
    s = Current->s;    ds = Predictor->s;    ds2 = Corrector->s;
    w = Current->w;    dw = Predictor->w;    dw2 = Corrector->w;
    r = Current->r;    dr = Predictor->r;    dr2 = Corrector->r;
    pi = Current->pi; dpi = Predictor->pi;  dpi2 = Corrector->pi;
-   
+
    NumRows = A->NumRows;
    NumCols = A->NumCols;
    NumBounds = Current->NumBounds;
-   
+
    rhs_col = NewDouble(NumCols, "rhs_col");
    rhs_row = NewDouble(NumRows, "rhs_row");
-   
+
    comp_xs = NewDouble(NumCols, "comp_xs");
    comp_rw = NewDouble(NumBounds, "comp_rw");
-   
+
    CorrectionNumber   = 0;
    ContinueCorrecting = 1;
-   
+
   /*******************************************************************/
   /* Compute step length for new point                               */
   /*  Given Mehrotra point, compute step length                      */
@@ -250,25 +295,25 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
 
    StepToBoundary(Current, Predictor, NULL, &Step0_p, &Step0_d);
 
-   while (ContinueCorrecting && (CorrectionNumber < MaxCorrections)) 
+   while (ContinueCorrecting && (CorrectionNumber < MaxCorrections))
       {
-	 
+	
 	/* use these max steplengths to compute the target munew */
 	 munew=0.0;
-	 for (i = 0; i < NumCols; i++) 
+	 for (i = 0; i < NumCols; i++)
 	    munew += (x[i] - Step0_p * dx[i]) * (s[i] - Step0_d * ds[i]);
-	 
-	 for (i = 0; i < NumBounds; i++) 
+	
+	 for (i = 0; i < NumBounds; i++)
 	    munew += (w[i] - Step0_p * dw[i]) * (r[i] - Step0_d * dr[i]);
-	 
+	
 	 munew /= (NumCols + NumBounds);
-	 signew = pow(munew / mu, Inputs->CenterExponent); 
-	 
+	 signew = pow(munew / mu, Inputs->CenterExponent);
+	
 	 /* recompute sigmamu, mu_min, mu_max */
 	 sigmamu = signew * munew;
 	 mu_min  = sigmamu * beta_min;
 	 mu_max  = sigmamu * beta_max;
-	 
+	
 	 /* set target step lengths */
 	 Step1_p = MIN(StepFactor1 * Step0_p + StepFactor0, 1.0);
 	 Step1_d = MIN(StepFactor1 * Step0_d + StepFactor0, 1.0);
@@ -283,26 +328,26 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
             Gondzio's code, which differ significantly from those in
             his paper. */
 
-	 for (i = 0; i < NumCols; i++) 
+	 for (i = 0; i < NumCols; i++)
 	    {
-	       comp_xs[i] = (x[i] - Step1_p * dx[i]) * 
+	       comp_xs[i] = (x[i] - Step1_p * dx[i]) *
 		  (s[i] - Step1_d * ds[i]);
-	       
+	
 	       if (comp_xs[i] < mu_min)
-		  comp_xs[i] = sigmamu - comp_xs[i]; 
+		  comp_xs[i] = sigmamu - comp_xs[i];
 	       else if (comp_xs[i] > mu_max)
 		  comp_xs[i] = -5*sigmamu;
 	       else
 		  comp_xs[i] = 0.0;
 	    }
-	 
-	 for (i = 0; i < NumBounds; i++) 
+	
+	 for (i = 0; i < NumBounds; i++)
 	    {
-	       comp_rw[i] = (w[i] - Step1_p * dw[i]) * 
+	       comp_rw[i] = (w[i] - Step1_p * dw[i]) *
 		  (r[i] - Step1_d * dr[i]);
-	       
+	
 	       if (comp_rw[i] < mu_min)
-		  comp_rw[i] = sigmamu - comp_rw[i]; 
+		  comp_rw[i] = sigmamu - comp_rw[i];
 	       else if (comp_rw[i] > mu_max)
 		  comp_rw[i] = -5*sigmamu;
 	       else
@@ -316,35 +361,35 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
             above, and/but the practical performance is not very
             different. */
 
- 	 for (i = 0; i < NumCols; i++) 
+ 	 for (i = 0; i < NumCols; i++)
 	    {
-	       comp_xs[i] = (x[i] - Step1_p * dx[i]) * 
+	       comp_xs[i] = (x[i] - Step1_p * dx[i]) *
 		  (s[i] - Step1_d * ds[i]);
-	       
+	
 	       if (comp_xs[i] < mu_min)
-		  comp_xs[i] = mu_min - comp_xs[i]; 
+		  comp_xs[i] = mu_min - comp_xs[i];
 	       else if (comp_xs[i] > mu_max)
 		  comp_xs[i] = mu_max - comp_xs[i];
 	       else
 		  comp_xs[i] = 0.0;
 
-	       if(comp_xs[i] < -mu_max) 
+	       if(comp_xs[i] < -mu_max)
 		 comp_xs[i] = -mu_max;
 	    }
-	 
-	 for (i = 0; i < NumBounds; i++) 
+	
+	 for (i = 0; i < NumBounds; i++)
 	    {
-	       comp_rw[i] = (w[i] - Step1_p * dw[i]) * 
+	       comp_rw[i] = (w[i] - Step1_p * dw[i]) *
 		  (r[i] - Step1_d * dr[i]);
-	       
+	
 	       if (comp_rw[i] < mu_min)
-		  comp_rw[i] = mu_min - comp_rw[i]; 
+		  comp_rw[i] = mu_min - comp_rw[i];
 	       else if (comp_rw[i] > mu_max)
 		  comp_rw[i] = mu_max - comp_rw[i];
 	       else
 		  comp_rw[i] = 0.0;
 
-	       if(comp_rw[i] < -mu_max) 
+	       if(comp_rw[i] < -mu_max)
 		 comp_rw[i] = -mu_max;
 	    }
 
@@ -352,44 +397,44 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
     /* Compute the right-hand side for the Gondzio corrections         */
     /*    (rhs is negative of what is in paper)                        */
     /*******************************************************************/
-    
+
 	 for (i = 0; i < NumCols; i++)
 	    rhs_col[i] = (comp_xs[i] / x[i]);
-	 
-	 for (i = 0; i < NumBounds; i++) 
+	
+	 for (i = 0; i < NumBounds; i++)
 	    {
 	       irow = Current->BoundIndex[i] - 1;
 	       rhs_col[irow] -= (comp_rw[i] / w[i]);
 	    }
-	 
+	
 	 for (i = 0; i < NumRows; i++)
 	    rhs_row[i] = 0.0;
-    
+
     /*******************************************************************/
     /* Solve for correction step                                       */
     /*******************************************************************/
-    
+
 	 /* find dpi2 and dx2 by solving the augmented system */
 
 	 /* no timing here so far */
 	 time = (double *) Malloc(sizeof(double), "time in Gondzio_corr");
-  
+
 	 SolveAugmented(A, Factor, rhs_col, rhs_row, dx2, dpi2, scale,
-			1.0e-8, NumRows, NumCols, Inputs, time);
+			1.0e-8, NumRows, NumCols, Inputs, time,1);
 
 	 Free((char *) time);
-	 
+	
 	 /* recover dw2 */
-	 for (i = 0; i < NumBounds; i++) 
+	 for (i = 0; i < NumBounds; i++)
 	    {
 	       irow = Current->BoundIndex[i] - 1;
 	       dw2[i] = -dx2[irow];
 	    }
-	 
+	
 	 /* recover ds2 */
 	 for (i = 0; i < NumCols; i++)
 	    ds2[i] = (-comp_xs[i] - s[i] * dx2[i]) / x[i];
-	 
+	
 	 /* recover dr2 */
 	 for (i = 0; i < NumBounds; i++)
 	    dr2[i] = (-comp_rw[i] - r[i] * dw2[i]) / w[i];
@@ -402,63 +447,63 @@ ComputeGondzioCorrections (A, Factor, scale, Current, sigma, mu,
 
     /* accept the corrected step even if the improvement is minimal */
 	 if((Step1_p >= MIN(1.01 * Step0_p, 1.0)) &&
-	    (Step1_d >= MIN(1.01 * Step0_d, 1.0))) 
+	    (Step1_d >= MIN(1.01 * Step0_d, 1.0)))
 	    {
-	       
-	       for (i = 0; i < NumCols; i++) 
+	
+	       for (i = 0; i < NumCols; i++)
 		  {
 		     Predictor->x[i] += Corrector->x[i];
 		     Predictor->s[i] += Corrector->s[i];
 		  }
-	       
-	       for (i = 0; i < NumBounds; i++) 
+	
+	       for (i = 0; i < NumBounds; i++)
 		  {
 		     Predictor->w[i] += Corrector->w[i];
 		     Predictor->r[i] += Corrector->r[i];
 		  }
-	       
+	
 	       for (i = 0; i < NumRows; i++)
 		  Predictor->pi[i] += Corrector->pi[i];
-	       
+	
 	       CorrectionNumber++;
 	       ContinueCorrecting = 1;
-	       
-	       Step0_p = Step1_p; 
-	       Step0_d = Step1_d; 
-	    } 
-	 else 
+	
+	       Step0_p = Step1_p;
+	       Step0_d = Step1_d;
+	    }
+	 else
 	    {
 	       /* stop iterating */
 	       ContinueCorrecting = 0;
 	    }
-	 
+	
       } /* end while */
-   
+
    Free((char *) rhs_col);
    Free((char *) rhs_row);
-   
+
    Free((char *) comp_xs);
    Free((char *) comp_rw);
-   
+
    return CorrectionNumber;
 }
 
 /******************************************************************/
 
-int 
+int
 StepToBoundary(Current, Predictor, Corrector, alpha_P, alpha_D)
      Iterate        *Current, *Predictor, *Corrector;
      double         *alpha_P, *alpha_D;
 {
    int    i;
    double step;
-   
+
   /*******************************************************************/
   /* Find the distance to boundary, i.e. the largest alpha that does */
   /* not violate nonnegativity of the x, s, w, and r components      */
   /*******************************************************************/
 
-  if (Corrector == NULL) 
+  if (Corrector == NULL)
      {
 
 	/* find step size for predictor correction */
@@ -466,13 +511,13 @@ StepToBoundary(Current, Predictor, Corrector, alpha_P, alpha_D)
 	*alpha_P = 1.0;
 	for (i = 0; i < Current->NumCols; i++)
 	   if (Current->x[i] - Predictor->x[i] < 0.0)
-	      if (Current->x[i] - *alpha_P * Predictor->x[i] < 0.0) 
+	      if (Current->x[i] - *alpha_P * Predictor->x[i] < 0.0)
 		 *alpha_P = Current->x[i] / Predictor->x[i];
 	
 	
 	for (i = 0; i < Current->NumBounds; i++)
 	   if (Current->w[i] - Predictor->w[i] < 0.0)
-	      if (Current->w[i] - *alpha_P * Predictor->w[i] < 0.0) 
+	      if (Current->w[i] - *alpha_P * Predictor->w[i] < 0.0)
 		 *alpha_P = Current->w[i] / Predictor->w[i];
 	
 	
@@ -485,52 +530,52 @@ StepToBoundary(Current, Predictor, Corrector, alpha_P, alpha_D)
 	
 	for (i = 0; i < Current->NumBounds; i++)
 	   if (Current->r[i] - Predictor->r[i] < 0.0)
-	      if (Current->r[i] - *alpha_D * Predictor->r[i] < 0.0) 
+	      if (Current->r[i] - *alpha_D * Predictor->r[i] < 0.0)
 		 *alpha_D = Current->r[i] / Predictor->r[i];
 	
-     } 
-  else 
-     { 
+     }
+  else
+     {
 
     /* Find step size for predictor + corrector direction */
     /* This is for Gondzio corrections                    */
 
     *alpha_P = 1.0;
-    for (i = 0; i < Current->NumCols; i++) 
+    for (i = 0; i < Current->NumCols; i++)
        {
 	  step = Predictor->x[i] + Corrector->x[i];
 	  if (Current->x[i] - step < 0.0)
-	     if (Current->x[i] - *alpha_P * step < 0.0) 
+	     if (Current->x[i] - *alpha_P * step < 0.0)
 		*alpha_P = Current->x[i] / step;
-	  
-       }    
-    
-    for (i = 0; i < Current->NumBounds; i++) 
+	
+       }
+
+    for (i = 0; i < Current->NumBounds; i++)
        {
 	  step = Predictor->w[i] + Corrector->w[i];
 	  if (Current->w[i] - step < 0.0)
-	     if (Current->w[i] - *alpha_P * step < 0.0) 
+	     if (Current->w[i] - *alpha_P * step < 0.0)
 		*alpha_P = Current->w[i] / step;
        }
 
     *alpha_D = 1.0;
-    for (i = 0; i < Current->NumCols; i++) 
+    for (i = 0; i < Current->NumCols; i++)
        {
 	  step = Predictor->s[i] + Corrector->s[i];
 	  if (Current->s[i] - step < 0.0)
-	     if (Current->s[i] - *alpha_D * step < 0.0) 
+	     if (Current->s[i] - *alpha_D * step < 0.0)
 		*alpha_D = Current->s[i] / step;
-	  
+	
        }
-    
-    for (i = 0; i < Current->NumBounds; i++) 
+
+    for (i = 0; i < Current->NumBounds; i++)
        {
 	  step = Predictor->r[i] + Corrector->r[i];
 	  if (Current->r[i] - step < 0.0)
-	     if (Current->r[i] - *alpha_D * step < 0.0) 
+	     if (Current->r[i] - *alpha_D * step < 0.0)
 		*alpha_D = Current->r[i] / step;
        }
-    
+
      } /* end if Corrector == NULL */
 
   return(0);
@@ -538,7 +583,7 @@ StepToBoundary(Current, Predictor, Corrector, alpha_P, alpha_D)
 
 /******************************************************************/
 
-double 
+double
 ComputeCentering(Current, Predictor, mu, alpha_P, alpha_D, Inputs)
      Iterate        *Current, *Predictor;
      double         mu, *alpha_P, *alpha_D;
@@ -547,7 +592,7 @@ ComputeCentering(Current, Predictor, mu, alpha_P, alpha_D, Inputs)
    int             i, NumBounds, NumCols;
    double          mdg, sigma;
    double         *x, *s, *w, *r, *dx, *ds, *dw, *dr;
-   
+
   /*******************************************************************/
   /* Transfer to local pointers                                      */
   /*******************************************************************/
@@ -577,19 +622,27 @@ ComputeCentering(Current, Predictor, mu, alpha_P, alpha_D, Inputs)
    for (i = 0; i < NumBounds; i++)
       mdg += (w[i] - *alpha_P * dw[i]) * (r[i] - *alpha_D * dr[i]);
    mdg /= (NumCols + NumBounds);
-   
-   sigma = pow(mdg / mu, Inputs->CenterExponent); 
-   
+
+   sigma = pow(mdg / mu, Inputs->CenterExponent);
+
    return sigma;
 }
 
   int
+#ifdef CGM
+SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
+          NumCols, Inputs,teste)
+#else
 SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
           NumCols, Inputs)
+#endif
      MMTtype        *A;
      FactorType     *Factor;
      double         *rhs, *sol, *scale, PriFeasTol;
      int            *NumRows, *NumCols;
+#ifdef CGM
+     int            teste;
+#endif
      Parameters     *Inputs;
 {
    int             status, i, EnhancedSolve(), PreConjGrad(), density;
@@ -598,7 +651,12 @@ SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
 
    residual = NewDouble(*NumRows, "residual");
    correction = NewDouble(*NumRows, "correction");
+#ifdef CGM
+   if(LLt) EnhancedSolve(Factor, rhs, sol);
+   else solve(Factor, rhs, sol, scale, 1,teste);
+#else
    EnhancedSolve(Factor, rhs, sol);
+#endif
 
   /* check the accuracy of the solutions */
    if (FindResidualSolutionofNormalEquations
@@ -613,6 +671,8 @@ SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
    residual2norm = sqrt(TwoNorm2(residual, NumRows));
    rhs2norm      = sqrt(TwoNorm2(rhs, NumRows));
 
+#ifdef CGM
+#else
    if ( residual2norm > rhs2norm*PriFeasTol ) {
       printf("     relative resid = %7.1e;", residual2norm / rhs2norm);
 
@@ -648,6 +708,7 @@ SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
             printf("\n");
          }
    }
+#endif
    Free((char *) correction); Free((char *) residual);
    return 0;
 }
@@ -655,14 +716,22 @@ SolveADAT(A, Factor, rhs, sol, scale, PriFeasTol, NumRows,
 
 /******************************************************************/
 
-int  
+int
+#ifdef CGM
 SolveAugmented(A, Factor, rhs_col, rhs_row, sol_col, sol_row, scale,
-	                       PriFeasTol, NumRows, NumCols, Inputs, time)
+	       PriFeasTol, NumRows, NumCols, Inputs, time,teste)
+#else
+SolveAugmented(A, Factor, rhs_col, rhs_row, sol_col, sol_row, scale,
+	       PriFeasTol, NumRows, NumCols, Inputs, time)
+#endif
      MMTtype        *A;
      FactorType     *Factor;
      double         *rhs_col, *rhs_row, *sol_col, *sol_row;
      double         *scale, PriFeasTol;
      int             NumRows, NumCols;
+#ifdef CGM
+     int test;
+#endif
      Parameters     *Inputs;
      double         *time;
 {
@@ -672,33 +741,38 @@ SolveAugmented(A, Factor, rhs_col, rhs_row, sol_col, sol_row, scale,
 
    temp_col = NewDouble(NumCols, "temp_col");
    temp_row = NewDouble(NumRows, "temp_row");
-   
+
    for (i = 0; i < NumCols; i++)
       temp_col[i] = rhs_col[i] * scale[i];
-   
+
    for (i = 0; i < NumRows; i++)
       temp_row[i] = rhs_row[i];
-   
-   if (SparseSaxpyM(A, temp_col, temp_row)) 
+
+   if (SparseSaxpyM(A, temp_col, temp_row))
       {
 	 printf("Error: PCx: Error detected during SparseSaxpyM().\n");
 	 return FACTORIZE_ERROR;
       }
    /* Perform solve for search direction and check accuracy. */
-   
-   
+
    GetTime(&OldUserTime, &OldSysTime);
+#ifdef CGM
+   SolveADAT(A, Factor, temp_row, sol_row, scale,
+	     PriFeasTol, &NumRows, &NumCols, Inputs,teste);
+#else
    SolveADAT(A, Factor, temp_row, sol_row, scale,
 	     PriFeasTol, &NumRows, &NumCols, Inputs);
+#endif
+
    GetTime(&UserTime, &SysTime);
-   
+
    *time = UserTime - OldUserTime + SysTime - OldSysTime;
 
 
    for(i=0; i<NumCols; i++)
       sol_col[i] = -rhs_col[i];
-   
-   if (SparseSaxpyTM(A, sol_row, sol_col)) 
+
+   if (SparseSaxpyTM(A, sol_row, sol_col))
       {
 	 printf("Error: PCx: Error detected during SparseSaxpyT().\n");
 	 return FACTORIZE_ERROR;
@@ -712,7 +786,7 @@ SolveAugmented(A, Factor, rhs_col, rhs_row, sol_col, sol_row, scale,
 
 /*****************************************************************/
 
-int             
+int
 ComputeStructureAAT(A, AAT)
   MMTtype        *A, *AAT;
 {
@@ -775,6 +849,8 @@ ComputeStructureAAT(A, AAT)
     (AAT->Value, AAT->Row, AAT->pBeginRow, AAT->pEndRow,
      &NumRowsA, &NumRowsA);
 
+  printf("Flops for Schur complement= %.0f\n",2.0*AAT->Nonzeros);
+
   if (status)
     printf("Error: SortColumnRealSparseMatrix = %d\n", status);
 
@@ -787,13 +863,13 @@ ComputeStructureAAT(A, AAT)
 
 /*****************************************************************/
 
-int             
+int
 ComputeADAT(A, scale, AAT)
   MMTtype        *A, *AAT;
   double         *scale;
 {
   int             NumRowsA, NumColsA, entryAAT;
-  int             ent1, ent2, row1, row2, col1, col2, base, top1, 
+  int             ent1, ent2, row1, row2, col1, col2, base, top1,
                   top2, found_symmetric, temp2, i, j, k;
   double          sum, *Temp, *Temp2;
 
@@ -819,7 +895,7 @@ ComputeADAT(A, scale, AAT)
     for(i=A->pBeginRowT[col1]-1; i <= A->pEndRowT[col1] - 1; i++) {
 
       /* what row of A^T is this element in? */
-      row1 = A->RowT[i]-1; 
+      row1 = A->RowT[i]-1;
 
       /* search across row1 of A^T and identify other columns with
          nonzeros in this row */
@@ -844,11 +920,7 @@ ComputeADAT(A, scale, AAT)
     }
   }
 
-  Free((char *) Temp); 
+  Free((char *) Temp);
   Free((char *) Temp2);
   return 0;
 }
-
-/*****************************************************************/
-
-

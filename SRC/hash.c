@@ -55,21 +55,17 @@ HashTable      *NewHashTable(size)
   table = (HashTable *) Malloc(sizeof(HashTable), "table");
 
   if (size > prime[NUMPRIMES - 1]) {
-    printf("The size %d requested for the hash table exceeds the max, which is %d.\n",
-	   size, prime[NUMPRIMES-1]);
-	printf("Setting table size to the max allowed\n");
-	// printf("The size requested for the hash table is too large: %d.\n", size);
-	//    printf("Either add larger primes to the file 'hash.c' or request\n");
-	//    printf("a smaller table.\n");
-	//    OutOfSpace();
-	size = prime[NUMPRIMES-1];
-  } else {
-    for (i = 0; i < NUMPRIMES; i++)
-      if (size < prime[i]) {
-	size = prime[i];
-	break;
-      }
+    printf("The size requested for the hash table is too large: %d.\n",
+	   size);
+    printf("Either add larger primes to the file 'hash.c' or request\n");
+    printf("a smaller table.\n");
+    OutOfSpace();
   }
+  for (i = 0; i < NUMPRIMES; i++)
+    if (size < prime[i]) {
+      size = prime[i];
+      break;
+    }
   table->size = size;
   table->list = (ListPtr *) Malloc(size * sizeof(ListPtr), "table->list");
   for (i = 0; i < size; i++)

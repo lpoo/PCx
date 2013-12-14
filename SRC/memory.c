@@ -276,7 +276,12 @@ NewLP(Rows, Cols, Ents)
    LP->FreeIndex = NewInt(Cols, "LP->FreeIndex");
    
    LP->A.pBeginRow = NewInt(Cols, "LP->A.pBeginRow");
+#ifdef CGM
+   LP->A.pEndRow = NewInt(Cols+1, "LP->A.pEndRow");
+   LP->A.pEndRow++;
+#else
    LP->A.pEndRow = NewInt(Cols, "LP->A.pEndRow");
+#endif
    LP->A.Row = NewInt(Ents, "LP->A.Row");
    LP->A.Value = NewDouble(Ents, "LP->A.Value");
    

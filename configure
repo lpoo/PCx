@@ -10718,8 +10718,8 @@ CC="$lt_save_CC"
 
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
-  enableval=$enable_debug; CFLAGS="-g -O2 -DDEBUG ";
-     FCFLAGS="-g -O2 "
+  enableval=$enable_debug; CFLAGS="-g -O0 -DDEBUG ";
+     FCFLAGS="-g -O0 "
 else
   CFLAGS="-O3 ";
      FCFLAGS="-O3 "

@@ -122,6 +122,11 @@ AC_ARG_ENABLE([debug],
      FCFLAGS="-g -O2 "],
     [CFLAGS="-O3 ";
      FCFLAGS="-O3 "])
+AC_ARG_ENABLE([warnings],
+    AS_HELP_STRING([--enable-warnings], [Enable warnings]),
+    [CFLAGS+="-Wall ";
+     FCFLAGS+="-Wall "],
+    [])
 AC_ARG_ENABLE([cgm],
     AS_HELP_STRING([--enable-cgm], [Enable conjugate gradient method]),
     [CFLAGS+="-DCGM "],

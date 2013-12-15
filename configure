@@ -725,6 +725,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_debug
+enable_warnings
 enable_cgm
 '
       ac_precious_vars='build_alias
@@ -1358,6 +1359,7 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          Enable debug features
+  --enable-warnings       Enable warnings
   --enable-cgm            Enable conjugate gradient method
 
 Optional Packages:
@@ -10721,6 +10723,12 @@ if test "${enable_debug+set}" = set; then :
 else
   CFLAGS="-O3 ";
      FCFLAGS="-O3 "
+fi
+
+# Check whether --enable-warnings was given.
+if test "${enable_warnings+set}" = set; then :
+  enableval=$enable_warnings; CFLAGS+="-Wall ";
+     FCFLAGS+="-Wall "
 fi
 
 # Check whether --enable-cgm was given.

@@ -725,6 +725,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_debug
+enable_cgm
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1357,6 +1358,7 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-debug          Enable debug features
+  --enable-cgm            Enable conjugate gradient method
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -10714,11 +10716,16 @@ CC="$lt_save_CC"
 
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
-  enableval=$enable_debug; CFLAGS="-g -O2 -DDEBUG";
-     FCFLAGS="-g -O2"
+  enableval=$enable_debug; CFLAGS="-g -O2 -DDEBUG ";
+     FCFLAGS="-g -O2 "
 else
-  CFLAGS="-O3";
-     FCFLAGS="-O3"
+  CFLAGS="-O3 ";
+     FCFLAGS="-O3 "
+fi
+
+# Check whether --enable-cgm was given.
+if test "${enable_cgm+set}" = set; then :
+  enableval=$enable_cgm; CFLAGS+="-DCGM "
 fi
 
 

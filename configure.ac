@@ -118,10 +118,14 @@ AM_PROG_LIBTOOL
 
 AC_ARG_ENABLE([debug],
     AS_HELP_STRING([--enable-debug], [Enable debug features]),
-    [CFLAGS="-g -O2 -DDEBUG";
-     FCFLAGS="-g -O2"],
-    [CFLAGS="-O3";
-     FCFLAGS="-O3"])
+    [CFLAGS="-g -O2 -DDEBUG ";
+     FCFLAGS="-g -O2 "],
+    [CFLAGS="-O3 ";
+     FCFLAGS="-O3 "])
+AC_ARG_ENABLE([cgm],
+    AS_HELP_STRING([--enable-cgm], [Enable conjugate gradient method]),
+    [CFLAGS+="-DCGM "],
+    [])
 
 # Checks for programs
 echo "Testing for a C compiler"

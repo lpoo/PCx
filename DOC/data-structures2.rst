@@ -70,9 +70,18 @@ C Interface
 
 The C interface to the Ng-Peyton use the ``NGPeytonType`` data structure:
 
-.. literalinclude:: ../SRC/Ng-Peyton.h
-   :language: c
-   :lines: 2-11
+.. code-block:: c
+
+    typedef struct {
+      int    NumSuperNodes;           /* NSUPER */
+      int    *SuperPartitioning;      /* XSUPER */
+      int    *mapColumnToSupernode;   /* SNODE  */
+      int    *pSuperNodeCols;         /* XLINDX */
+      int    *SuperNodeRows;          /* LINDX  */
+      int    *pBeginRowL;             /* XLNZ   */
+      double *L;                      /* LNZ    */
+      int     NumCompressedCols;
+    } NgPeytonType;
 
 The following Ng-Peyton subroutines are present in the C interface: 
 

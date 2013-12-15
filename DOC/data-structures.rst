@@ -18,9 +18,16 @@ you will find some explanation about it.
 The ``MMTtype`` data structure contains a sparse structure with pointer
 information for both the matrix and its transpose.
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 73-80
+.. code-block:: c
+
+    typedef struct {   /* sparse structure, with pointer information for
+                          both the matrix and its transpose */
+        int NumRows, NumCols, Nonzeros;
+        int *pBeginRow, *pBeginRowT; /* Fortran style indexing is used here! */
+        int *pEndRow, *pEndRowT;   /* indices range from 1 to n, NOT 0 to n-1 */
+        int *Row, *RowT;
+        double *Value, *ValueT;
+    } MMTtype;
 
 
 ``sparseMatrix``
@@ -29,9 +36,15 @@ information for both the matrix and its transpose.
 The ``sparseMatrix`` data structure contains a single matrix in the CSR format
 (for more information see [Intel]_).
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 84-90
+.. code-block:: c
+
+    typedef struct {   /* structure of constraint matrix in Mehrotra format */
+        int     NumRows, NumCols, Nonzeros;
+        int    *pBeginRow;
+        int    *pEndRow;
+        int    *Row;
+        double *Value;
+    } sparseMatrix;
 
 Given the matrix B,
 
@@ -58,9 +71,19 @@ it will be stored as ::
 ``Factor Type``
 ---------------
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 94-104
+.. code-block:: c
+
+    typedef struct {
+       void     *ptr;               /* solvers can attach data here */
+       char     *FactorizationCode;
+       int       N, NonzerosL;
+       int       SmallDiagonals;
+       int      *Perm, *InvPerm;
+       MMTtype  *AAT;
+       int       Ndense;		/* for dense column handling */
+       int      *maskDense;
+       double  **W, **Ldense;
+    } FactorType;
 
 Sample
 ^^^^^^
@@ -102,9 +125,41 @@ and lower bounds, linear equality constraints, linear inequality constraints and
 free variables. This data strucutre also stores the names assigned to the rows,
 columns, and objectives of the model specified in the MPS file.
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 108-140
+.. code-block:: c
+
+    typedef struct  {
+
+      int  NumRows;  /* indicates number of entries in data structures */
+      int  NumCols;
+      int  NumEnts;
+
+      int  RowSize;  /* indicates size of data structures allocated */
+      int  ColSize;
+      int  EntSize;
+
+      sparseMatrix A;
+
+      double *b, *c;
+      double cshift;
+      int    *BoundType;
+      double *UpBound;
+      double *LowBound;
+      double *Ranges;
+      char   *RowType;
+
+      char   *ProblemName;
+      char   *ObjectiveName;
+      char   *RHSName;
+      char   *RangeName;
+      char   *BoundName;
+
+      char  **RowNames;
+      char  **ColNames;
+
+      HashTable *RowTable;
+      HashTable *ColTable;
+
+    } MPStype;
 
 ``MPSchanges``
 --------------
@@ -130,9 +185,42 @@ Also, the ``LPtype`` data structure are used to store linear program in the form
                                                       0 \leq x_i, i \in \mathcal{N},
                                                       0 \leq x_i \leq u_i, i \in \mathcal{U},
 
-.. literalinclude:: ../SRC/main.h
-   :language: c
-   :lines: 161-194
+.. code-block:: c
+
+    typedef struct LPtype {
+
+      int  Rows;         /* Number of rows in A matrix */
+      int  Cols;         /* Number of columns in A matrix */
+      int  Ents;         /* Number of nonzero entries in A matrix */
+
+      sparseMatrix Atranspose;
+      sparseMatrix A;
+
+      double  *b;        /* right-hand side vector */
+      double  *c;        /* cost coefficient vector */
+      double cshift;     /* constant shift for the cost; the objective
+                            function is cshift + c.x */
+
+      int    *VarType;   /* For each variable specify type:
+                            Upper :  0 <= x <= Upbound,
+                            Normal:  0 <= x,
+                            Free */
+      double *UpBound;   /* If upper bound, specify */
+
+      int    NumberBounds;
+      int   *BoundIndex; /* List of variables which have upper bounds */
+
+      int      NumScale;
+      double  *ColScale; /* Vector of column scalings */
+      double  *RowScale; /* Vector of row scalings */
+
+      int    NumberFree;
+      int   *FreeIndex;
+
+      int    NumberSplit;
+      int   *FreePlus;   /* List of variables of type free */
+      int   *FreeMinus;
+    } LPtype;
 
 Sample
 ^^^^^^

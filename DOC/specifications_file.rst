@@ -74,8 +74,12 @@ descriptions below, we assume that PCx is involed with the comand ::
   to the current working directory, name this other directory here. Remember to
   include a trailing ``/``. PCx always looks first in the current working
   directory. If it cannot find the file there, it looks in the specified input
-  directory. The output and history files always are written to the working
   directory.
+
+  **Defalt**: working directory.
+
+``outputdirectory {name}``
+  The place where the output and history files will be written.
 
   **Defalt**: working directory.
 
@@ -110,7 +114,7 @@ descriptions below, we assume that PCx is involed with the comand ::
   **Default**: the first row of type ``N`` in ``probname.mps`` is take to be the
   objective.
 
-``optol {value}``
+``opttol {value}``
   Specify an optimality tolerance.
 
   **Default**: 10^{-8}.
@@ -144,7 +148,7 @@ descriptions below, we assume that PCx is involed with the comand ::
 
   **Default**: the first range encountered in the MPS file is used.
 
-``refinment {yes}/{no}``
+``refinement {yes}/{no}``
   Perform preconditioned conjugate gradient refinement of the computed solution
   to the linear system if it has a relative residual larger than the parameter
   ``prifeastol`` (``yes``) or don't perform any iterative refinement (``no``).
@@ -180,6 +184,17 @@ descriptions below, we assume that PCx is involed with the comand ::
   (This parameter is used only in the Ng-Peyton sparse Cholesky code).
 
   **Default**: 4.
+
+``hocorrections``
+  TODO
+
+``maxcorrections``
+  TODO
+
+``orderalg {value}``
+  The algorithm to order the matrix.
+
+  **Default**: 1.
 
 If you call ``PCx()`` directly from your own code, you must fill out the
 ``Parameters`` data structure explicitly. This task is easier if you use the

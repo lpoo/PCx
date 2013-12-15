@@ -1,25 +1,67 @@
 Installing PCx
 ==============
 
-Executables of PCx for Unix-like environmments (e.g., GNU/Linux) can be built
-from source like any other Unix-like program. See the following procedure for
-more informations.
+Dependencies
+------------
 
-#. Clone the git repository. ::
+PCx depends of the below programs:
 
-    $ cd $HOME
+* Fotran compiler, e.g., gfortran
+* C compiler, e.g., gcc
+* Make, e.g., GNU Make
+* Autoconf, e.g., GNU Autoconf
+
+The PCx's documentation depends of the below programs:
+
+* Sphinx
+* Doxygen
+* Breathe
+
+Basic
+-----
+
+To install PCx on a GNU/Linux system, follow the below instructions:
+
     $ git clone https://github.com/r-gaia-cs/PCx.git
-
-#. To create the executable ``PCx`` that uses the default NG-Peyton solver ::
-
-    $ cd PCx
     $ ./configure
     $ make
 
-To test PCx with one of the input files in the directory ``mps``, modify the
-sample specifications file ``PCx.specs`` if desired and them type ::
+If you got a error like
+
+    configure: error: cannot find install-sh, install.sh, or shtool in "." "./.." "./../.."
+
+try
+
+    $ libtoolize --force
+    $ aclocal
+    $ autoreconf -f -i -Wall,no-obsolete
+    $ ./configure
+    $ make
+
+For recompile the source is recommended to remove all the object files:
+
+    $ make clean
+
+And for the documentation:
+
+    $ make doc
+
+Testing
+-------
+
+If the building process have finish without error the file `PCx` must be
+create. Lets try it with the smallest mps file, `afiro.mps`.
 
     $ ./PCX netlib-afiro
+
+Advanced
+--------
+
+Some options MUST be set when configuring the build environment using:
+
+    --enable-debug          Enable debug features
+    --enable-warnings       Enable warnings
+    --enable-cgm            Enable conjugate gradient method
 
 Compilers
 ---------

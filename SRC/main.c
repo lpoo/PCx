@@ -22,7 +22,7 @@
 #endif
 
 char    infile[200];
-char    outfile[200];
+char    soutfile[200];
 char    sinfile[200];
 char    P_name[100];
 int     Eta, trocou,Etamax,aumenta,marca, param_eta;
@@ -55,7 +55,7 @@ main(argc, argv)
    double          UserTime, OldSysTime, OldUserTime;
 
    extern        char            infile[200];
-   extern        char            outfile[200];
+   extern        char            soutfile[200];
    extern        char            sinfile[200];
    char                          eigfile[200];
    extern        char            P_name[100];
@@ -98,7 +98,7 @@ main(argc, argv)
 
    if (argc == 2) {
      strcpy(infile, argv[1]);
-     strcpy(outfile, argv[1]);
+     strcpy(soutfile, argv[1]);
      sinfile[0] = '\0';
    }
    else {
@@ -106,7 +106,7 @@ main(argc, argv)
        if (strcmp("-s", argv[1]) == 0) {
          strcpy(sinfile, argv[2]);
          strcpy(infile, argv[3]);
-         strcpy(outfile, argv[3]);
+         strcpy(soutfile, argv[3]);
        }
      else {
        usage(argv);

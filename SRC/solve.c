@@ -114,7 +114,7 @@ ComputeCorrector(A, Factor, scale, Current, xis, upbound, sigma, mu,
 
      double         *scale;
      double         *xis, *upbound;
-#ifdef GCM
+#ifdef CGM
      double         *xibound, *xib;
 #endif
      double          sigma, mu, PriFeasTol;
@@ -729,11 +729,11 @@ SolveAugmented(A, Factor, rhs_col, rhs_row, sol_col, sol_row, scale,
      double         *rhs_col, *rhs_row, *sol_col, *sol_row;
      double         *scale, PriFeasTol;
      int             NumRows, NumCols;
-#ifdef CGM
-     int test;
-#endif
      Parameters     *Inputs;
      double         *time;
+#ifdef CGM
+     int teste;
+#endif
 {
    int             i, SparseSaxpyM(), SparseSaxpyTM(), SolveADAT();
    double         *temp_col, *temp_row;

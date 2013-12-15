@@ -453,7 +453,7 @@ PCx(LP, Solution, Inputs)
 
        }
 
-         /*   If progress in reducing phi is slow, declare UNKNOWN */ */
+         /*   If progress in reducing phi is slow, declare UNKNOWN */
 	 if((Iteration >= 30) &&
 	    (min_phi[Iteration] >= 0.5*min_phi[Iteration-30]))
        {

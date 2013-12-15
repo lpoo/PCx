@@ -742,6 +742,7 @@ void            FindSingletonRows(LP, Record, nonzerosRow, nonzerosCol,
                printf(" ERROR: detected inconsistency in RowSingleton\n row %d column %d xfix %e (component should be in [0, %e]\n",
                    i + 1, inxrc, xfix, LP->UpBound[inxrc-1]);
             }
+          }
 #endif
 
 	  /* if infeasible, print a message and return a null pointer */

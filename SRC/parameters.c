@@ -209,7 +209,7 @@ CheckParameters(ptr)
 /***************************************************************************/
 
 int
-ParseSpecsFile(parameters, infile)
+ParseSpecsFile(parameters, infile, sinfile)
      Parameters     *parameters;
      char           *infile;
      char           *sinfile;

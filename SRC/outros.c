@@ -80,7 +80,11 @@ void options()
    INE= TRUE;
    MD= TRUE;
 
+#ifdef CGM
    LLt= FALSE;
+#else
+   LLt = 1;
+#endif
 
    INC= FALSE;
    ORDER= TRUE;// Deve ser atualizado a TRUE  teste feito no dia 31/01/07

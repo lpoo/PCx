@@ -533,7 +533,7 @@ int DeleteLP(LP)
      LPtype         *LP;
 {
    Free((char *) LP->A.pBeginRow);
-   Free((char *) LP->A.pEndRow);
+   //Free((char *) LP->A.pEndRow);
    Free((char *) LP->A.Row);
    Free((char *) LP->A.Value);
    

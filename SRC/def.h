@@ -1,4 +1,3 @@
-#define DEBUG        0
 #define PARSE_DEBUG  0
 #define HEADERLINE   1
 #define DATALINE     2

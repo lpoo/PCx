@@ -17,6 +17,12 @@ To install PCx on a Unix system, follow the below instructions:
     $ ./configure
     $ make
 
+You probably want to take a look at the options of `configure`:
+
+    $ ./configure --help
+
+since some features for debug and profile can be enable using the options.
+
 If you got a error like
 
     configure: error: cannot find install-sh, install.sh, or shtool in "." "./.." "./../.."

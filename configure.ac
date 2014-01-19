@@ -116,6 +116,25 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
+# More options
+AC_ARG_ENABLE([warnings],
+    AS_HELP_STRING([--disable-warnings], [Disable warnings]),
+    [CFLAGS="";
+     FCFLAGS=""],
+    [CFLAGS="-Wall ";
+     FCFLAGS="-Wall "])
+AC_ARG_ENABLE([debug],
+    AS_HELP_STRING([--enable-debug], [Enable debug features]),
+    [CFLAGS+="-g -O0 -DDEBUG ";
+     FCFLAGS+="-g -O0 "],
+    [CFLAGS+="-O3 ";
+     FCFLAGS+="-O3 "])
+AC_ARG_ENABLE([profile],
+    AS_HELP_STRING([--enable-profile], [Enable profile features]),
+    [CFLAGS+="-pg ";
+     FCFLAGS+="-pg "],
+    [])
+
 # Checks for programs
 echo "Testing for a C compiler"
 AC_PROG_CC

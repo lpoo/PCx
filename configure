@@ -724,6 +724,9 @@ enable_fast_install
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+enable_warnings
+enable_debug
+enable_profile
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1355,6 +1358,9 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --disable-warnings      Disable warnings
+  --enable-debug          Enable debug features
+  --enable-profile        Enable profile features
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -10708,6 +10714,32 @@ CC="$lt_save_CC"
 
 # Only expand once:
 
+
+
+# More options
+# Check whether --enable-warnings was given.
+if test "${enable_warnings+set}" = set; then :
+  enableval=$enable_warnings; CFLAGS="";
+     FCFLAGS=""
+else
+  CFLAGS="-Wall ";
+     FCFLAGS="-Wall "
+fi
+
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then :
+  enableval=$enable_debug; CFLAGS+="-g -O0 -DDEBUG ";
+     FCFLAGS+="-g -O0 "
+else
+  CFLAGS+="-O3 ";
+     FCFLAGS+="-O3 "
+fi
+
+# Check whether --enable-profile was given.
+if test "${enable_profile+set}" = set; then :
+  enableval=$enable_profile; CFLAGS+="-pg ";
+     FCFLAGS+="-pg "
+fi
 
 
 # Checks for programs

@@ -38,7 +38,7 @@ FCFLAGS ?= @FCFLAGS@
 #     collect2: error: ld returned 1 exit status
 #
 # LFLAGS = -O
-LFLAGS ?= -z muldefs -O $(FCFLAGS)
+LFLAGS ?= -z muldefs $(FCFLAGS)
 
 include ../MAKEARCH/$(PCx_ARCH).make
 # MISC_OBJS is defined in architecture-specific makefile

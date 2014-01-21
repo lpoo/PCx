@@ -138,6 +138,10 @@ AC_ARG_ENABLE([timing],
     AS_HELP_STRING([--enable-timing], [Enable full native timing profile in log file]),
     [CFLAGS+="-DTIMING_PROFILE "],
     [])
+AC_ARG_ENABLE([verbose],
+    AS_HELP_STRING([--enable-verbose], [Enable verbose features]),
+    [CFLAGS+="-DPREPROCESS_VERBOSE "],
+    [])
 
 # Checks for programs
 echo "Testing for a C compiler"

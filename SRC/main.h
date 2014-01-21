@@ -14,12 +14,6 @@
 #define printf          mexPrintf
 #endif
 
-
-
-/*
-#define PREPROCESS_VERBOSE
-*/
-
 #define PINFTY       0     /* normal */
 #define NORMAL       0
 #define FREE         1

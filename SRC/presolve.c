@@ -14,8 +14,6 @@
 #include "main.h"
 #include "pre.h"
 
-/* #define PREPROCESS_VERBOSE  */
-
 /* Preprocess an LP supplied in the form
  * 
  * min c.x ,   Ax=b,

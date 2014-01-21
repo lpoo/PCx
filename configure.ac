@@ -134,6 +134,10 @@ AC_ARG_ENABLE([profile],
     [CFLAGS+="-pg ";
      FCFLAGS+="-pg "],
     [])
+AC_ARG_ENABLE([timing],
+    AS_HELP_STRING([--enable-timing], [Enable full native timing profile in log file]),
+    [CFLAGS+="-DTIMING_PROFILE "],
+    [])
 
 # Checks for programs
 echo "Testing for a C compiler"

@@ -20,17 +20,6 @@
 #define PREPROCESS_VERBOSE
 */
 
-/* define TIMING_PROFILE by un-commenting the line below. 
-   If defined, extra profiling information is added to the
-   log file 
-*/
-
-/*
-#define TIMING_PROFILE
-*/
-
-
-
 #define PINFTY       0     /* normal */
 #define NORMAL       0
 #define FREE         1

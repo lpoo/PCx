@@ -142,6 +142,12 @@ AC_ARG_ENABLE([verbose],
     AS_HELP_STRING([--enable-verbose], [Enable verbose features]),
     [CFLAGS+="-DPREPROCESS_VERBOSE "],
     [])
+AC_ARG_VAR(DECIMAL_WIDTH,
+   Width of the decimal part of time in log (no more than 6))
+DECIMAL_WIDTH=${DECIMAL_WIDTH-6}
+echo $DECIMAL_WIDTH
+CFLAGS+="-DDECIMAL_WIDTH=$DECIMAL_WIDTH "
+#AC_SUBST(DECIMAL_WIDTH)
 
 # Checks for programs
 echo "Testing for a C compiler"

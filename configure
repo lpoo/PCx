@@ -633,6 +633,7 @@ LIBOBJS
 ac_ct_FC
 FCFLAGS
 FC
+DECIMAL_WIDTH
 CPP
 OTOOL64
 OTOOL
@@ -739,6 +740,7 @@ LDFLAGS
 LIBS
 CPPFLAGS
 CPP
+DECIMAL_WIDTH
 FC
 FCFLAGS'
 
@@ -1384,6 +1386,8 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
+  DECIMAL_WIDTH
+              Width of the decimal part of time in log (no more than 6)
   FC          Fortran compiler command
   FCFLAGS     Fortran compiler flags
 
@@ -10755,6 +10759,11 @@ if test "${enable_verbose+set}" = set; then :
   enableval=$enable_verbose; CFLAGS+="-DPREPROCESS_VERBOSE "
 fi
 
+
+DECIMAL_WIDTH=${DECIMAL_WIDTH-6}
+echo $DECIMAL_WIDTH
+CFLAGS+="-DDECIMAL_WIDTH=$DECIMAL_WIDTH "
+#AC_SUBST(DECIMAL_WIDTH)
 
 # Checks for programs
 echo "Testing for a C compiler"

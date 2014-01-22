@@ -40,8 +40,8 @@ int GetTime(User, System)
 
 if (getrusage(RUSAGE_SELF, &Time))
     printf("Error getting time.\n"); 
-  *User = Time.ru_utime.tv_sec + Time.ru_utime.tv_usec / 1000000.0;
-  *System = Time.ru_stime.tv_sec + Time.ru_stime.tv_usec / 1000000.0;
+  *User = Time.ru_utime.tv_sec + Time.ru_utime.tv_usec / 1E6;
+  *System = Time.ru_stime.tv_sec + Time.ru_stime.tv_usec / 1E6;
   return 0;
 }
 

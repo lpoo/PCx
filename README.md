@@ -21,7 +21,8 @@ You probably want to take a look at the options of `configure`:
 
     $ ./configure --help
 
-since some features for debug and profile can be enable using the options.
+since some features for debug and profile can be enable using options or
+environment variables.
 
 If you got a error like
 

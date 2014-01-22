@@ -215,9 +215,9 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
    printf("Dual   = %9.3e.\n", Solution->DualInfeasibility);
    /* printf("\n");    printf("Number of Orderings (for factorization) =
     * %d.\n", Solution->Factorizations); */
-   printf("\nRead Time       = %.2f seconds\n", Solution->ReadTime);
-   printf("Preprocess time = %.2f seconds\n", Solution->PreprocessTime);
-   printf("Solution time   = %.2f seconds\n", Solution->SolutionTime);
+   printf("\nRead Time       = %.*f seconds\n", DECIMAL_WIDTH, Solution->ReadTime);
+   printf("Preprocess time = %.*f seconds\n", DECIMAL_WIDTH, Solution->PreprocessTime);
+   printf("Solution time   = %.*f seconds\n", DECIMAL_WIDTH, Solution->SolutionTime);
    
    if (WriteSolution && (outfile != NULL)) 
       {
@@ -476,43 +476,43 @@ void PrintSolution(MPS, Solution, Inputs, infilename)
 	 fprintf(logfile, "\nTIME SUMMARY\n");
 	 fprintf(logfile, "============\n\n");
 
-	 fprintf(logfile, "Time to read input file: %.2f sec\n", 
-		 Solution->ReadTime);
+	 fprintf(logfile, "Time to read input file: %.*f sec\n",
+		 DECIMAL_WIDTH, Solution->ReadTime);
 	 if (Inputs->Preprocessing) 
 	    {
-	       fprintf(logfile, "Time to presolve       : %.2f sec\n\n",
-		       Solution->PreprocessTime);
+	       fprintf(logfile, "Time to presolve       : %.*f sec\n\n",
+		       DECIMAL_WIDTH, Solution->PreprocessTime);
 	    }
 
 #ifdef TIMING_PROFILE
-	 fprintf(logfile, "InitTime               : %.2f sec ",
-		 Solution->InitTime);
+	 fprintf(logfile, "InitTime               : %.*f sec ",
+		 DECIMAL_WIDTH, Solution->InitTime);
 	 fprintf(logfile, "(= %3.1f %% of total)\n",
 		 Solution->InitTime/Solution->SolutionTime * 100);
 	 
-	 fprintf(logfile, "LoopTime               : %.2f sec",
-		 Solution->LoopTime);
+	 fprintf(logfile, "LoopTime               : %.*f sec",
+		 DECIMAL_WIDTH, Solution->LoopTime);
 	 fprintf(logfile, " (= %2.1f %% of total)\n",
 		 Solution->LoopTime/Solution->SolutionTime * 100);
-	 fprintf(logfile, "   FormADATTime               : %.2f sec",
-		 Solution->FormADATtime);
+	 fprintf(logfile, "   FormADATTime               : %.*f sec",
+		 DECIMAL_WIDTH, Solution->FormADATtime);
 	 fprintf(logfile, " (= %4.1f %% of loop)\n",
 		 Solution->FormADATtime/Solution->LoopTime * 100);
-	 fprintf(logfile, "   PredictorTime              : %.2f sec",
-		 Solution->PredictorTime);
+	 fprintf(logfile, "   PredictorTime              : %.*f sec",
+		 DECIMAL_WIDTH, Solution->PredictorTime);
 	 fprintf(logfile, " (= %4.1f %% of loop)\n",
 		 Solution->PredictorTime/Solution->LoopTime * 100);
-	 fprintf(logfile, "   CorrectorTime              : %.2f sec",
-		 Solution->CorrectorTime);
+	 fprintf(logfile, "   CorrectorTime              : %.*f sec",
+		 DECIMAL_WIDTH, Solution->CorrectorTime);
 	 fprintf(logfile, " (= %4.1f %% of loop)\n",
 		 Solution->CorrectorTime/Solution->LoopTime * 100);
-	 fprintf(logfile, "   Factorization              : %.2f sec",
-		 Solution->FactorizationTime);
+	 fprintf(logfile, "   Factorization              : %.*f sec",
+		 DECIMAL_WIDTH, Solution->FactorizationTime);
 	 fprintf(logfile, " (= %4.1f %% of loop)\n",
 		 Solution->FactorizationTime/Solution->LoopTime * 100);
 #endif
-	 fprintf(logfile, "Time to solve          : %.2f sec\n\n",
-		 Solution->SolutionTime);
+	 fprintf(logfile, "Time to solve          : %.*f sec\n\n",
+		 DECIMAL_WIDTH, Solution->SolutionTime);
 #ifdef TIMING_PROFILE
 	 fprintf(logfile, "Average time spent\n");
 	 fprintf(logfile, "   for one num. factorization: %f sec\n",

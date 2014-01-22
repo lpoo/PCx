@@ -116,13 +116,17 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
+# Parallel library
+CFLAGS="-lm -L=/usr/lib/openmpi -lmpi "
+FCFLAGS="-lm -L=/usr/lib/openmpi -lmpi "
+
 # More options
 AC_ARG_ENABLE([warnings],
     AS_HELP_STRING([--disable-warnings], [Disable warnings]),
-    [CFLAGS="";
-     FCFLAGS=""],
-    [CFLAGS="-Wall ";
-     FCFLAGS="-Wall "])
+    [CFLAGS+="";
+     FCFLAGS+=""],
+    [CFLAGS+="-Wall ";
+     FCFLAGS+="-Wall "])
 AC_ARG_ENABLE([debug],
     AS_HELP_STRING([--enable-debug], [Enable debug features]),
     [CFLAGS+="-g -O0 -DDEBUG ";

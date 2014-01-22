@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mpi.h>
 #include "main.h"
 #include "memory.h"
 #include "pre.h"
@@ -76,6 +77,9 @@ main(argc, argv)
    * variables.                                                       *
    *                                                                  *
    ********************************************************************/
+
+   /*  Initialize MPI */
+   MPI_Init(&argc, &argv);
 
    printf("\n******** PCx version 1.1 (Nov 1997) ************\n\n");
 
@@ -235,6 +239,7 @@ main(argc, argv)
    FreeParameters(Inputs);
    
    /* TrDump(stdout); */
+   MPI_Finalize();
    exit(status);
 }
 

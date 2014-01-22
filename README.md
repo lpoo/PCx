@@ -4,6 +4,7 @@ PCx depends of the below programs:
 * C compiler, e.g., gcc >= 4.8.1
 * Make, e.g., GNU Make >= 3.82
 * Autoconf, e.g., GNU Autoconf >= 2.69
+* OpenMPI
 
 The PCx's documentation depends of the below programs:
 
@@ -43,7 +44,7 @@ And for the documentation:
 If the building process have finish without error the file `PCx` must be
 create. Lets try it with the smallest mps file, `afiro.mps`.
 
-    $ ./PCx afiro
+    $ mpirun -np 1 ./PCx netlib-afiro
 
 For recompile the source is recommended to remove all the object files.
 

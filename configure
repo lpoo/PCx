@@ -10724,14 +10724,18 @@ CC="$lt_save_CC"
 
 
 
+# Parallel library
+CFLAGS="-lm -L=/usr/lib/openmpi -lmpi "
+FCFLAGS="-lm -L=/usr/lib/openmpi -lmpi "
+
 # More options
 # Check whether --enable-warnings was given.
 if test "${enable_warnings+set}" = set; then :
-  enableval=$enable_warnings; CFLAGS="";
-     FCFLAGS=""
+  enableval=$enable_warnings; CFLAGS+="";
+     FCFLAGS+=""
 else
-  CFLAGS="-Wall ";
-     FCFLAGS="-Wall "
+  CFLAGS+="-Wall ";
+     FCFLAGS+="-Wall "
 fi
 
 # Check whether --enable-debug was given.

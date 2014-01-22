@@ -31,7 +31,7 @@ FCFLAGS ?= @FCFLAGS@
 # the following error:
 #
 #     gfortran -O main.o blkLVL.o Ng-Peyton.o ./libPCx.a \
-#       nullmain.o ../Ng-Peyton/cholesky.a -o ../PCx -lm
+#       nullmain.o ../Ng-Peyton/cholesky.a -o ../PCx
 #     nullmain.o: In function `main':
 #     nullmain.f:(.text+0x0): multiple definition of `main'
 #     main.o:main.c:(.text+0x0): first defined here
@@ -46,18 +46,18 @@ include ../MAKEARCH/$(PCx_ARCH).make
 # this is still the default:
 PCx_NgPeyton: main.o $(PCX_LIB) blkLVL.o Ng-Peyton.o $(MISC_OBJS) $(NG_LIB)
 	$(FC) $(LFLAGS) main.o blkLVL.o Ng-Peyton.o ${TARGETDIR}/$(PCX_LIB) \
-	  $(MISC_OBJS) $(NG_LIB) -o ../PCx -lm
+	  $(MISC_OBJS) $(NG_LIB) -o ../PCx
 
 # might have to add the parameter -bmaxdata:44000000 for large applications.
 # (or with en even larger number)
 PCx_wssmp: main.o $(PCX_LIB) wssmp.o $(MISC_OBJS) $(WSSMP_LIB)
 	$(FC) $(LFLAGS) main.o $(PCX_LIB) wssmp.o $(MISC_OBJS) \
-	  $(WSSMP_LIB) -o ../PCx -lm
+	  $(WSSMP_LIB) -o ../PCx
 
 # template for other solvers
 PCx_mysolver: main.o $(PCX_LIB) mysolver.o $(MISC_OBJS) $(MYSOLVER_LIB)
 	$(CC) $(LFLAGS) main.o $(PCX_LIB) mysolver.o $(MISC_OBJS) \
-	  $(MYSOLVER_LIB) -o ../PCx -lm
+	  $(MYSOLVER_LIB) -o ../PCx
 
 objs: $(OBJS)
 

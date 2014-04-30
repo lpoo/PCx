@@ -19,7 +19,7 @@ more informations.
 To test PCx with one of the input files in the directory ``mps``, modify the
 sample specifications file ``PCx.specs`` if desired and them type ::
 
-    $ ./PCX netlib-afiro
+    $ ./PCx netlib-afiro
 
 Compilers
 ---------

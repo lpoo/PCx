@@ -151,9 +151,11 @@ CFLAGS+="-DDECIMAL_WIDTH=$DECIMAL_WIDTH "
 
 # Checks for programs
 echo "Testing for a C compiler"
-AC_PROG_CC
+# Since we need '-z muldefs' we will prefer gcc
+AC_PROG_CC([gcc])
 echo "Testing for a FORTRAN compiler"
-AC_PROG_FC
+# We need gfortran since f77 didn't support '-z muldefs'
+AC_PROG_FC([gfortran])
 
 # Checks for libraries
 # Checks for header files

@@ -144,6 +144,10 @@ def bench(S, p, o, mf, s, g, t, k):
 
     # Run PCx for every file in ``fl``.
     for f in fl:
+        # Fix filename if it didn't ends with '.mps'
+        if not f.endswith('.mps'):
+            f = '{0}.mps'.format(f)
+
         print("Running PCx for {0}. It can take some minutes.".format(f))
         with open(f.replace(".mps", ".stdout"), 'w') as log:
             if S:
@@ -377,5 +381,6 @@ if __name__ == "__main__":
     if check_spc(args.path):
         bench(args.specs, args.path, args.output, args.max, s,
                 f, args.time, args.keep_all_log)
+        print("Check the file bench.out.");
     else:
         print("The specification file must contain 'history yes'.\n")
